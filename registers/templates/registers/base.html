@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/html">
+<head>
+  <meta charset="utf-8">
+  <title>
+    {% block title %}
+    {% endblock %}
+  </title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Latest compiled and minified CSS -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+        integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <!-- Optional theme and icons-->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"
+        integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+
+</head>
+<body>
+  <nav class="navbar navbar-default" role="navigation">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="{% url 'home' %}">Enterprise finance: </a>
+      </div>
+
+      <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+        <ul class="nav navbar-nav">
+          <li><a href="{% url 'settings' %}">Accounting settings</a></li>
+          <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Reference books <b class="caret"></b></a>
+            <ul class="dropdown-menu">
+              <li><a href="{% url 'organizations' %}">Organizations</a></li>
+              <li><a href="{% url 'payment_accounts' %}">Payment accounts</a></li>
+              <li><a href="{% url 'projects' %}">Projects</a></li>
+              <li class="divider"></li>
+              <li><a href="{% url 'counterparties' %}">Counterparties</a></li>
+              <li class="divider"></li>
+              <li><a href="{% url 'currencies' %}">Currencies</a></li>
+              <li><a href="{% url 'rates' %}">Currencies rates</a></li>
+            </ul>
+          </li>
+
+          <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Receipts <b class="caret"></b></a>
+            <ul class="dropdown-menu">
+              <li><a href="{% url 'income_group' %}">Income groups</a></li>
+              <li><a href="{% url 'income_item' %}">Income items</a></li>
+              <li class="divider"></li>
+              <li><a href="{% url 'receipts' %}">Receipts</a></li>
+              <li><a href="{% url 'receipts_plan' %}">Receipts in plan</a></li>
+            </ul>
+          </li>
+
+          <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Payments <b class="caret"></b></a>
+            <ul class="dropdown-menu">
+              <li><a href="{% url 'expenses_group' %}">Expense groups</a></li>
+              <li><a href="{% url 'expenses_item' %}">Expense items</a></li>
+              <li class="divider"></li>
+              <li><a href="{% url 'payments' %}">Payments</a></li>
+              <li><a href="{% url 'payments_plan' %}">Payments in plan</a></li>
+            </ul>
+          </li>
+
+          <li><a href="{% url 'reports' %}">Reports</a></li>
+          <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
+        </ul>
+
+        <ul class="nav navbar-nav navbar-right">
+          <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">User <b class="caret"></b></a>
+            <ul class="dropdown-menu">
+              <li><a href="#">Personal account</a></li>
+              <li><a href="#">Logout</a></li>
+              <li class="divider"></li>
+              <li><a href="#">Delete account</a></li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+
+{% block content %}
+{% endblock %}
+  <!-- jQuery -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+  <!-- Latest compiled and minified JavaScript -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+          integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+          crossorigin="anonymous"></script>
+
+</body>
+</html>

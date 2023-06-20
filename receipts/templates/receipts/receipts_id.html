@@ -1,0 +1,43 @@
+{% extends 'registers/base.html' %}
+{% block title %}Update receipt{% endblock %}
+{% load crispy_forms_tags %}
+{% block content %}
+
+<div class="container">
+    <form  method='POST'>
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-md-9">
+                <h1> New receipt</h1>
+            </div>
+            <div class="col-md-3">
+                {{ form.organization|as_crispy_field }}
+                {{ form.account|as_crispy_field }}
+            </div>
+        </div>
+        <br>
+        <div class="row">
+            <div class="col-md-4 border p-2 shadow">
+                {{ form.date|as_crispy_field }}
+                {{ form.amount|as_crispy_field }}
+                {{ form.counterparty|as_crispy_field }}
+            </div>
+            <div class="col-md-4 border p-2 shadow">
+                {{ form.item|as_crispy_field }}
+                {{ form.project|as_crispy_field }}
+            </div>
+            <div class="col-md-4 border p-2 shadow">
+                {{ form.comments|as_crispy_field }}
+                <div class="row">
+                    <div class="col-md-3">
+                        <button class="btn btn-info" type="submit" name="btn_update_income">UPDATE</button>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="/receipts" class='btn btn-info'>CANCEL</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

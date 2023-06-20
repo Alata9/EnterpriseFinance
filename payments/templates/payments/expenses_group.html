@@ -1,0 +1,48 @@
+{% extends 'registers/base.html' %}
+{% block title %}Expense group{% endblock %}
+{% load crispy_forms_tags %}
+{% block content %}
+
+<div class="container">
+
+    <div class="row">
+        <div class="col-md-4 border p-2 shadow">
+            <form  method='POST'>
+                <div class="row p-2 g-3">
+                    <div class="col-md-10">
+                        <h2>Add new entry</h2>
+                        {% csrf_token %}
+                        {{ form|crispy }}
+                        <button class="btn btn-info" type="submit" name="btn_add">ADD NEW</button>
+                    </div>
+                    <div class="col-md-2">
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="row p-1 g-1">
+            <div class="table-responsive" style="height: 450px">
+                <table class="table table-sm table-scroll table-striped table-bordered" >
+                    <tr>
+                        <th align="center">Expense groups</th>
+                        <th align="center">Comments</th>
+                        <th align="center">Edit</th>
+                        <th align="center">Del</th>
+                    </tr>
+                    {% for i in expense_groups %}
+                    <tr>
+                        <td width="200">{{i.expense_group}}</td>
+                        <td width="200">{{i.comments}}</td>
+                        <td width="10" align="center"><a href="#" class='btn btn-info btn-sm'>
+                            <i class="bi bi-brush-fill"></i></a></td>
+                        <td width="10" align="center"><a href="#" class='btn btn-info btn-sm'>
+                            <i class="bi bi-basket2-fill"></i></a></td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+{% endblock %}
+
+
+
