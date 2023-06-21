@@ -1,4 +1,4 @@
-from django.forms import ModelForm, DateInput, Textarea
+from django.forms import ModelForm, DateInput, Textarea, HiddenInput
 
 from receipts.models import *
 
@@ -22,9 +22,10 @@ class IncomeItemAdd(ModelForm):
 class ReceiptsAdd(ModelForm):
     class Meta:
         model = Receipts
-        fields = ('organization', 'account', 'date', 'amount', 'counterparty', 'item', 'project', 'comments')
+        fields = ('organization', 'account', 'date', 'amount', 'currency', 'counterparty', 'item', 'project', 'comments')
         widgets = {'date': DateInput(attrs={'type': 'Date'}),
-                   'comments': Textarea(attrs={'cols': 60, 'rows': 6})}
+                   'comments': Textarea(attrs={'cols': 60, 'rows': 6}),
+                   'currency': HiddenInput()}
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

@@ -15,8 +15,6 @@
                         {{ form|crispy }}
                         <button class="btn btn-info" type="submit" name="btn_add">ADD NEW</button>
                     </div>
-                    <div class="col-md-2">
-                    </div>
                 </div>
             </form>
         </div>
@@ -36,7 +34,7 @@
                     {% for i in counterparties %}
                     <tr>
                         <td width="200">{{i.counterparty}}</td>
-                        <td width="10">{{i.suppliers}}</td>
+                        <td width="10">{% if i.suppliers %}<i class="bi bi-brush-fill"></i>{% endif %}</td>
                         <td width="10">{{i.customer}}</td>
                         <td width="10">{{i.employee}}</td>
                         <td width="10">{{i.other}}</td>

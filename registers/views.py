@@ -1,4 +1,6 @@
 from django.shortcuts import render, redirect
+from django.urls import reverse
+from django.views.generic import UpdateView
 
 from registers.forms import *
 
@@ -15,17 +17,13 @@ def ReportsView(request):
 def DashboardView(request):
     return render(request, 'registers/dashboard.html')
 
-def AccountSettingsView(request):
-    if request.method == 'POST':
-        form = AccountSettingsSet(request.POST)
-        if form.is_valid():
-            try:
-                form.save()
-                return redirect('settings')
-            except:
-                form.add_error(None, 'Data save error')
-    else:
-        form = AccountSettingsSet()
 
-    context = {'form': form}
-    return render(request, 'registers/settings.html', context=context)
+class AccountSettingsView(UpdateView):
+    model = AccountSettings
+    template_name = 'registers/settings.html'
+    form_class = AccountSettingsSet
+    success_url = '/settings'
+
+    def get_object(self):
+        return self.model.load()
+

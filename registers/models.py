@@ -23,3 +23,15 @@ class AccountSettings(models.Model):
     multiple_currencies = models.BooleanField('Use multiple accounting currencies', blank=False)
     multiple_projects = models.BooleanField('Keep records of projects', blank=False)
     organization_default = models.ForeignKey(Organization, on_delete=models.PROTECT, blank=True)
+
+    def get_absolute_url(self):
+        return '/settings'
+
+    @classmethod
+    def load(cls):
+        try:
+            return cls.objects.get(id=1)
+        except:
+            pass
+
+        return cls(id=1)

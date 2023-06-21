@@ -15,8 +15,6 @@
                         {{ form|crispy }}
                         <button class="btn btn-info" type="submit" name="btn_add">ADD NEW</button>
                     </div>
-                    <div class="col-md-2">
-                    </div>
                 </div>
             </form>
         </div>
@@ -24,15 +22,15 @@
             <div class="table-responsive" style="height: 450px">
                 <table class="table table-sm table-scroll table-striped table-bordered" >
                     <tr>
-                        <th align="center">Expense items</th>
                         <th align="center">Expense groups</th>
+                        <th align="center">Expense items</th>
                         <th align="center">Edit</th>
                         <th align="center">Del</th>
                     </tr>
                     {% for i in expense_items %}
                     <tr>
-                        <td width="200">{{i.expense_item}}</td>
                         <td width="200">{{i.expense_group}}</td>
+                        <td width="200">{{i.expense_item}}</td>
                         <td width="10" align="center"><a href="#" class='btn btn-info btn-sm'>
                             <i class="bi bi-brush-fill"></i></a></td>
                         <td width="10" align="center"><a href="#" class='btn btn-info btn-sm'>

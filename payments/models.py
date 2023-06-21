@@ -23,7 +23,7 @@ class ExpensesItem(models.Model):
         return self.expense_item
 
     class Meta:
-        ordering = ['expense_item']
+        ordering = ['expense_group', 'expense_item']
         verbose_name = 'Expense item'
         verbose_name_plural = 'Expense items'
 

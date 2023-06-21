@@ -23,7 +23,7 @@ class Payment_account(models.Model):
         return self.account
 
     class Meta:
-        ordering = ['account']
+        ordering = ['organization', 'account']
         verbose_name = 'Payment account'
         verbose_name_plural = 'Payment accounts'
 
@@ -37,7 +37,7 @@ class Project(models.Model):
         return self.project
 
     class Meta:
-        ordering = ['project']
+        ordering = ['organization', 'project']
         verbose_name = 'Project'
         verbose_name_plural = 'Projects'
 

@@ -4,6 +4,7 @@ from django.views.generic import UpdateView, DeleteView
 
 from receipts.forms import *
 from receipts.models import *
+from registers.models import AccountSettings
 
 
 def IncomeGroupView(request):
@@ -59,11 +60,14 @@ def ReceiptsView(request):
 
 
 def ReceiptsAddView(request):
-    if request.method == 'POST' and 'btn_add' in request.POST:
+    if request.method == 'POST' and 'btn_save' in request.POST:
         form = ReceiptsAdd(request.POST)
+
         if form.is_valid():
             try:
-                form.save()
+                receipt = form.save(commit=False)
+                receipt.currency = receipt.account.currency
+                receipt.save()
                 return redirect('receipts')
             except:
                 form.add_error(None, 'Data save error')
@@ -72,13 +76,29 @@ def ReceiptsAddView(request):
 
     context = {'form': form}
 
-    return render(request, 'receipts/receipts_add.html', context=context)
+    return render(request, 'receipts/receipts_id.html', context=context)
 
 
 class ReceiptsIdView(UpdateView):
     model = Receipts
     template_name = 'receipts/receipts_id.html'
     form_class = ReceiptsAdd
+
+    def get_object(self):
+        if 'pk' in self.kwargs:
+            return super().get_object()
+
+        org = AccountSettings.load().organization_default
+        return self.model(organization=org)
+
+    def form_valid(self, form):
+        try:
+            receipt = form.save(commit=False)
+            receipt.currency = receipt.account.currency
+            receipt.save()
+            return redirect('receipts')
+        except:
+            form.add_error(None, 'Data save error')
 
 
 class ReceiptsDeleteView(DeleteView):
@@ -94,13 +114,13 @@ class IncomeItemDeleteView(DeleteView):
     success_url = '/income_item'
     template_name = 'receipts/income_item_delete.html'
 
-    def delete(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         try:
             return super().delete(request, *args, **kwargs)
-        except ProtectedError:
+        except ProtectedError as error:
             self.object = self.get_object()
             context = self.get_context_data(
                 object=self.object,
-                error="Any error msg"
+                error=f'Error: {error.protected_objects}'
             )
             return self.render_to_response(context)

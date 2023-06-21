@@ -27,7 +27,7 @@ class IncomeItem(models.Model):
         return self.income_item
 
     class Meta:
-        ordering = ['income_item']
+        ordering = ['income_group', 'income_item']
         verbose_name = 'Income item'
         verbose_name_plural = 'Income items'
 
@@ -41,7 +41,7 @@ class Receipts(models.Model):
     amount = models.DecimalField(max_digits=15, decimal_places=2, blank=False)
     account = models.ForeignKey(Payment_account, on_delete=models.PROTECT, blank=False)
     currency = models.ForeignKey(Currenсies, on_delete=models.PROTECT, blank=True, null=True)
-    project = models.ForeignKey(Project, on_delete=models.PROTECT, blank=True)
+    project = models.ForeignKey(Project, on_delete=models.PROTECT, blank=True, null=True)
     counterparty = models.ForeignKey(Сounterparties, on_delete=models.PROTECT, blank=False)
     item = models.ForeignKey(IncomeItem, on_delete=models.PROTECT, blank=False)
     comments = models.CharField(max_length=255, blank=True)
@@ -50,7 +50,7 @@ class Receipts(models.Model):
         return f'{self.date}, {self.counterparty}, {self.item}, {self.amount}'
 
     class Meta:
-        ordering = ['date', 'item']
+        ordering = ['organization', 'date', 'item']
         verbose_name = 'Receipt'
         verbose_name_plural = 'Receipts'
 
@@ -73,7 +73,7 @@ class Receipts_plan(models.Model):
         return f'{self.date}, {self.counterparty}, {self.item}, {self.amount}'
 
     class Meta:
-        ordering = ['date', 'item']
+        ordering = ['organization', 'date', 'item']
         verbose_name = 'Receipt plan'
         verbose_name_plural = 'Receipts plan'
 
