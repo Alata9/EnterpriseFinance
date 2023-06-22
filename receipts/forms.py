@@ -1,4 +1,6 @@
-from django.forms import ModelForm, DateInput, Textarea, HiddenInput
+from django.forms import ModelForm, DateInput, Textarea, HiddenInput, DateField
+
+
 
 from receipts.models import *
 
@@ -34,3 +36,33 @@ class ReceiptsAdd(ModelForm):
         self.fields['counterparty'].empty_label = ''
         self.fields['item'].empty_label = ''
         self.fields['project'].empty_label = ''
+
+
+class ReceiptsFilter(ModelForm):
+    date_end = DateField(label="To", widget=DateInput(attrs={'type': 'date'}), required=False)
+
+    class Meta:
+        model = Receipts
+        fields = ['organization', 'account', 'project', 'counterparty', 'item', 'date']
+        widgets = {
+            'date': DateInput(attrs={'type': 'Date'}),
+            'date_end': DateInput(attrs={'type': 'Date'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['organization'].empty_label = ''
+        self.fields['organization'].required = False
+        self.fields['account'].empty_label = ''
+        self.fields['account'].required = False
+        self.fields['project'].empty_label = ''
+        self.fields['project'].required = False
+        self.fields['counterparty'].empty_label = ''
+        self.fields['counterparty'].required = False
+        self.fields['item'].empty_label = ''
+        self.fields['item'].required = False
+        self.fields['date'].label = 'From'
+        self.fields['date'].required = False
+        self.fields['date_end'].required = False
+
+

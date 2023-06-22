@@ -1,4 +1,4 @@
-from django.forms import ModelForm, BooleanField
+from django.forms import ModelForm, BooleanField, Textarea
 
 from directory.models import *
 
@@ -7,7 +7,7 @@ class OrganizationAdd(ModelForm):
     class Meta:
         model = Organization
         fields = ('organization', 'comments')
-
+        widgets = {'comments': Textarea(attrs={'cols': 60, 'rows': 6})}
 
 class ProjectAdd(ModelForm):
     class Meta:

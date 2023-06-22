@@ -8,4 +8,5 @@ urlpatterns = [
     path('', include('receipts.urls')),
     # path('', include('users.urls')),
     path('', include('directory.urls')),
+
 ]

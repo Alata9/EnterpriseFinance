@@ -6,10 +6,9 @@ from receipts.forms import *
 from receipts.models import *
 from registers.models import AccountSettings
 
-
+# --------------------------------------
 def IncomeGroupView(request):
     income_groups = IncomeGroup.objects.all()
-
     if request.method == 'POST':
         form = IncomeGroupAdd(request.POST)
         if form.is_valid():
@@ -20,12 +19,12 @@ def IncomeGroupView(request):
                 form.add_error(None, 'Data save error')
     else:
         form = IncomeGroupAdd()
-
     context = {'form': form,
                'income_groups': income_groups}
-
     return render(request, 'receipts/income_group.html', context=context)
 
+
+# -------------------------------------------
 
 def IncomeItemView(request):
     income_items = IncomeItem.objects.all()
@@ -54,29 +53,28 @@ def ReceiptsPlanView(request):
 def ReceiptsView(request):
     receipts = Receipts.objects.all()
 
-    context = {'receipts': receipts}
+    form = ReceiptsFilter(request.GET)
+    if form.is_valid():
+        if form.cleaned_data['date']:
+            receipts = receipts.filter(date__gte=form.cleaned_data['date'])
+        if form.cleaned_data['date_end']:
+            receipts = receipts.filter(date__lte=form.cleaned_data['date_end'])
+        if form.cleaned_data['counterparty']:
+            receipts = receipts.filter(counterparty=form.cleaned_data['counterparty'])
+        if form.cleaned_data['item']:
+            receipts = receipts.filter(item=form.cleaned_data['item'])
+        if form.cleaned_data['organization']:
+            receipts = receipts.filter(organization=form.cleaned_data['organization'])
+        if form.cleaned_data['project']:
+            receipts = receipts.filter(project=form.cleaned_data['project'])
+        if form.cleaned_data['account']:
+            receipts = receipts.filter(account=form.cleaned_data['account'])
+
+    context = {'receipts': receipts,
+               'form': form}
 
     return render(request, 'receipts/receipts.html', context=context)
 
-
-def ReceiptsAddView(request):
-    if request.method == 'POST' and 'btn_save' in request.POST:
-        form = ReceiptsAdd(request.POST)
-
-        if form.is_valid():
-            try:
-                receipt = form.save(commit=False)
-                receipt.currency = receipt.account.currency
-                receipt.save()
-                return redirect('receipts')
-            except:
-                form.add_error(None, 'Data save error')
-    else:
-        form = ReceiptsAdd()
-
-    context = {'form': form}
-
-    return render(request, 'receipts/receipts_id.html', context=context)
 
 
 class ReceiptsIdView(UpdateView):
@@ -99,6 +97,7 @@ class ReceiptsIdView(UpdateView):
             return redirect('receipts')
         except:
             form.add_error(None, 'Data save error')
+
 
 
 class ReceiptsDeleteView(DeleteView):

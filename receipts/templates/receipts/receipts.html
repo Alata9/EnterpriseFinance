@@ -3,20 +3,26 @@
 {% load crispy_forms_tags %}
 {% block content %}
 
-<div class="container">
+<div class="container-fluid px-10">
     <div class="row">
-        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-            <a href="{% url 'receipts_add' %}" class="btn btn-info" name="btn_add">ADD NEW ENTRY</a>
-            <!-- Кнопка-триггер модального окна -->
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
-              Модальное окно
-            </button>
+        <div class="col-md-2 border p-2 shadow">
+            <form action="" method="GET">
+                <h2>Receipts: filters</h2>
+                {% csrf_token %}
+                {{ form|crispy }}
+                <button class="btn btn-info" type="submit" name="btn_filter">FILTER</button>
+                <button class="btn btn-info" type="submit" name="btn_reset">RESET FILTERS</button>
+            </form>
         </div>
-    </div>
-    <br>
-    <div class="row">
-        <div class="col-12 p-2 g-3">
-            <div class="table-responsive" style="height: 600px">
+        <div class="col-md-10 border p-2 shadow">
+            <div class="row d-grid gap-2 d-md-flex justify-content-md-end">
+                <div class="col-md-10"></div>
+                <div class="col-md-1">
+                    <a href="{% url 'receipts_add' %}" class="btn btn-info" name="btn_add">ADD NEW ENTRY</a>
+                </div>
+            </div>
+            <br>
+            <div class="table-responsive" style="height: 500px">
                 <table class="table table-sm table-scroll table-striped table-bordered" >
                     <tr>
                         <th align="center">organization</th>
@@ -54,23 +60,4 @@
     </div>
 </div>
 
-
-<!-- Модальное окно -->
-<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">Заголовок модального окна</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
-      </div>
-      <div class="modal-body">
-        ...
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
-        <button type="button" class="btn btn-primary">Сохранить изменения</button>
-      </div>
-    </div>
-  </div>
-</div>
 {% endblock %}

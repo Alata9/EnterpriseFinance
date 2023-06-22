@@ -35,7 +35,7 @@
                         <td width="200">{{i.organization}}</td>
                         <td width="200">{{i.account}}</td>
                         <td width="200">{{i.currency}}</td>
-                        <td width="200">{{i.is_cash}}</td>
+                        <td width="200" align="center">{% if i.is_cash %}<i class="bi bi-check2-square"></i>{% endif %}</td>
                         <td width="200">{{i.comments}}</td>
                         <td width="10" align="center"><a href="#" class='btn btn-info btn-sm'>
                             <i class="bi bi-brush-fill"></i></a></td>

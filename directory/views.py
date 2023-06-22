@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-
+from django.views.generic import UpdateView, DeleteView
 from directory.forms import *
 from directory.models import *
 
@@ -42,6 +42,31 @@ def OrganizationsView(request):
                'organizations': organizations}
 
     return render(request, 'directory/organizations.html', context=context)
+
+def OrganizationIdView(request):
+    projects = Project.objects.all()
+    accounts = Payment_account.objects.all()
+
+    if request.method == 'POST':
+        form_org = OrganizationAdd(request.POST)
+        if form_org.is_valid():
+            try:
+                form_org.save()
+                return redirect('organizations')
+            except:
+                form_org.add_error(None, 'Data save error')
+    else:
+        form_org = OrganizationAdd()
+
+    # org = ''
+    # project = project.filter(organization=org)
+    # accounts = accounts.filter(organization=org)
+
+    context = {'form_org': form_org,
+               'projects': projects,
+               'accounts': accounts}
+
+    return render(request, 'directory/organization_id.html', context=context)
 
 
 def CurrenciesView(request):

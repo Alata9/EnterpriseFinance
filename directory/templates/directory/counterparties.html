@@ -34,10 +34,10 @@
                     {% for i in counterparties %}
                     <tr>
                         <td width="200">{{i.counterparty}}</td>
-                        <td width="10">{% if i.suppliers %}<i class="bi bi-brush-fill"></i>{% endif %}</td>
-                        <td width="10">{{i.customer}}</td>
-                        <td width="10">{{i.employee}}</td>
-                        <td width="10">{{i.other}}</td>
+                        <td width="10" align="center">{% if i.suppliers %}<i class="bi bi-check2-square"></i>{% endif %}</td>
+                        <td width="10" align="center">{% if i.customer %}<i class="bi bi-check2-square"></i>{% endif %}</td>
+                        <td width="10" align="center">{% if i.employee %}<i class="bi bi-check2-square"></i>{% endif %}</td>
+                        <td width="10" align="center">{% if i.other %}<i class="bi bi-check2-square"></i>{% endif %}</td>
                         <td width="100">{{i.comments}}</td>
                         <td width="10" align="center"><a href="#" class='btn btn-info btn-sm'>
                             <i class="bi bi-brush-fill"></i></a></td>

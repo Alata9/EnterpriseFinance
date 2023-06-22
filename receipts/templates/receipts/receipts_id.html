@@ -1,5 +1,5 @@
 {% extends 'registers/base.html' %}
-{% block title %}Update receipt{% endblock %}
+{% block title %}Receipt{% endblock %}
 {% load crispy_forms_tags %}
 {% block content %}
 
@@ -8,7 +8,7 @@
         {% csrf_token %}
         <div class="row">
             <div class="col-md-9">
-                <h1> New receipt</h1>
+                <h1> Receipt</h1>
             </div>
             <div class="col-md-3">
                 {{ form.organization|as_crispy_field }}
@@ -30,7 +30,7 @@
                 {{ form.comments|as_crispy_field }}
                 <div class="row">
                     <div class="col-md-3">
-                        <button class="btn btn-info" type="submit" name="btn_save">UPDATE</button>
+                        <button class="btn btn-info" type="submit" name="btn_save">SAVE</button>
                     </div>
                     <div class="col-md-3">
                         <a href="/receipts" class='btn btn-info'>CANCEL</a>

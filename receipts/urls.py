@@ -11,4 +11,5 @@ urlpatterns = [
     path('receipts/', ReceiptsView, name='receipts'),
     path('receipts_plan/', ReceiptsPlanView, name='receipts_plan'),
     path('<int:pk>/receipts_delete', ReceiptsDeleteView.as_view(), name='receipts_delete'),
+
     ]

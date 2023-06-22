@@ -4,9 +4,7 @@
 {% block content %}
 
 <div class="container">
-
-    <div class="row">
-        <div class="col-md-4 border p-2 shadow">
+    <div class="col-md-4 border p-2 shadow">
             <form  method='POST'>
                 <div class="row p-2 g-3">
                     <div class="col-md-10">
@@ -18,27 +16,28 @@
                 </div>
             </form>
         </div>
-        <div class="row p-1 g-1">
-            <div class="table-responsive" style="height: 450px">
-                <table class="table table-sm table-scroll table-striped table-bordered" >
-                    <tr>
-                        <th align="center">Organizations</th>
-                        <th align="center">Comments</th>
-                        <th align="center">Edit</th>
-                        <th align="center">Del</th>
-                    </tr>
-                    {% for i in organizations %}
-                    <tr>
-                        <td width="200">{{i.organization}}</td>
-                        <td width="200">{{i.comments}}</td>
-                        <td width="10" align="center"><a href="#" class='btn btn-info btn-sm'>
-                            <i class="bi bi-brush-fill"></i></a></td>
-                        <td width="10" align="center"><a href="#" class='btn btn-info btn-sm'>
-                            <i class="bi bi-basket2-fill"></i></a></td>
-                    </tr>
-                    {% endfor %}
-                </table>
-            </div>
+    <div class="row p-1 g-1">
+        <div class="table-responsive" style="height: 450px">
+            <table class="table table-sm table-scroll table-striped table-bordered" >
+                <tr>
+                    <th align="center">Organizations</th>
+                    <th align="center">Comments</th>
+                    <th align="center">Card</th>
+                    <th align="center">Del</th>
+                </tr>
+                {% for i in organizations %}
+                <tr>
+                    <td width="200">{{i.organization}}</td>
+                    <td width="200">{{i.comments}}</td>
+                    <td width="10" align="center"><a href="#" class='btn btn-info btn-sm'>
+                        <i class="bi bi-brush-fill"></i></a></td>
+                    <td width="10" align="center"><a href="#" class='btn btn-info btn-sm'>
+                        <i class="bi bi-basket2-fill"></i></a></td>
+                </tr>
+                {% endfor %}
+            </table>
         </div>
+    </div>
+</div>
 {% endblock %}
 
