@@ -43,7 +43,8 @@ INSTALLED_APPS = [
     'receipts',
     'payments',
     'crispy_forms',
-    'crispy_bootstrap4'
+    'crispy_bootstrap4',
+    'bootstrap4'
 ]
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'

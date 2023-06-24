@@ -47,7 +47,7 @@ class Receipts(models.Model):
     comments = models.CharField(max_length=255, blank=True)
 
     def __str__(self):
-        return f'{self.date}, {self.counterparty}, {self.item}, {self.amount}'
+        return f'{self.date}, {self.counterparty}, {self.item}, {self.amount} {self.currency}'
 
     class Meta:
         ordering = ['organization', 'date', 'item']
