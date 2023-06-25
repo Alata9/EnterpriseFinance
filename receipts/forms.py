@@ -1,6 +1,6 @@
+from django import forms
 from django.forms import ModelForm, DateInput, Textarea, HiddenInput, DateField
-
-
+from dynamic_forms import DynamicFormMixin, DynamicField
 
 from receipts.models import *
 
@@ -29,13 +29,27 @@ class ReceiptsAdd(ModelForm):
                    'comments': Textarea(attrs={'cols': 60, 'rows': 6}),
                    'currency': HiddenInput()}
 
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['organization'].empty_label = ''
         self.fields['account'].empty_label = ''
+        self.fields['account'].queryset = Payment_account.objects.filter(organization=self.initial.get('organization'))
         self.fields['counterparty'].empty_label = ''
         self.fields['item'].empty_label = ''
         self.fields['project'].empty_label = ''
+
+
+    # def account_choices(self):
+    #     org = self.initial.get('organization')
+    #     return Payment_account.objects.filter(organization=org)
+    #
+    #
+    # def account_initial(self):
+    #     org = self.initial.get('organization')
+    #     return Payment_account.objects.filter(organization=org).first()
+    #
+    # account = forms.ModelChoiceField(queryset=account_choices, initial=account_initial)
 
 
 class ReceiptsFilter(ModelForm):

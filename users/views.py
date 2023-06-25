@@ -10,11 +10,8 @@ from users.forms import ChangeUserInfoForm, RegisterUserForm
 
 
 # Вход пользователя на сайт
-class UserLoginView(SuccessMessageMixin, LoginView):
-    form_class = AuthenticationForm
+class UserLoginView(LoginView):
     template_name = 'users/login.html'
-    success_url = reverse_lazy('home')
-    success_message = 'You have successfully sign in'
 
 
 # Выход

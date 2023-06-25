@@ -44,7 +44,8 @@ INSTALLED_APPS = [
     'payments',
     'crispy_forms',
     'crispy_bootstrap4',
-    'bootstrap4'
+    'bootstrap4',
+    'widget_tweaks'
 ]
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
@@ -115,6 +116,7 @@ USE_I18N = True
 
 USE_TZ = True
 
+LOGIN_REDIRECT_URL = '/'
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
