@@ -1,6 +1,13 @@
 from django.urls import path
 
-from .views import *
+from directory.views import (
+    CounterpartiesView,
+    OrganizationIdView,
+    OrganizationsView,
+    ProjectsView,
+    PaymentAccountsView,
+    CurrenciesView,
+)
 
 urlpatterns = [
     path('counterparties/', CounterpartiesView, name='counterparties'),

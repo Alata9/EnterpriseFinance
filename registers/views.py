@@ -1,5 +1,4 @@
-from django.shortcuts import render, redirect
-from django.urls import reverse
+from django.shortcuts import render
 from django.views.generic import UpdateView
 
 from registers.forms import *

@@ -44,7 +44,8 @@ INSTALLED_APPS = [
     'payments',
     'crispy_forms',
     'crispy_bootstrap4',
-    'bootstrap4'
+    'bootstrap4',
+    'widget_tweaks',
 ]
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
@@ -127,3 +128,5 @@ STATIC_URL = "static/"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 USE_THOUSAND_SEPARATOR: bool = True
+
+LOGIN_REDIRECT_URL = '/'

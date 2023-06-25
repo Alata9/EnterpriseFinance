@@ -1,6 +1,7 @@
 {% extends 'registers/base.html' %}
 {% block title %}Receipt{% endblock %}
 {% load crispy_forms_tags %}
+{% load widget_tweaks %}
 {% block content %}
 
 <div class="container">
@@ -11,8 +12,20 @@
                 <h1> Receipt</h1>
             </div>
             <div class="col-md-3">
-                {{ form.organization|as_crispy_field }}
-                {{ form.account|as_crispy_field }}
+                <div id="div_id_organization"
+                     class="form-group"
+                     hx-get="/receipts/projects"
+                     hx-vals="js:{organization:document.getElementById('id_organization').value}"
+                     hx-trigger="change"
+                     hx-target="#id_project"
+                >
+                    {{ form.organization.label_tag }}
+                    {% render_field form.organization class="select form-control" hx-get="/receipts/accounts" hx-trigger="change" hx-target="#id_account" %}
+                </div>
+                <div id="div_id_account" class="form-group">
+                    {{ form.account.label_tag }}
+                    {% render_field form.account class="select form-control" %}
+                </div>
             </div>
         </div>
         <br>
@@ -24,7 +37,10 @@
             </div>
             <div class="col-md-4 border p-2 shadow">
                 {{ form.item|as_crispy_field }}
-                {{ form.project|as_crispy_field }}
+                <div id="div_id_account" class="form-group">
+                    {{ form.project.label_tag }}
+                    {% render_field form.project class="select form-control" %}
+                </div>
             </div>
             <div class="col-md-4 border p-2 shadow">
                 {{ form.comments|as_crispy_field }}

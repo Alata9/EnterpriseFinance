@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 
-from payments.forms import *
-from payments.models import *
+from payments.forms import ExpenseGroupAdd, ExpenseItemAdd
+from payments.models import ExpenseGroup, ExpensesItem
 
 
 def ExpensesGroupView(request):
@@ -50,6 +50,3 @@ def PaymentsView(request):
 
 def PaymentsPlanView(request):
     return render(request, 'payments/payments_plan.html')
-
-
-

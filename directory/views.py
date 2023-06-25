@@ -1,11 +1,11 @@
 from django.shortcuts import render, redirect
-from django.views.generic import UpdateView, DeleteView
-from directory.forms import *
-from directory.models import *
+
+from directory.forms import CounterpartyAdd, OrganizationAdd, CurrencyAdd, ProjectAdd, PaymentAccountAdd
+from directory.models import Counterparties, Organization, Project, PaymentAccount, Currencies
 
 
 def CounterpartiesView(request):
-    counterparties = Сounterparties.objects.all()
+    counterparties = Counterparties.objects.all()
 
     if request.method == 'POST':
         form = CounterpartyAdd(request.POST)
@@ -43,9 +43,10 @@ def OrganizationsView(request):
 
     return render(request, 'directory/organizations.html', context=context)
 
+
 def OrganizationIdView(request):
     projects = Project.objects.all()
-    accounts = Payment_account.objects.all()
+    accounts = PaymentAccount.objects.all()
 
     if request.method == 'POST':
         form_org = OrganizationAdd(request.POST)
@@ -70,7 +71,7 @@ def OrganizationIdView(request):
 
 
 def CurrenciesView(request):
-    currencies = Currenсies.objects.all()
+    currencies = Currencies.objects.all()
 
     if request.method == 'POST':
         form = CurrencyAdd(request.POST)
@@ -110,7 +111,7 @@ def ProjectsView(request):
 
 
 def PaymentAccountsView(request):
-    accounts = Payment_account.objects.all()
+    accounts = PaymentAccount.objects.all()
 
     if request.method == 'POST':
         form = PaymentAccountAdd(request.POST)

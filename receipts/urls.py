@@ -1,6 +1,14 @@
 from django.urls import path
 
-from .views import *
+from receipts.views import (
+    IncomeGroupView,
+    IncomeItemView,
+    IncomeItemDeleteView,
+    ReceiptsIdView,
+    ReceiptsView,
+    ReceiptsPlanView,
+    ReceiptsDeleteView,
+)
 
 urlpatterns = [
     path('income_group/', IncomeGroupView, name='income_group'),
@@ -11,5 +19,6 @@ urlpatterns = [
     path('receipts/', ReceiptsView, name='receipts'),
     path('receipts_plan/', ReceiptsPlanView, name='receipts_plan'),
     path('<int:pk>/receipts_delete', ReceiptsDeleteView.as_view(), name='receipts_delete'),
-
-    ]
+    path('receipts/accounts', ReceiptsIdView.htmx_accounts, name='receipts_accounts'),
+    path('receipts/projects', ReceiptsIdView.htmx_projects, name='receipts_projects'),
+]

@@ -3,18 +3,15 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.contrib.auth.views import LogoutView, LoginView, PasswordChangeView
 from django.contrib.messages.views import SuccessMessageMixin
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
 from django.views.generic import UpdateView, CreateView, TemplateView, DeleteView
 from users.forms import ChangeUserInfoForm, RegisterUserForm
 
 
 # Вход пользователя на сайт
-class UserLoginView(SuccessMessageMixin, LoginView):
-    form_class = AuthenticationForm
+class UserLoginView(LoginView):
     template_name = 'users/login.html'
-    success_url = reverse_lazy('home')
-    success_message = 'You have successfully sign in'
 
 
 # Выход

@@ -1,6 +1,6 @@
 from django.db import models
 
-from directory.models import *
+from directory.models import Organization, PaymentAccount, Currencies, Project, Counterparties
 
 
 class IncomeGroup(models.Model):
@@ -39,10 +39,10 @@ class Receipts(models.Model):
     organization = models.ForeignKey(Organization, on_delete=models.PROTECT, blank=False)
     date = models.DateField(blank=False)
     amount = models.DecimalField(max_digits=15, decimal_places=2, blank=False)
-    account = models.ForeignKey(Payment_account, on_delete=models.PROTECT, blank=False)
-    currency = models.ForeignKey(Currenсies, on_delete=models.PROTECT, blank=True, null=True)
+    account = models.ForeignKey(PaymentAccount, on_delete=models.PROTECT, blank=False)
+    currency = models.ForeignKey(Currencies, on_delete=models.PROTECT, blank=True, null=True)
     project = models.ForeignKey(Project, on_delete=models.PROTECT, blank=True, null=True)
-    counterparty = models.ForeignKey(Сounterparties, on_delete=models.PROTECT, blank=False)
+    counterparty = models.ForeignKey(Counterparties, on_delete=models.PROTECT, blank=False)
     item = models.ForeignKey(IncomeItem, on_delete=models.PROTECT, blank=False)
     comments = models.CharField(max_length=255, blank=True)
 
@@ -58,14 +58,14 @@ class Receipts(models.Model):
         return '/receipts'
 
 
-class Receipts_plan(models.Model):
+class ReceiptsPlan(models.Model):
     organization = models.ForeignKey(Organization, on_delete=models.PROTECT, blank=True, null=True)
     date = models.DateField(blank=True)
     amount = models.DecimalField(max_digits=15, decimal_places=2)
-    currency = models.ForeignKey(Currenсies, on_delete=models.PROTECT, blank=True)
+    currency = models.ForeignKey(Currencies, on_delete=models.PROTECT, blank=True)
     is_cash = models.BooleanField(blank=False, null=True, default=False)
     project = models.ForeignKey(Project, on_delete=models.PROTECT, blank=False, null=True)
-    counterparty = models.ForeignKey(Сounterparties, on_delete=models.PROTECT, blank=True)
+    counterparty = models.ForeignKey(Counterparties, on_delete=models.PROTECT, blank=True)
     item = models.ForeignKey(IncomeItem, on_delete=models.PROTECT, blank=True)
     comments = models.CharField(max_length=255, blank=True)
 
