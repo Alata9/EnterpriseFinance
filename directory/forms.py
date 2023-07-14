@@ -1,6 +1,6 @@
-from django.forms import ModelForm, BooleanField, Textarea
+from django.forms import ModelForm, Textarea
 
-from directory.models import *
+from directory.models import Organization, Project, PaymentAccount, Counterparties, Currencies
 
 
 class OrganizationAdd(ModelForm):
@@ -8,6 +8,7 @@ class OrganizationAdd(ModelForm):
         model = Organization
         fields = ('organization', 'comments')
         widgets = {'comments': Textarea(attrs={'cols': 60, 'rows': 6})}
+
 
 class ProjectAdd(ModelForm):
     class Meta:
@@ -21,8 +22,8 @@ class ProjectAdd(ModelForm):
 
 class PaymentAccountAdd(ModelForm):
     class Meta:
-        model = Payment_account
-        fields = ('account', 'organization', 'currency', 'is_cash',  'comments')
+        model = PaymentAccount
+        fields = ('account', 'organization', 'currency', 'is_cash', 'comments')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -33,11 +34,11 @@ class PaymentAccountAdd(ModelForm):
 
 class CounterpartyAdd(ModelForm):
     class Meta:
-        model = Сounterparties
+        model = Counterparties
         fields = ('counterparty', 'suppliers', 'customer', 'employee', 'other', 'comments')
 
 
 class CurrencyAdd(ModelForm):
     class Meta:
-        model = Currenсies
+        model = Currencies
         fields = ('currency', 'code')

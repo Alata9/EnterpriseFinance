@@ -12,11 +12,11 @@ class Organization(models.Model):
         ordering = ['organization']
 
 
-class Payment_account(models.Model):
+class PaymentAccount(models.Model):
     account = models.CharField(max_length=50, unique=True)
     organization = models.ForeignKey(Organization, on_delete=models.PROTECT, blank=False, null=False)
     is_cash = models.BooleanField(blank=False)
-    currency = models.ForeignKey('Currenсies', on_delete=models.PROTECT, blank=False, null=False)
+    currency = models.ForeignKey('Currencies', on_delete=models.PROTECT, blank=False, null=False)
     comments = models.CharField(max_length=100, blank=True)
 
     def __str__(self):
@@ -42,7 +42,7 @@ class Project(models.Model):
         verbose_name_plural = 'Projects'
 
 
-class Сounterparties(models.Model):
+class Counterparties(models.Model):
     counterparty = models.CharField(max_length=100, unique=True)
     suppliers = models.BooleanField(blank=False)
     customer = models.BooleanField(blank=False)
@@ -55,11 +55,11 @@ class Сounterparties(models.Model):
 
     class Meta:
         ordering = ['counterparty']
-        verbose_name = 'Сounterparty'
-        verbose_name_plural = 'Сounterparties'
+        verbose_name = 'Counterparty'
+        verbose_name_plural = 'Counterparties'
 
 
-class Currenсies(models.Model):
+class Currencies(models.Model):
     currency = models.CharField(max_length=10, unique=True)
     code = models.CharField(max_length=3, blank=False)
 

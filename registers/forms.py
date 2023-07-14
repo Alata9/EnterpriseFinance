@@ -1,6 +1,6 @@
 from django.forms import ModelForm
 
-from registers.models import *
+from registers.models import AccountSettings
 
 
 class AccountSettingsSet(ModelForm):

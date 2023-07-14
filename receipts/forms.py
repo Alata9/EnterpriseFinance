@@ -1,8 +1,8 @@
-from django import forms
-from django.forms import ModelForm, DateInput, Textarea, HiddenInput, DateField
-from dynamic_forms import DynamicFormMixin, DynamicField
+from django.forms import ModelForm, DateInput, Textarea, HiddenInput, DateField, ModelChoiceField
+from dynamic_forms import DynamicField, DynamicFormMixin
 
-from receipts.models import *
+from directory.models import PaymentAccount, Project
+from receipts.models import IncomeGroup, IncomeItem, Receipts
 
 
 class IncomeGroupAdd(ModelForm):
@@ -21,35 +21,32 @@ class IncomeItemAdd(ModelForm):
         self.fields['income_group'].empty_label = ''
 
 
-class ReceiptsAdd(ModelForm):
+class ReceiptsAdd(DynamicFormMixin, ModelForm):
     class Meta:
         model = Receipts
-        fields = ('organization', 'account', 'date', 'amount', 'currency', 'counterparty', 'item', 'project', 'comments')
+        fields = (
+            'organization', 'account', 'date', 'amount', 'currency', 'counterparty', 'item', 'project', 'comments')
         widgets = {'date': DateInput(attrs={'type': 'Date'}),
                    'comments': Textarea(attrs={'cols': 60, 'rows': 6}),
                    'currency': HiddenInput()}
 
+    account = DynamicField(
+        ModelChoiceField,
+        queryset=lambda form: PaymentAccount.objects.filter(organization=form['organization'].value()),
+    )
+
+    project = DynamicField(
+        ModelChoiceField,
+        queryset=lambda form: Project.objects.filter(organization=form['organization'].value()),
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['organization'].empty_label = ''
         self.fields['account'].empty_label = ''
-        self.fields['account'].queryset = Payment_account.objects.filter(organization=self.initial.get('organization'))
         self.fields['counterparty'].empty_label = ''
         self.fields['item'].empty_label = ''
         self.fields['project'].empty_label = ''
-
-
-    # def account_choices(self):
-    #     org = self.initial.get('organization')
-    #     return Payment_account.objects.filter(organization=org)
-    #
-    #
-    # def account_initial(self):
-    #     org = self.initial.get('organization')
-    #     return Payment_account.objects.filter(organization=org).first()
-    #
-    # account = forms.ModelChoiceField(queryset=account_choices, initial=account_initial)
 
 
 class ReceiptsFilter(ModelForm):
@@ -78,5 +75,3 @@ class ReceiptsFilter(ModelForm):
         self.fields['date'].label = 'From'
         self.fields['date'].required = False
         self.fields['date_end'].required = False
-
-

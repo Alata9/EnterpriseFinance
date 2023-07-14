@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .views import *
+from registers.views import HomeView, RatesView, DashboardView, ReportsView, AccountSettingsView
 
 urlpatterns = [
     path('', HomeView, name='home'),
@@ -8,5 +8,4 @@ urlpatterns = [
     path('dashboard/', DashboardView, name='dashboard'),
     path('reports/', ReportsView, name='reports'),
     path('settings/', AccountSettingsView.as_view(), name='settings'),
-
-    ]
+]

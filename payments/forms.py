@@ -1,7 +1,6 @@
 from django.forms import ModelForm
 
-from payments.models import *
-
+from payments.models import ExpenseGroup, ExpensesItem
 
 
 class ExpenseGroupAdd(ModelForm):

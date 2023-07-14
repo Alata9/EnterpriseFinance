@@ -1,6 +1,7 @@
 from django.db import models
 
-from directory.models import *
+from directory.models import Organization, PaymentAccount, Project, Counterparties, Currencies
+
 
 class ExpenseGroup(models.Model):
     expense_group = models.CharField(max_length=50)
@@ -32,9 +33,9 @@ class Payments(models.Model):
     organization = models.ForeignKey(Organization, on_delete=models.PROTECT, blank=True, null=True)
     date = models.DateField(blank=True)
     amount = models.DecimalField(max_digits=15, decimal_places=2)
-    account = models.ForeignKey(Payment_account, on_delete=models.PROTECT, blank=True)
+    account = models.ForeignKey(PaymentAccount, on_delete=models.PROTECT, blank=True)
     project = models.ForeignKey(Project, on_delete=models.PROTECT, blank=True, null=True)
-    counterparty = models.ForeignKey(Сounterparties, on_delete=models.PROTECT, blank=True)
+    counterparty = models.ForeignKey(Counterparties, on_delete=models.PROTECT, blank=True)
     item = models.ForeignKey(ExpensesItem, on_delete=models.PROTECT, blank=True)
     comments = models.CharField(max_length=255, blank=True)
 
@@ -47,14 +48,14 @@ class Payments(models.Model):
         verbose_name_plural = 'Payments'
 
 
-class Payments_plan(models.Model):
+class PaymentsPlan(models.Model):
     organization = models.ForeignKey(Organization, on_delete=models.PROTECT, blank=True, null=True)
     date = models.DateField(blank=True)
     amount = models.DecimalField(max_digits=15, decimal_places=2)
-    currency = models.ForeignKey(Currenсies, on_delete=models.PROTECT, blank=True)
+    currency = models.ForeignKey(Currencies, on_delete=models.PROTECT, blank=True)
     is_cash = models.BooleanField(blank=False, null=True, default=False)
     project = models.ForeignKey(Project, on_delete=models.PROTECT, blank=False, null=True)
-    counterparty = models.ForeignKey(Сounterparties, on_delete=models.PROTECT, blank=True)
+    counterparty = models.ForeignKey(Counterparties, on_delete=models.PROTECT, blank=True)
     item = models.ForeignKey(ExpensesItem, on_delete=models.PROTECT, blank=True)
     comments = models.CharField(max_length=255, blank=True)
 

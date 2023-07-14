@@ -1,10 +1,12 @@
 from django.db.models import ProtectedError
+from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.views.generic import UpdateView, DeleteView
 
-from receipts.forms import *
-from receipts.models import *
+from receipts.forms import IncomeGroupAdd, IncomeItemAdd, ReceiptsFilter, ReceiptsAdd
+from receipts.models import IncomeGroup, IncomeItem, Receipts
 from registers.models import AccountSettings
+
 
 # --------------------------------------
 def IncomeGroupView(request):
@@ -76,17 +78,16 @@ def ReceiptsView(request):
     return render(request, 'receipts/receipts.html', context=context)
 
 
-
 class ReceiptsIdView(UpdateView):
     model = Receipts
     template_name = 'receipts/receipts_id.html'
     form_class = ReceiptsAdd
 
-    def get_object(self):
+    def get_object(self, queryset=None):
         if 'pk' in self.kwargs:
-            return super().get_object()
+            return super().get_object(queryset)
 
-        org = AccountSettings.load().organization_default
+        org = AccountSettings.load().organization()
         return self.model(organization=org)
 
     def form_valid(self, form):
@@ -98,6 +99,15 @@ class ReceiptsIdView(UpdateView):
         except:
             form.add_error(None, 'Data save error')
 
+    @staticmethod
+    def htmx_accounts(request):
+        form = ReceiptsAdd(request.GET)
+        return HttpResponse(form["account"])
+
+    @staticmethod
+    def htmx_projects(request):
+        form = ReceiptsAdd(request.GET)
+        return HttpResponse(form["project"])
 
 
 class ReceiptsDeleteView(DeleteView):

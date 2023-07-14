@@ -1,10 +1,10 @@
 from django.db import models
 
-from directory.models import *
+from directory.models import Currencies, Organization
 
 
 class Rates(models.Model):
-    currency = models.ForeignKey(Currenсies, on_delete=models.PROTECT, blank=True)
+    currency = models.ForeignKey(Currencies, on_delete=models.PROTECT, blank=True)
     date = models.DateField(blank=True)
     rate = models.DecimalField(max_digits=15, decimal_places=4)
 
@@ -35,3 +35,10 @@ class AccountSettings(models.Model):
             pass
 
         return cls(id=1)
+
+    def organization(self):
+        try:
+            return self.organization_default
+        except:
+            ...
+        return None
