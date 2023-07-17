@@ -34,18 +34,22 @@ class Payments(models.Model):
     date = models.DateField(blank=True)
     amount = models.DecimalField(max_digits=15, decimal_places=2)
     account = models.ForeignKey(PaymentAccount, on_delete=models.PROTECT, blank=True)
+    currency = models.ForeignKey(Currencies, on_delete=models.PROTECT, blank=True, null=True)
     project = models.ForeignKey(Project, on_delete=models.PROTECT, blank=True, null=True)
     counterparty = models.ForeignKey(Counterparties, on_delete=models.PROTECT, blank=True)
     item = models.ForeignKey(ExpensesItem, on_delete=models.PROTECT, blank=True)
     comments = models.CharField(max_length=255, blank=True)
 
     def __str__(self):
-        return f'{self.date}, {self.counterparty}, {self.item}, {self.amount}'
+        return f'{self.date}, {self.counterparty}, {self.item}, {self.amount}, {self.currency}'
 
     class Meta:
-        ordering = ['date', 'item']
+        ordering = ['organization', 'date', 'item']
         verbose_name = 'Payment'
         verbose_name_plural = 'Payments'
+
+    def get_absolute_url(self):
+        return '/payments'
 
 
 class PaymentsPlan(models.Model):
@@ -66,3 +70,6 @@ class PaymentsPlan(models.Model):
         ordering = ['date', 'item']
         verbose_name = 'Payment plan'
         verbose_name_plural = 'Payments plan'
+
+    def get_absolute_url(self):
+        return '/payments_plan'

@@ -8,7 +8,7 @@ from receipts.models import IncomeGroup, IncomeItem, Receipts
 from registers.models import AccountSettings
 
 
-# --------------------------------------
+
 def IncomeGroupView(request):
     income_groups = IncomeGroup.objects.all()
     if request.method == 'POST':
@@ -25,8 +25,6 @@ def IncomeGroupView(request):
                'income_groups': income_groups}
     return render(request, 'receipts/income_group.html', context=context)
 
-
-# -------------------------------------------
 
 def IncomeItemView(request):
     income_items = IncomeItem.objects.all()
@@ -47,6 +45,7 @@ def IncomeItemView(request):
 
     return render(request, 'receipts/income_item.html', context=context)
 
+# -------------------------------------------
 
 def ReceiptsPlanView(request):
     return render(request, 'receipts/receipts_plan.html')

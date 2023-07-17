@@ -1,0 +1,30 @@
+{% extends 'registers/base.html' %}
+{% block title %}Delete object{% endblock %}
+{% load crispy_forms_tags %}
+{% block content %}
+
+<div class="container">
+    <div class="row h-100 p-2 g-3 justify-content-center" >
+        <div class="col-md-8 border p-3 shadow">
+             <form method="post">
+                 {% csrf_token %}
+                 {% if error %}
+                    {{ error }}
+                    {% else %}
+                 <h3>Are you sure you want to delete</h3>
+                 <h4>"{{ object }}"</h4>
+                 <br>
+                 <div class="row">
+                    <div class="col-md-2">
+                        <button class="btn btn-info" type="submit" name="btn_del">DELETE</button>
+                    </div>
+                    <div class="col-md-2">
+                        <a href="/payments" class='btn btn-info'>CANCEL</a>
+                    </div>
+                     {% endif %}
+                 </div>
+             </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

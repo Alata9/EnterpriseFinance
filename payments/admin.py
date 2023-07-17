@@ -17,9 +17,9 @@ class ExpensesItemAdmin(admin.ModelAdmin):
 
 
 class PaymentsAdmin(admin.ModelAdmin):
-    list_display = ['id', 'organization', 'date', 'amount', 'account',
+    list_display = ['id', 'organization', 'date', 'amount', 'account', 'currency',
                     'counterparty', 'item', 'project', 'comments']
-    list_display_links = ['id', 'organization', 'date', 'amount', 'account',
+    list_display_links = ['id', 'organization', 'date', 'amount', 'account', 'currency',
                           'counterparty', 'item', 'project', 'comments']
     search_fields = ['organization', 'date', 'counterparty', 'account', 'item', 'project']
 

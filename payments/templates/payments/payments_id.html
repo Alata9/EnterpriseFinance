@@ -1,0 +1,59 @@
+{% extends 'registers/base.html' %}
+{% block title %}Receipt{% endblock %}
+{% load crispy_forms_tags %}
+{% load widget_tweaks %}
+{% block content %}
+
+<div class="container">
+    <form  method='POST'>
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-md-9">
+                <h1> Receipt</h1>
+            </div>
+            <div class="col-md-3">
+                <div id="div_id_organization"
+                     class="form-group"
+                     hx-get="/payments/projects"
+                     hx-vals="js:{organization:document.getElementById('id_organization').value}"
+                     hx-trigger="change"
+                     hx-target="#id_project"
+                >
+                    {{ form.organization.label_tag }}
+                    {% render_field form.organization class="select form-control" hx-get="/payments/accounts" hx-trigger="change" hx-target="#id_account" %}
+                </div>
+                <div id="div_id_account" class="form-group">
+                    {{ form.account.label_tag }}
+                    {% render_field form.account class="select form-control" %}
+                </div>
+            </div>
+        </div>
+        <br>
+        <div class="row">
+            <div class="col-md-4 border p-2 shadow">
+                {{ form.date|as_crispy_field }}
+                {{ form.amount|as_crispy_field }}
+                {{ form.counterparty|as_crispy_field }}
+            </div>
+            <div class="col-md-4 border p-2 shadow">
+                {{ form.item|as_crispy_field }}
+                <div id="div_id_account" class="form-group">
+                    {{ form.project.label_tag }}
+                    {% render_field form.project class="select form-control" %}
+                </div>
+            </div>
+            <div class="col-md-4 border p-2 shadow">
+                {{ form.comments|as_crispy_field }}
+                <div class="row">
+                    <div class="col-md-3">
+                        <button class="btn btn-info" type="submit" name="btn_save">SAVE</button>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="/payments" class='btn btn-info'>CANCEL</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

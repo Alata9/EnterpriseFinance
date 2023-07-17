@@ -47,6 +47,7 @@ class ReceiptsAdd(DynamicFormMixin, ModelForm):
         self.fields['counterparty'].empty_label = ''
         self.fields['item'].empty_label = ''
         self.fields['project'].empty_label = ''
+        self.fields['project'].required = False
 
 
 class ReceiptsFilter(ModelForm):
