@@ -1,17 +1,49 @@
 {% extends 'registers/base.html' %}
 {% block title %}Receipts{% endblock %}
 {% load crispy_forms_tags %}
+{% load widget_tweaks %}
 {% block content %}
 
 <div class="container-fluid px-10">
     <div class="row">
         <div class="col-md-2 border p-2 shadow">
-            <form action="" method="GET">
+            <form action="" method="GET"
+                hx-get="/receipts/list"
+                hx-vals="js:{organization:document.getElementById('id_organization').value,
+                account:document.getElementById('id_account').value}"
+                hx-trigger="change"
+                hx-target="#id_table">
                 <h2>Receipts: filters</h2>
                 {% csrf_token %}
-                {{ form|crispy }}
-                <button class="btn btn-info" type="submit" name="btn_filter">FILTER</button>
-                <button class="btn btn-info" type="submit" name="btn_reset">RESET FILTERS</button>
+                <div class="form-group">
+                {{ form.organization.label_tag }}
+                {% render_field form.organization class="select form-control" %}
+                </div>
+                <div class="form-group">
+                {{ form.account.label_tag }}
+                {% render_field form.account class="select form-control" %}
+                </div>
+                <div class="form-group">
+                {{ form.counterparty.label_tag }}
+                {% render_field form.counterparty class="select form-control" %}
+                </div>
+                <div class="form-group">
+                {{ form.item.label_tag }}
+                {% render_field form.item class="select form-control" %}
+                </div>
+                <div class="form-group">
+                {{ form.project.label_tag }}
+                {% render_field form.project class="select form-control" %}
+                </div>
+                <div class="form-group">
+                {{ form.date.label_tag }}
+                {% render_field form.date class="select form-control" %}
+                </div>
+                <div class="form-group">
+                {{ form.date_end.label_tag }}
+                {% render_field form.date_end class="select form-control" %}
+                </div>
+                <button class="btn btn-info" type="reset" name="btn_reset">RESET FILTERS</button>
             </form>
         </div>
         <div class="col-md-10 border p-2 shadow">
@@ -23,7 +55,7 @@
             </div>
             <br>
             <div class="table-responsive" style="height: 500px">
-                <table class="table table-sm table-scroll table-striped table-bordered" >
+                <table class="table table-sm table-scroll table-striped" id="id_table" >
                     <tr>
                         <th align="center">organization</th>
                         <th align="center">account</th>
@@ -46,7 +78,11 @@
                         <td width="50">{{i.currency}}</td>
                         <td width="200">{{i.counterparty}}</td>
                         <td width="200">{{i.item}}</td>
-                        <td width="100">{{i.project}}</td>
+                        {% if i.project != None %}
+                        <td width="100">{{ i.project }}</td>
+                        {% else %}
+                        <td width="100">{{ '' }}</td>
+                        {% endif %}
                         <td width="200">{{i.comments}}</td>
                         <td width="10" align="center"><a href="{% url 'receipts_id' i.id %}" class='btn btn-info btn-sm'>
                             <i class="bi bi-brush-fill"></i></a></td>

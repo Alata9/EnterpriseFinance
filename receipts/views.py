@@ -53,6 +53,14 @@ def ReceiptsPlanView(request):
 
 def ReceiptsView(request):
     receipts = Receipts.objects.all()
+    form = ReceiptsFilter(request.GET)
+    context = {'receipts': receipts,
+               'form': form}
+
+    return render(request, 'receipts/receipts.html', context=context)
+
+def htmx_list(request):
+    receipts = Receipts.objects.all()
 
     form = ReceiptsFilter(request.GET)
     if form.is_valid():
@@ -71,10 +79,9 @@ def ReceiptsView(request):
         if form.cleaned_data['account']:
             receipts = receipts.filter(account=form.cleaned_data['account'])
 
-    context = {'receipts': receipts,
-               'form': form}
+    context = {'receipts': receipts}
 
-    return render(request, 'receipts/receipts.html', context=context)
+    return render(request, 'receipts/receipts_list.html', context=context)
 
 
 class ReceiptsIdView(UpdateView):
