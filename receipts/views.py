@@ -1,7 +1,7 @@
 from django.db.models import ProtectedError
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
-from django.views.generic import UpdateView, DeleteView
+from django.views.generic import UpdateView, DeleteView, ListView
 
 from receipts.forms import IncomeGroupAdd, IncomeItemAdd, ReceiptsFilter, ReceiptsAdd
 from receipts.models import IncomeGroup, IncomeItem, Receipts
@@ -47,41 +47,39 @@ def IncomeItemView(request):
 
 # -------------------------------------------
 
-def ReceiptsPlanView(request):
-    return render(request, 'receipts/receipts_plan.html')
 
+class ReceiptsView(ListView):
+    model = Receipts
+    template_name = 'receipts/receipts.html'
+    def get_context_data(self, *, object_list=None, **kwargs):
+        ctx = super().get_context_data(object_list=None, **kwargs)
+        ctx['form'] = ReceiptsFilter()
+        return ctx
 
-def ReceiptsView(request):
-    receipts = Receipts.objects.all()
-    form = ReceiptsFilter(request.GET)
-    context = {'receipts': receipts,
-               'form': form}
+    @staticmethod
+    def htmx_list(request):
+        receipts = Receipts.objects.all()
 
-    return render(request, 'receipts/receipts.html', context=context)
+        form = ReceiptsFilter(request.GET)
+        if form.is_valid():
+            if form.cleaned_data['date']:
+                receipts = receipts.filter(date__gte=form.cleaned_data['date'])
+            if form.cleaned_data['date_end']:
+                receipts = receipts.filter(date__lte=form.cleaned_data['date_end'])
+            if form.cleaned_data['counterparty']:
+                receipts = receipts.filter(counterparty=form.cleaned_data['counterparty'])
+            if form.cleaned_data['item']:
+                receipts = receipts.filter(item=form.cleaned_data['item'])
+            if form.cleaned_data['organization']:
+                receipts = receipts.filter(organization=form.cleaned_data['organization'])
+            if form.cleaned_data['project']:
+                receipts = receipts.filter(project=form.cleaned_data['project'])
+            if form.cleaned_data['account']:
+                receipts = receipts.filter(account=form.cleaned_data['account'])
 
-def htmx_list(request):
-    receipts = Receipts.objects.all()
+        context = {'object_list': receipts}
 
-    form = ReceiptsFilter(request.GET)
-    if form.is_valid():
-        if form.cleaned_data['date']:
-            receipts = receipts.filter(date__gte=form.cleaned_data['date'])
-        if form.cleaned_data['date_end']:
-            receipts = receipts.filter(date__lte=form.cleaned_data['date_end'])
-        if form.cleaned_data['counterparty']:
-            receipts = receipts.filter(counterparty=form.cleaned_data['counterparty'])
-        if form.cleaned_data['item']:
-            receipts = receipts.filter(item=form.cleaned_data['item'])
-        if form.cleaned_data['organization']:
-            receipts = receipts.filter(organization=form.cleaned_data['organization'])
-        if form.cleaned_data['project']:
-            receipts = receipts.filter(project=form.cleaned_data['project'])
-        if form.cleaned_data['account']:
-            receipts = receipts.filter(account=form.cleaned_data['account'])
-
-    context = {'receipts': receipts}
-
-    return render(request, 'receipts/receipts_list.html', context=context)
+        return render(request, 'receipts/receipts_list.html', context=context)
 
 
 class ReceiptsIdView(UpdateView):
@@ -92,6 +90,11 @@ class ReceiptsIdView(UpdateView):
     def get_object(self, queryset=None):
         if 'pk' in self.kwargs:
             return super().get_object(queryset)
+
+        if 'from_pk' in self.kwargs:
+            obj = self.model.objects.get(pk=self.kwargs['from_pk'])
+            obj.id = None
+            return obj
 
         org = AccountSettings.load().organization()
         return self.model(organization=org)
@@ -139,3 +142,7 @@ class IncomeItemDeleteView(DeleteView):
                 error=f'Error: {error.protected_objects}'
             )
             return self.render_to_response(context)
+
+
+def ReceiptsPlanView(request):
+    return render(request, 'receipts/receipts_plan.html')

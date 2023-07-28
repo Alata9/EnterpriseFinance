@@ -7,7 +7,7 @@ from receipts.views import (
     ReceiptsIdView,
     ReceiptsView,
     ReceiptsPlanView,
-    ReceiptsDeleteView, htmx_list,
+    ReceiptsDeleteView,
 )
 
 urlpatterns = [
@@ -16,10 +16,11 @@ urlpatterns = [
     path('<int:pk>/income_item_delete', IncomeItemDeleteView.as_view(), name='income_item_delete'),
     path('receipts/<int:pk>', ReceiptsIdView.as_view(), name='receipts_id'),
     path('receipts/add/', ReceiptsIdView.as_view(), name='receipts_add'),
-    path('receipts/', ReceiptsView, name='receipts'),
+    path('receipts/copy/<int:from_pk>', ReceiptsIdView.as_view(), name='receipts_copy'),
+    path('receipts/', ReceiptsView.as_view(), name='receipts'),
     path('receipts_plan/', ReceiptsPlanView, name='receipts_plan'),
     path('<int:pk>/receipts_delete', ReceiptsDeleteView.as_view(), name='receipts_delete'),
     path('receipts/accounts', ReceiptsIdView.htmx_accounts, name='receipts_accounts'),
     path('receipts/projects', ReceiptsIdView.htmx_projects, name='receipts_projects'),
-    path('receipts/list', htmx_list, name='receipts_list'),
+    path('receipts/list', ReceiptsView.htmx_list, name='receipts_list'),
 ]

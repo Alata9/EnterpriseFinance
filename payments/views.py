@@ -1,7 +1,7 @@
 from django.db.models import ProtectedError
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
-from django.views.generic import UpdateView, DeleteView
+from django.views.generic import UpdateView, DeleteView, ListView
 
 from payments.forms import ExpenseGroupAdd, ExpenseItemAdd, PaymentsFilter, PaymentsAdd
 from payments.models import ExpenseGroup, ExpensesItem, Payments
@@ -49,30 +49,38 @@ def ExpensesItemView(request):
 
 # -----------------------------------
 
-def PaymentsView(request):
-    payments = Payments.objects.all()
+class PaymentsView(ListView):
+    model = Payments
+    template_name = 'payments/payments.html'
+    def get_context_data(self, *, object_list=None, **kwargs):
+        ctx = super().get_context_data(object_list=None, **kwargs)
+        ctx['form'] = PaymentsFilter()
+        return ctx
 
-    form = PaymentsFilter(request.GET)
-    if form.is_valid():
-        if form.cleaned_data['date']:
-            payments = payments.filter(date__gte=form.cleaned_data['date'])
-        if form.cleaned_data['date_end']:
-            payments = payments.filter(date__lte=form.cleaned_data['date_end'])
-        if form.cleaned_data['counterparty']:
-            payments = payments.filter(counterparty=form.cleaned_data['counterparty'])
-        if form.cleaned_data['item']:
-            payments = payments.filter(item=form.cleaned_data['item'])
-        if form.cleaned_data['organization']:
-            payments = payments.filter(organization=form.cleaned_data['organization'])
-        if form.cleaned_data['project']:
-            payments = payments.filter(project=form.cleaned_data['project'])
-        if form.cleaned_data['account']:
-            payments = payments.filter(account=form.cleaned_data['account'])
+    @staticmethod
+    def htmx_list(request):
+        payments = Payments.objects.all()
 
-    context = {'payments': payments,
-               'form': form}
+        form = PaymentsFilter(request.GET)
+        if form.is_valid():
+            if form.cleaned_data['date']:
+                payments = payments.filter(date__gte=form.cleaned_data['date'])
+            if form.cleaned_data['date_end']:
+                payments = payments.filter(date__lte=form.cleaned_data['date_end'])
+            if form.cleaned_data['counterparty']:
+                payments = payments.filter(counterparty=form.cleaned_data['counterparty'])
+            if form.cleaned_data['item']:
+                payments = payments.filter(item=form.cleaned_data['item'])
+            if form.cleaned_data['organization']:
+                payments = payments.filter(organization=form.cleaned_data['organization'])
+            if form.cleaned_data['project']:
+                payments = payments.filter(project=form.cleaned_data['project'])
+            if form.cleaned_data['account']:
+                payments = payments.filter(account=form.cleaned_data['account'])
 
-    return render(request, 'payments/payments.html', context=context)
+        context = {'object_list': payments}
+
+        return render(request, 'payments/payments_list.html', context=context)
 
 
 class PaymentsIdView(UpdateView):
@@ -83,6 +91,11 @@ class PaymentsIdView(UpdateView):
     def get_object(self, queryset=None):
         if 'pk' in self.kwargs:
             return super().get_object(queryset)
+
+        if 'from_pk' in self.kwargs:
+            obj = self.model.objects.get(pk=self.kwargs['from_pk'])
+            obj.id = None
+            return obj
 
         org = AccountSettings.load().organization()
         return self.model(organization=org)
