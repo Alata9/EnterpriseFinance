@@ -6,15 +6,15 @@
 
 <div class="container-fluid px-10">
     <div class="row">
+        <form action="" method="GET"
+              hx-get="/receipts/list"
+              hx-trigger="change"
+              hx-target="#id_table">
         <div class="col-md-2 border p-2 shadow">
-            <form action="" method="GET"
-                hx-get="/receipts/list"
-                hx-trigger="change"
-                hx-target="#id_table">
+
+
                 <h2>Receipts: filters</h2>
                 {% csrf_token %}
-
-
                 <div class="form-group">
                 {{ form.organization.label_tag }}
                 {% render_field form.organization class="select form-control"%}
@@ -46,19 +46,17 @@
                 <div hx-get="/receipts/list" hx-trigger="click" hx-target="#id_table">
                     <button class="btn btn-info" type="reset" name="btn_reset" >RESET FILTERS</button>
                 </div>
-            </form>
+
         </div>
         <div class="col-md-10 border p-2 shadow">
             <div class="row d-grid gap-2 d-md-flex justify-content-md-end">
-                <div class="col-md-6"></div>
+                <div class="col-md-8"></div>
                 <div class="col-md-2">
                     <a href="{% url 'receipts_add' %}" class="btn btn-info" name="btn_add">ADD NEW ENTRY</a>
                 </div>
                 <div class="col-md-2">
-                    <a href="#" class="btn btn-info" name="btn_add">LOAD FROM FILE</a>
-                </div>
-                <div class="col-md-2">
-                    <a href="#" class="btn btn-info" name="btn_add">UPLOAD TO FILE</a>
+                    <a href="#" class="btn btn-info" name="btn_add">FROM FILE</a>
+                    <button  class="btn btn-info" name="btn_to_file">TO FILE</button>
                 </div>
             </div>
             <br>
@@ -66,6 +64,7 @@
                 {% include "receipts/receipts_list.html" %}
             </div>
         </div>
+        </form>
     </div>
 </div>
 

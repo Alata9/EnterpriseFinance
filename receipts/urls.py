@@ -23,4 +23,5 @@ urlpatterns = [
     path('receipts/accounts', ReceiptsIdView.htmx_accounts, name='receipts_accounts'),
     path('receipts/projects', ReceiptsIdView.htmx_projects, name='receipts_projects'),
     path('receipts/list', ReceiptsView.htmx_list, name='receipts_list'),
+
 ]

@@ -1,13 +1,16 @@
+import datetime
+
 from django.db.models import ProtectedError
-from django.http import HttpResponse
+from django.http import HttpResponse, FileResponse
 from django.shortcuts import render, redirect
+from django.views import View
 from django.views.generic import UpdateView, DeleteView, ListView
 
 from receipts.forms import IncomeGroupAdd, IncomeItemAdd, ReceiptsFilter, ReceiptsAdd
 from receipts.models import IncomeGroup, IncomeItem, Receipts
 from registers.models import AccountSettings
 
-
+import csv
 
 def IncomeGroupView(request):
     income_groups = IncomeGroup.objects.all()
@@ -51,13 +54,37 @@ def IncomeItemView(request):
 class ReceiptsView(ListView):
     model = Receipts
     template_name = 'receipts/receipts.html'
+
+
+    def get(self, request, *args, **kwargs):
+        if 'btn_to_file' in request.GET:
+            return self.to_file(request)
+        return super().get(request, *args, **kwargs)
+
+    def to_file(self, request):
+        my_data = [["Organization", "Account", "Date", "Amount", "Currency", "Counterparty", "Item", "Project", "Comments"]]
+        receipts = self.receipts_queryset(request)
+        for i in receipts:
+            my_data.append([i.organization, i.account, i.date, i.amount, i.currency, i.counterparty, i.item, i.project, i.comments])
+
+        t = str(datetime.datetime.today().strftime('%d-%m-%Y-%H%M%S'))
+        name_file = 'receipts_' + t + '.csv'
+        my_file = open(name_file, 'w',  newline='')
+        with my_file:
+            writer = csv.writer(my_file)
+            writer.writerows(my_data)
+
+        f = open(name_file, 'rb')
+
+        return FileResponse(f)
+
     def get_context_data(self, *, object_list=None, **kwargs):
         ctx = super().get_context_data(object_list=None, **kwargs)
         ctx['form'] = ReceiptsFilter()
         return ctx
 
     @staticmethod
-    def htmx_list(request):
+    def receipts_queryset(request):
         receipts = Receipts.objects.all()
 
         form = ReceiptsFilter(request.GET)
@@ -77,7 +104,11 @@ class ReceiptsView(ListView):
             if form.cleaned_data['account']:
                 receipts = receipts.filter(account=form.cleaned_data['account'])
 
-        context = {'object_list': receipts}
+        return receipts
+
+    @staticmethod
+    def htmx_list(request):
+        context = {'object_list': ReceiptsView.receipts_queryset(request)}
 
         return render(request, 'receipts/receipts_list.html', context=context)
 
@@ -142,6 +173,7 @@ class IncomeItemDeleteView(DeleteView):
                 error=f'Error: {error.protected_objects}'
             )
             return self.render_to_response(context)
+
 
 
 def ReceiptsPlanView(request):
