@@ -1,4 +1,10 @@
-
+<style>
+  th {
+  background: #F5F5F5;
+  position: sticky;
+  top: 0; /* Don't forget this, required for the stickiness */
+  }
+</style>
 <table class="table table-sm table-scroll table-striped" id="id_table" >
     <tr>
         <th align="center">organization</th>
@@ -10,16 +16,14 @@
         <th align="center">item</th>
         <th align="center">project</th>
         <th align="center">comments</th>
-        <th align="center">Edit</th>
-        <th align="center">Copy</th>
-        <th align="center">Del</th>
+        <th align="center">edit / copy / del</th>
     </tr>
     {% for i in object_list %}
     <tr>
         <td width="50">{{i.organization}}</td>
         <td width="100">{{i.account}}</td>
         <td width="50">{{i.date|date:"d.m.Y"}}</td>
-        <td width="50">{{i.amount}}</td>
+        <td width="50" align=right>{{i.amount}}</td>
         <td width="50">{{i.currency}}</td>
         <td width="200">{{i.counterparty}}</td>
         <td width="200">{{i.item}}</td>
@@ -29,12 +33,11 @@
         <td width="100">{{ '' }}</td>
         {% endif %}
         <td width="200">{{i.comments}}</td>
-        <td width="10" align="center"><a href="{% url 'payments_id' i.id %}" class='btn btn-info btn-sm'>
-            <i class="bi bi-pencil-square"></i></a></td>
-        <td width="10" align="center"><a href="{% url 'payments_copy' i.id %}" class='btn btn-info btn-sm'>
-            <i class="bi bi-files"></i></a></td>
-        <td width="10" align="center"><a href="{% url 'payments_delete' i.id %}" class='btn btn-info btn-sm'>
-            <i class="bi bi-basket2-fill"></i></a></td>
+        <td width="10" align="center" style='white-space: nowrap'>
+            <a href="{% url 'payments_id' i.id %}" class='btn btn-info btn-sm'><i class="bi bi-pencil-square"></i></a>
+            <a href="{% url 'payments_copy' i.id %}" class='btn btn-info btn-sm'><i class="bi bi-files"></i></a>
+            <a href="{% url 'payments_delete' i.id %}" class='btn btn-info btn-sm'><i class="bi bi-basket2-fill"></i></a>
+         </td>
     </tr>
     {% endfor %}
 </table>

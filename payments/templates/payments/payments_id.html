@@ -1,5 +1,5 @@
 {% extends 'registers/base.html' %}
-{% block title %}Receipt{% endblock %}
+{% block title %}Payment{% endblock %}
 {% load crispy_forms_tags %}
 {% load widget_tweaks %}
 {% block content %}
@@ -9,7 +9,7 @@
         {% csrf_token %}
         <div class="row">
             <div class="col-md-9">
-                <h1> Receipt</h1>
+                <h1> Payment</h1>
             </div>
             <div class="col-md-3">
                 <div id="div_id_organization"

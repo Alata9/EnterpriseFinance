@@ -27,7 +27,7 @@ class ReceiptsAdd(DynamicFormMixin, ModelForm):
         fields = (
             'organization', 'account', 'date', 'amount', 'currency', 'counterparty', 'item', 'project', 'comments')
         widgets = {'date': DateInput(attrs={'type': 'Date'}),
-                   'comments': Textarea(attrs={'cols': 60, 'rows': 6}),
+                   'comments': Textarea(attrs={'cols': 60, 'rows': 3}),
                    'currency': HiddenInput()}
 
     account = DynamicField(
@@ -42,12 +42,13 @@ class ReceiptsAdd(DynamicFormMixin, ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['organization'].empty_label = ''
-        self.fields['account'].empty_label = ''
-        self.fields['counterparty'].empty_label = ''
-        self.fields['item'].empty_label = ''
-        self.fields['project'].empty_label = ''
+        self.fields['organization'].empty_label = 'Organization:'
+        self.fields['account'].empty_label = 'Account:'
+        self.fields['counterparty'].empty_label = 'Counterparty:'
+        self.fields['item'].empty_label = 'Item:'
+        self.fields['project'].empty_label = 'Project:'
         self.fields['project'].required = False
+
 
 
 class ReceiptsFilter(ModelForm):
@@ -67,6 +68,7 @@ class ReceiptsFilter(ModelForm):
         self.fields['organization'].required = False
         self.fields['account'].empty_label = ''
         self.fields['account'].required = False
+        self.fields['account'].bold = True
         self.fields['project'].empty_label = ''
         self.fields['project'].required = False
         self.fields['counterparty'].empty_label = ''

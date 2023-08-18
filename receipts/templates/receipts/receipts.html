@@ -11,13 +11,11 @@
               hx-trigger="change"
               hx-target="#id_table">
         <div class="col-md-2 border p-2 shadow">
-
-
                 <h2>Receipts: filters</h2>
                 {% csrf_token %}
                 <div class="form-group">
                 {{ form.organization.label_tag }}
-                {% render_field form.organization class="select form-control"%}
+                {% render_field form.organization class="select form-control" placeholder="org" %}
                 </div>
                 <div class="form-group">
                 {{ form.account.label_tag }}
@@ -51,16 +49,14 @@
         <div class="col-md-10 border p-2 shadow">
             <div class="row d-grid gap-2 d-md-flex justify-content-md-end">
                 <div class="col-md-8"></div>
-                <div class="col-md-2">
+                <div class="col-md-4">
                     <a href="{% url 'receipts_add' %}" class="btn btn-info" name="btn_add">ADD NEW ENTRY</a>
-                </div>
-                <div class="col-md-2">
                     <a href="#" class="btn btn-info" name="btn_add">FROM FILE</a>
                     <button  class="btn btn-info" name="btn_to_file">TO FILE</button>
                 </div>
             </div>
             <br>
-            <div class="table-responsive" style="height: 550px">
+            <div class="table table-hover table-responsive" style="height: 550px">
                 {% include "receipts/receipts_list.html" %}
             </div>
         </div>
