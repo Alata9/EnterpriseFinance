@@ -1,4 +1,6 @@
+from django.db.models import ProtectedError
 from django.shortcuts import render, redirect
+from django.views.generic import DeleteView
 
 from directory.forms import CounterpartyAdd, OrganizationAdd, CurrencyAdd, ProjectAdd, PaymentAccountAdd
 from directory.models import Counterparties, Organization, Project, PaymentAccount, Currencies
@@ -6,7 +8,10 @@ from directory.models import Counterparties, Organization, Project, PaymentAccou
 
 def CounterpartiesView(request):
     counterparties = Counterparties.objects.all()
+    context = {'counterparties': counterparties}
+    return render(request, 'directory/counterparties.html', context=context)
 
+def CounterpartyIdView(request):
     if request.method == 'POST':
         form = CounterpartyAdd(request.POST)
         if form.is_valid():
@@ -18,10 +23,26 @@ def CounterpartiesView(request):
     else:
         form = CounterpartyAdd()
 
-    context = {'form': form,
-               'counterparties': counterparties}
+    context = {'form': form}
 
-    return render(request, 'directory/counterparties.html', context=context)
+    return render(request, 'directory/counterparty_id.html', context=context)
+
+class CounterpartyDeleteView(DeleteView):
+    error = ''
+    model = Counterparties
+    success_url = '/counterparties'
+    template_name = 'directory/counterparty_delete.html'
+
+    def post(self, request, *args, **kwargs):
+        try:
+            return super().delete(request, *args, **kwargs)
+        except ProtectedError as error:
+            self.object = self.get_object()
+            context = self.get_context_data(
+                object=self.object,
+                error=f'Error: {error.protected_objects}'
+            )
+            return self.render_to_response(context)
 
 
 def OrganizationsView(request):

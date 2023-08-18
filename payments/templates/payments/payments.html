@@ -6,11 +6,11 @@
 
 <div class="container-fluid px-10">
     <div class="row">
+        <form action="" method="GET"
+            hx-get="/payments/list"
+            hx-trigger="change"
+            hx-target="#id_table">
         <div class="col-md-2 border p-2 shadow">
-            <form action="" method="GET"
-                hx-get="/payments/list"
-                hx-trigger="change"
-                hx-target="#id_table">
                 <h2>Payments: filters</h2>
                 {% csrf_token %}
                 <div class="form-group">
@@ -44,13 +44,15 @@
                 <div hx-get="/payments/list" hx-trigger="click" hx-target="#id_table">
                     <button class="btn btn-info" type="reset" name="btn_reset" >RESET FILTERS</button>
                 </div>
-            </form>
+
         </div>
         <div class="col-md-10 border p-2 shadow">
             <div class="row d-grid gap-2 d-md-flex justify-content-md-end">
-                <div class="col-md-10"></div>
-                <div class="col-md-1">
+                <div class="col-md-8"></div>
+                <div class="col-md-4">
                     <a href="{% url 'payments_add' %}" class="btn btn-info" name="btn_add">ADD NEW ENTRY</a>
+                    <a href="#" class="btn btn-info" name="btn_add">FROM FILE</a>
+                    <button  class="btn btn-info" name="btn_to_file">TO FILE</button>
                 </div>
             </div>
             <br>
@@ -58,6 +60,7 @@
                 {% include "payments/payments_list.html" %}
             </div>
         </div>
+        </form>
     </div>
 </div>
 

@@ -1,5 +1,8 @@
+import csv
+import datetime
+
 from django.db.models import ProtectedError
-from django.http import HttpResponse
+from django.http import HttpResponse, FileResponse
 from django.shortcuts import render, redirect
 from django.views.generic import UpdateView, DeleteView, ListView
 
@@ -52,13 +55,38 @@ def ExpensesItemView(request):
 class PaymentsView(ListView):
     model = Payments
     template_name = 'payments/payments.html'
+    #-------------
+
+    def get(self, request, *args, **kwargs):
+        if 'btn_to_file' in request.GET:
+            return self.to_file(request)
+        return super().get(request, *args, **kwargs)
+
+    def to_file(self, request):
+        my_data = [["Organization", "Account", "Date", "Amount", "Currency", "Counterparty", "Item", "Project", "Comments"]]
+        payments = self.payments_queryset(request)
+        for i in payments:
+            my_data.append([i.organization, i.account, i.date, i.amount, i.currency, i.counterparty, i.item, i.project, i.comments])
+
+        t = str(datetime.datetime.today().strftime('%d-%m-%Y-%H%M%S'))
+        name_file = 'payments' + t + '.csv'
+        my_file = open(name_file, 'w',  newline='')
+        with my_file:
+            writer = csv.writer(my_file)
+            writer.writerows(my_data)
+
+        f = open(name_file, 'rb')
+
+        return FileResponse(f)
+    #-------------
+
     def get_context_data(self, *, object_list=None, **kwargs):
         ctx = super().get_context_data(object_list=None, **kwargs)
         ctx['form'] = PaymentsFilter()
         return ctx
 
     @staticmethod
-    def htmx_list(request):
+    def payments_queryset(request):
         payments = Payments.objects.all()
 
         form = PaymentsFilter(request.GET)
@@ -78,7 +106,11 @@ class PaymentsView(ListView):
             if form.cleaned_data['account']:
                 payments = payments.filter(account=form.cleaned_data['account'])
 
-        context = {'object_list': payments}
+        return payments
+
+    @staticmethod
+    def htmx_list(request):
+        context = {'object_list': PaymentsView.payments_queryset(request)}
 
         return render(request, 'payments/payments_list.html', context=context)
 
