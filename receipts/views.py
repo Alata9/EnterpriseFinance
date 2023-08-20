@@ -1,12 +1,15 @@
 import datetime
+from decimal import Decimal
+from io import TextIOWrapper
 
 from django.db.models import ProtectedError
 from django.http import HttpResponse, FileResponse
 from django.shortcuts import render, redirect
 from django.views import View
-from django.views.generic import UpdateView, DeleteView, ListView
+from django.views.generic import UpdateView, DeleteView, ListView, FormView
 
-from receipts.forms import IncomeGroupAdd, IncomeItemAdd, ReceiptsFilter, ReceiptsAdd
+from directory.models import Organization, PaymentAccount, Currencies, Counterparties, Project
+from receipts.forms import IncomeGroupAdd, IncomeItemAdd, ReceiptsFilter, ReceiptsAdd, UploadFile
 from receipts.models import IncomeGroup, IncomeItem, Receipts
 from registers.models import AccountSettings
 
@@ -178,3 +181,34 @@ class IncomeItemDeleteView(DeleteView):
 
 def ReceiptsPlanView(request):
     return render(request, 'receipts/receipts_plan.html')
+
+# i.organization, i.account, i.date, i.amount, i.currency, i.counterparty, i.item, i.project, i.comments
+
+class UploadFileView(FormView):
+    form_class = UploadFile
+    template_name = 'receipts/upload_file.html'
+    success_url = '/receipts'
+
+    def form_valid(self, form):
+        csvfile = form.cleaned_data['file']
+        f = TextIOWrapper(csvfile.file)
+        reader = csv.DictReader(f, delimiter=';')
+        for _, item in enumerate(reader, start=1):
+            receipt = Receipts()
+            try:
+                receipt.organization = Organization.objects.get(organization=item.get('organization'))
+                receipt.account = PaymentAccount.objects.get(account=item.get('account'))
+                if item.get('project'):
+                    receipt.project = Project.objects.get(project=item.get('project'))
+                receipt.date = datetime.datetime.strptime(item.get('date'), '%d.%m.%Y').date()
+                receipt.amount = Decimal(item.get('amount'))
+                receipt.currency = Currencies.objects.get(code=item.get('currency'))
+                receipt.counterparty = Counterparties.objects.get(counterparty=item.get('counterparty'))
+                receipt.item = IncomeItem.objects.get(income_item=item.get('item'))
+                receipt.comments = item.get('comments')
+                receipt.save()
+            except Exception as e:
+                print(e)
+
+        return super().form_valid(form)
+

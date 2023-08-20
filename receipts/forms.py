@@ -1,4 +1,5 @@
-from django.forms import ModelForm, DateInput, Textarea, HiddenInput, DateField, ModelChoiceField
+from django.core.exceptions import ValidationError
+from django.forms import ModelForm, DateInput, Textarea, HiddenInput, DateField, ModelChoiceField, Form, FileField
 from dynamic_forms import DynamicField, DynamicFormMixin
 
 from directory.models import PaymentAccount, Project
@@ -78,3 +79,18 @@ class ReceiptsFilter(ModelForm):
         self.fields['date'].label = 'From'
         self.fields['date'].required = False
         self.fields['date_end'].required = False
+
+
+class UploadFile(Form):
+    file = FileField()
+
+    def clean(self):
+        cleaned_data = super().clean()
+        file = cleaned_data.get("file")
+        if not file.name.endswith(".csv"):
+            raise ValidationError(
+                {
+                    "file": "Filetype not supported, the file must be a '.csv'",
+                }
+            )
+        return cleaned_data
