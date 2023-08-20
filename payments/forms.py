@@ -43,11 +43,11 @@ class PaymentsAdd(DynamicFormMixin, ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['organization'].empty_label = ''
-        self.fields['account'].empty_label = ''
-        self.fields['counterparty'].empty_label = ''
-        self.fields['item'].empty_label = ''
-        self.fields['project'].empty_label = ''
+        self.fields['organization'].empty_label = 'Organization:'
+        self.fields['account'].empty_label = 'Account:'
+        self.fields['counterparty'].empty_label = 'Counterparty:'
+        self.fields['item'].empty_label = 'Item:'
+        self.fields['project'].empty_label = 'Project:'
         self.fields['project'].required = False
 
 

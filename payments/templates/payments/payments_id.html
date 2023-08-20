@@ -7,48 +7,47 @@
 <div class="container">
     <form  method='POST'>
         {% csrf_token %}
-        <div class="row">
-            <div class="col-md-9">
-                <h1> Payment</h1>
-            </div>
-            <div class="col-md-3">
+        <div class="row text-center">
+            <div class="col-md-4 border p-2 shadow"></div>
+            <div class="col-md-4 border p-2 shadow">
+                <h1>Payments</h1>
                 <div id="div_id_organization"
                      class="form-group"
-                     hx-get="/payments/projects"
+                     hx-get="/receipts/projects"
                      hx-vals="js:{organization:document.getElementById('id_organization').value}"
                      hx-trigger="change"
-                     hx-target="#id_project"
-                >
-                    {{ form.organization.label_tag }}
-                    {% render_field form.organization class="select form-control" hx-get="/payments/accounts" hx-trigger="change" hx-target="#id_account" %}
+                     hx-target="#id_project">
+                {% render_field form.organization class="select form-control" hx-get="/receipts/accounts" hx-trigger="change" hx-target="#id_account" %}
                 </div>
-                <div id="div_id_account" class="form-group">
-                    {{ form.account.label_tag }}
-                    {% render_field form.account class="select form-control" %}
-                </div>
-            </div>
-        </div>
-        <br>
-        <div class="row">
-            <div class="col-md-4 border p-2 shadow">
-                {{ form.date|as_crispy_field }}
-                {{ form.amount|as_crispy_field }}
-                {{ form.counterparty|as_crispy_field }}
-            </div>
-            <div class="col-md-4 border p-2 shadow">
-                {{ form.item|as_crispy_field }}
-                <div id="div_id_account" class="form-group">
-                    {{ form.project.label_tag }}
-                    {% render_field form.project class="select form-control" %}
-                </div>
-            </div>
-            <div class="col-md-4 border p-2 shadow">
-                {{ form.comments|as_crispy_field }}
                 <div class="row">
-                    <div class="col-md-3">
-                        <button class="btn btn-info" type="submit" name="btn_save">SAVE</button>
+                    <div class="col-md-6 form-group">{{ form.date|as_crispy_field }}</div>
+                    <div class="col-md-6 form-group">{{ form.amount|as_crispy_field }}</div>
+                </div>
+                <div class="row text-left">
+                    <div id="div_id_account" class="col-md-11 form-group">
+                        {% render_field form.account class="select form-control" %}
                     </div>
-                    <div class="col-md-3">
+                    <div  class="col-md-1 form-group"><a href="#" class='btn btn-info btn-sm'><i class="bi bi-plus-square"></i></a></div>
+                </div>
+                <div class="row text-left">
+                    <div  class="col-md-11 form-group">{% render_field form.counterparty class="select form-control" %}</div>
+                    <div  class="col-md-1 form-group"><a href="#" class='btn btn-info btn-sm'><i class="bi bi-plus-square"></i></a></div>
+                </div>
+                <div class="row text-left">
+                    <div id="div_id_project" class="col-md-11 form-group">
+                        {% render_field form.project class="select form-control" %}
+                    </div>
+                    <div  class="col-md-1 form-group"><a href="#" class='btn btn-info btn-sm'><i class="bi bi-plus-square"></i></a></div>
+                </div>
+                <div class="row text-left">
+                    <div  class="col-md-11 form-group">{% render_field form.item class="select form-control" %}</div>
+                    <div  class="col-md-1 form-group"><a href="#" class='btn btn-info btn-sm'><i class="bi bi-plus-square"></i></a></div>
+                </div>
+                <div  class="form-group">{% render_field form.comments class="select form-control" %}</div>
+                <div class="row">
+                    <br>
+                    <div class="col-md-12">
+                        <button class="btn btn-info" type="submit" name="btn_save">SAVE</button>
                         <a href="/payments" class='btn btn-info'>CANCEL</a>
                     </div>
                 </div>

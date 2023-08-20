@@ -11,7 +11,7 @@
               hx-trigger="change"
               hx-target="#id_table">
         <div class="col-md-2 border p-2 shadow">
-                <h2>Receipts: filters</h2>
+                <h1>Receipts</h1>
                 {% csrf_token %}
                 <div class="form-group">
                 {{ form.organization.label_tag }}
@@ -47,7 +47,9 @@
 
         </div>
         <div class="col-md-10 border p-2 shadow">
+
             <div class="row d-grid gap-2 d-md-flex justify-content-md-end">
+
                 <div class="col-md-7"></div>
                 <div class="col-md-5">
                     <a href="{% url 'receipts_add' %}" class="btn btn-info" name="btn_add">ADD NEW</a>
