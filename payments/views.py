@@ -1,12 +1,15 @@
 import csv
 import datetime
+from decimal import Decimal
+from io import TextIOWrapper
 
 from django.db.models import ProtectedError
 from django.http import HttpResponse, FileResponse
 from django.shortcuts import render, redirect
-from django.views.generic import UpdateView, DeleteView, ListView
+from django.views.generic import UpdateView, DeleteView, ListView, FormView
 
-from payments.forms import ExpenseGroupAdd, ExpenseItemAdd, PaymentsFilter, PaymentsAdd
+from directory.models import Organization, Project, Currencies, Counterparties, PaymentAccount
+from payments.forms import ExpenseGroupAdd, ExpenseItemAdd, PaymentsFilter, PaymentsAdd, UploadFile
 from payments.models import ExpenseGroup, ExpensesItem, Payments
 from registers.models import AccountSettings
 
@@ -55,7 +58,6 @@ def ExpensesItemView(request):
 class PaymentsView(ListView):
     model = Payments
     template_name = 'payments/payments.html'
-    #-------------
 
     def get(self, request, *args, **kwargs):
         if 'btn_to_file' in request.GET:
@@ -72,13 +74,13 @@ class PaymentsView(ListView):
         name_file = 'payments' + t + '.csv'
         my_file = open(name_file, 'w',  newline='')
         with my_file:
-            writer = csv.writer(my_file)
+            writer = csv.writer(my_file, delimiter=';')
             writer.writerows(my_data)
 
         f = open(name_file, 'rb')
 
         return FileResponse(f)
-    #-------------
+
 
     def get_context_data(self, *, object_list=None, **kwargs):
         ctx = super().get_context_data(object_list=None, **kwargs)
@@ -179,3 +181,32 @@ class ExpensesItemDeleteView(DeleteView):
 
 def PaymentsPlanView(request):
     return render(request, 'payments/payments_plan.html')
+
+
+class UploadFileView(FormView):
+    form_class = UploadFile
+    template_name = 'payments/payments_upload_file.html'
+    success_url = '/payments'
+
+    def form_valid(self, form):
+        csvfile = form.cleaned_data['file']
+        f = TextIOWrapper(csvfile.file)
+        reader = csv.DictReader(f, delimiter=';')
+        for _, item in enumerate(reader, start=1):
+            payment = Payments()
+            try:
+                payment.organization = Organization.objects.get(organization=item.get('organization'))
+                payment.account = PaymentAccount.objects.get(account=item.get('account'))
+                if item.get('project'):
+                    payment.project = Project.objects.get(project=item.get('project'))
+                payment.date = datetime.datetime.strptime(item.get('date'), '%d.%m.%Y').date()
+                payment.amount = Decimal(item.get('amount'))
+                payment.currency = Currencies.objects.get(code=item.get('currency'))
+                payment.counterparty = Counterparties.objects.get(counterparty=item.get('counterparty'))
+                payment.item = ExpensesItem.objects.get(expense_item=item.get('item'))
+                payment.comments = item.get('comments')
+                payment.save()
+            except Exception as e:
+                print(e)
+
+        return super().form_valid(form)

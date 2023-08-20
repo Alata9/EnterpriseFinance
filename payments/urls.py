@@ -1,7 +1,7 @@
 from django.urls import path
 
 from payments.views import ExpensesGroupView, ExpensesItemView, PaymentsPlanView, PaymentsView, PaymentsIdView, \
-    PaymentsDeleteView, ExpensesItemDeleteView
+    PaymentsDeleteView, ExpensesItemDeleteView, UploadFileView
 
 urlpatterns = [
     path('expenses_group/', ExpensesGroupView, name='expenses_group'),
@@ -16,5 +16,6 @@ urlpatterns = [
     path('<int:pk>/payments_delete', PaymentsDeleteView.as_view(), name='payments_delete'),
     path('payments/accounts', PaymentsIdView.htmx_accounts, name='payments_accounts'),
     path('payments/projects', PaymentsIdView.htmx_projects, name='payments_projects'),
+    path('receipts/upload_file', UploadFileView.as_view(), name='upload_file'),
 ]
 

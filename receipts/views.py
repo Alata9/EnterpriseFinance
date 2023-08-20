@@ -58,7 +58,6 @@ class ReceiptsView(ListView):
     model = Receipts
     template_name = 'receipts/receipts.html'
 
-
     def get(self, request, *args, **kwargs):
         if 'btn_to_file' in request.GET:
             return self.to_file(request)
@@ -74,7 +73,7 @@ class ReceiptsView(ListView):
         name_file = 'receipts_' + t + '.csv'
         my_file = open(name_file, 'w',  newline='')
         with my_file:
-            writer = csv.writer(my_file)
+            writer = csv.writer(my_file, delimiter=';')
             writer.writerows(my_data)
 
         f = open(name_file, 'rb')
@@ -182,11 +181,10 @@ class IncomeItemDeleteView(DeleteView):
 def ReceiptsPlanView(request):
     return render(request, 'receipts/receipts_plan.html')
 
-# i.organization, i.account, i.date, i.amount, i.currency, i.counterparty, i.item, i.project, i.comments
 
 class UploadFileView(FormView):
     form_class = UploadFile
-    template_name = 'receipts/upload_file.html'
+    template_name = 'receipts/receipts_upload_file.html'
     success_url = '/receipts'
 
     def form_valid(self, form):

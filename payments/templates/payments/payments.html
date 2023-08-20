@@ -48,11 +48,11 @@
         </div>
         <div class="col-md-10 border p-2 shadow">
             <div class="row d-grid gap-2 d-md-flex justify-content-md-end">
-                <div class="col-md-8"></div>
-                <div class="col-md-4">
-                    <a href="{% url 'payments_add' %}" class="btn btn-info" name="btn_add">ADD NEW ENTRY</a>
-                    <a href="#" class="btn btn-info" name="btn_add">FROM FILE</a>
-                    <button  class="btn btn-info" name="btn_to_file">TO FILE</button>
+                <div class="col-md-7"></div>
+                <div class="col-md-5">
+                    <a href="{% url 'payments_add' %}" class="btn btn-info" name="btn_add">ADD NEW</a>
+                    <a href="{% url 'upload_file' %}" class="btn btn-info" name="btn_add">IMPORT FROM FILE</a>
+                    <button  class="btn btn-info" name="btn_to_file">SAVE TO FILE</button>
                 </div>
             </div>
             <br>
