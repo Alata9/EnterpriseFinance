@@ -1,0 +1,25 @@
+{% extends 'registers/base.html' %}
+{% block title %}Currencies{% endblock %}
+{% load crispy_forms_tags %}
+{% block content %}
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-4 border p-2 shadow">
+            <form  method='POST'>
+                <div class="col-md-10">
+                    <h2>Add new entry</h2>
+                    {% csrf_token %}
+                    {{ form|crispy }}
+                    <div class="col-md-12">
+                        <button class="btn btn-info" type="submit" name="btn_add">ADD NEW</button>
+                        <a href="/currencies" class='btn btn-info'>CANCEL</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+

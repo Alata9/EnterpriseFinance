@@ -29,7 +29,6 @@ class PaymentAccountAdd(ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['organization'].empty_label = ''
         self.fields['currency'].empty_label = ''
-        # self.fields['is_cash'].
 
 
 class CounterpartyAdd(ModelForm):
