@@ -56,28 +56,12 @@ class CounterpartyDeleteView(DeleteView):
 
 def OrganizationsView(request):
     organizations = Organization.objects.all()
-
-    if request.method == 'POST':
-        form = OrganizationAdd(request.POST)
-        if form.is_valid():
-            try:
-                form.save()
-                return redirect('organizations')
-            except:
-                form.add_error(None, 'Data save error')
-    else:
-        form = OrganizationAdd()
-
-    context = {'form': form,
-               'organizations': organizations}
+    context = {'organizations': organizations}
 
     return render(request, 'directory/organizations.html', context=context)
 
 
-def OrganizationIdView(request):
-    projects = Project.objects.all()
-    accounts = PaymentAccount.objects.all()
-
+def OrganizationAddView(request):
     if request.method == 'POST':
         form_org = OrganizationAdd(request.POST)
         if form_org.is_valid():
@@ -89,15 +73,27 @@ def OrganizationIdView(request):
     else:
         form_org = OrganizationAdd()
 
-    # org = ''
-    # project = project.filter(organization=org)
-    # accounts = accounts.filter(organization=org)
+    context = {'form_org': form_org}
 
-    context = {'form_org': form_org,
-               'projects': projects,
-               'accounts': accounts}
+    return render(request, 'directory/organization_add.html', context=context)
+
+
+def OrganizationIdView(request):
+    if request.method == 'POST':
+        form_org = OrganizationAdd(request.POST)
+        if form_org.is_valid():
+            try:
+                form_org.save()
+                return redirect('organizations')
+            except:
+                form_org.add_error(None, 'Data save error')
+    else:
+        form_org = OrganizationAdd()
+
+    context = {'form_org': form_org}
 
     return render(request, 'directory/organization_id.html', context=context)
+
 
 class OrganizationDeleteView(DeleteView):
     error = ''
@@ -171,6 +167,7 @@ def ProjectsView(request):
 
 
 def ProjectsIdView(request):
+
     if request.method == 'POST':
         form = ProjectAdd(request.POST)
         if form.is_valid():
@@ -181,9 +178,7 @@ def ProjectsIdView(request):
                 form.add_error(None, 'Data save error')
     else:
         form = ProjectAdd()
-
     context = {'form': form}
-
     return render(request, 'directory/projects_id.html', context=context)
 
 

@@ -1,5 +1,5 @@
 {% extends 'registers/base.html' %}
-{% block title %}Delete item{% endblock %}
+{% block title %}Delete object{% endblock %}
 {% load crispy_forms_tags %}
 {% block content %}
 
@@ -12,14 +12,14 @@
                     {{ error }}
                     {% else %}
                  <h3>Are you sure you want to delete</h3>
-                 <h4>income item: "{{ object }}"</h4>
+                 <h4>income group: "{{ object }}"</h4>
                  <br>
                  <div class="row">
                     <div class="col-md-2">
                         <button class="btn btn-info" type="submit" name="btn_del">DELETE</button>
                     </div>
                     <div class="col-md-2">
-                        <a href="/income_items" class='btn btn-info'>CANCEL</a>
+                        <a href="/income_groups" class='btn btn-info'>CANCEL</a>
                     </div>
                     {% endif %}
                  </div>

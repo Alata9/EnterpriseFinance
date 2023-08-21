@@ -14,46 +14,93 @@ from payments.models import ExpenseGroup, ExpensesItem, Payments
 from registers.models import AccountSettings
 
 
+# Expenses Groups----------------------------------------
+
 def ExpensesGroupView(request):
     expense_groups = ExpenseGroup.objects.all()
+    context = {'expense_groups': expense_groups}
 
-    if request.method == 'POST':
-        form = ExpenseGroupAdd(request.POST)
-        if form.is_valid():
-            try:
-                form.save()
-                return redirect('expenses_group')
-            except:
-                form.add_error(None, 'Data save error')
-    else:
-        form = ExpenseGroupAdd()
+    return render(request, 'payments/expenses_groups.html', context=context)
 
-    context = {'form': form,
-               'expense_groups': expense_groups}
+class ExpensesGroupIdView(UpdateView):
+    model = ExpenseGroup
+    template_name = 'payments/expenses_group_id.html'
+    form_class = ExpenseGroupAdd
 
-    return render(request, 'payments/expenses_group.html', context=context)
+    def get_object(self, queryset=None):
+        if 'pk' in self.kwargs:
+            return super().get_object(queryset)
 
+    def form_valid(self, form):
+        try:
+            form.save()
+            return redirect('expenses_groups')
+        except:
+            form.add_error(None, 'Data save error')
+
+
+class ExpensesGroupDeleteView(DeleteView):
+    error = ''
+    model = ExpenseGroup
+    success_url = '/expenses_group'
+    template_name = 'payments/expenses_group_delete.html'
+
+    def post(self, request, *args, **kwargs):
+        try:
+            return super().delete(request, *args, **kwargs)
+        except ProtectedError as error:
+            self.object = self.get_object()
+            context = self.get_context_data(
+                object=self.object,
+                error=f'Error: {error.protected_objects}'
+            )
+            return self.render_to_response(context)
+
+# Expenses Item----------------------------------------
 
 def ExpensesItemView(request):
     expense_items = ExpensesItem.objects.all()
+    context = {'expense_items': expense_items}
 
-    if request.method == 'POST':
-        form = ExpenseItemAdd(request.POST)
-        if form.is_valid():
-            try:
-                form.save()
-                return redirect('expenses_item')
-            except:
-                form.add_error(None, 'Data save error')
-    else:
-        form = ExpenseItemAdd()
+    return render(request, 'payments/expenses_items.html', context=context)
 
-    context = {'form': form,
-               'expense_items': expense_items}
 
-    return render(request, 'payments/expenses_item.html', context=context)
+class ExpensesItemIdView(UpdateView):
+    model = ExpensesItem
+    template_name = 'payments/expenses_item_id.html'
+    form_class = ExpenseItemAdd
 
-# -----------------------------------
+    def get_object(self, queryset=None):
+        if 'pk' in self.kwargs:
+            return super().get_object(queryset)
+
+    def form_valid(self, form):
+        try:
+            form.save()
+            return redirect('expenses_items')
+        except:
+            form.add_error(None, 'Data save error')
+
+
+class ExpensesItemDeleteView(DeleteView):
+    error = ''
+    model = ExpensesItem
+    success_url = '/expenses_items'
+    template_name = 'payments/expenses_item_delete.html'
+
+    def post(self, request, *args, **kwargs):
+        try:
+            return super().delete(request, *args, **kwargs)
+        except ProtectedError as error:
+            self.object = self.get_object()
+            context = self.get_context_data(
+                object=self.object,
+                error=f'Error: {error.protected_objects}'
+            )
+            return self.render_to_response(context)
+
+
+# Payments-----------------------------------
 
 class PaymentsView(ListView):
     model = Payments
@@ -161,22 +208,6 @@ class PaymentsDeleteView(DeleteView):
     template_name = 'payments/payments_delete.html'
 
 
-class ExpensesItemDeleteView(DeleteView):
-    error = ''
-    model = ExpensesItem
-    success_url = '/expenses_item'
-    template_name = 'payments/expenses_item_delete.html'
-
-    def post(self, request, *args, **kwargs):
-        try:
-            return super().delete(request, *args, **kwargs)
-        except ProtectedError as error:
-            self.object = self.get_object()
-            context = self.get_context_data(
-                object=self.object,
-                error=f'Error: {error.protected_objects}'
-            )
-            return self.render_to_response(context)
 
 
 def PaymentsPlanView(request):

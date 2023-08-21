@@ -4,47 +4,46 @@
 {% block content %}
 
 <div class="container">
-    <div class="row">
-       <div class="row d-grid gap-2 d-md-flex justify-content-md-end">
-           <div class="col-md-10"></div>
-               <div class="col-md-2">
-                   <a href="{% url 'counterparty_id' %}" class="btn btn-info" name="btn_add">ADD NEW</a>
-               </div>
-       </div>
+    <div class="row d-grid gap-2 d-md-flex justify-content-md-end">
+        <div class="col-md-12"></div>
+        <div class="col-md-10">
+            <H1>Counterparties</H1>
+        </div>
+        <div class="col-md-2">
+            <a href="{% url 'counterparty_id' %}" class="btn btn-info" name="btn_add">ADD NEW</a>
+        </div>
     </div>
-        <br>
-        <div class="row p-1 g-1">
-            <div class="table-responsive" style="height: 550px">
-                <table class="table table-sm table-scroll table-striped table-bordered" >
-                    <tr>
-                        <th align="center">Counterparty</th>
-                        <th align="center">Supplier</th>
-                        <th align="center">Customer</th>
-                        <th align="center">Employee</th>
-                        <th align="center">Other</th>
-                        <th align="center">Comments</th>
-                        <th align="center">Edit  |  Del</th>
-                    </tr>
-                    {% for i in counterparties %}
-                    <tr>
-                        <td width="200">{{i.counterparty}}</td>
-                        <td width="10" align="center">{% if i.suppliers %}<i class="bi bi-check2-square"></i>{% endif %}</td>
-                        <td width="10" align="center">{% if i.customer %}<i class="bi bi-check2-square"></i>{% endif %}</td>
-                        <td width="10" align="center">{% if i.employee %}<i class="bi bi-check2-square"></i>{% endif %}</td>
-                        <td width="10" align="center">{% if i.other %}<i class="bi bi-check2-square"></i>{% endif %}</td>
-                        <td width="100">{{i.comments}}</td>
-                        <td width="10" align="center">
-                            <a href="#" class='btn btn-info btn-sm'><i class="bi bi-pencil-square"></i></a>
-                            <a href="{% url 'counterparty_del' i.id %}" class='btn btn-info btn-sm'><i class="bi bi-basket2-fill"></i></a>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </table>
-            </div>
+    <br>
+    <div class="row p-1 g-1">
+        <div class="table-responsive" style="height: 550px">
+            <table class="table table-sm table-scroll table-striped table-bordered" >
+                <tr>
+                    <th align="center">Counterparty</th>
+                    <th align="center">Supplier</th>
+                    <th align="center">Customer</th>
+                    <th align="center">Employee</th>
+                    <th align="center">Other</th>
+                    <th align="center">Comments</th>
+                    <th align="center">Edit  |  Del</th>
+                </tr>
+                {% for i in counterparties %}
+                <tr>
+                    <td width="200">{{i.counterparty}}</td>
+                    <td width="10" align="center">{% if i.suppliers %}<i class="bi bi-check2-square"></i>{% endif %}</td>
+                    <td width="10" align="center">{% if i.customer %}<i class="bi bi-check2-square"></i>{% endif %}</td>
+                    <td width="10" align="center">{% if i.employee %}<i class="bi bi-check2-square"></i>{% endif %}</td>
+                    <td width="10" align="center">{% if i.other %}<i class="bi bi-check2-square"></i>{% endif %}</td>
+                    <td width="100">{{i.comments}}</td>
+                    <td width="10" align="center">
+                        <a href="#" class='btn btn-info btn-sm'><i class="bi bi-pencil-square"></i></a>
+                        <a href="{% url 'counterparty_del' i.id %}" class='btn btn-info btn-sm'><i class="bi bi-basket2-fill"></i></a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
         </div>
     </div>
 </div>
-
 {% endblock %}
 
 

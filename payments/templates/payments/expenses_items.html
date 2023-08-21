@@ -1,5 +1,5 @@
 {% extends 'registers/base.html' %}
-{% block title %}Projects{% endblock %}
+{% block title %}Expenses items{% endblock %}
 {% load crispy_forms_tags %}
 {% block content %}
 
@@ -7,10 +7,10 @@
     <div class="row d-grid gap-2 d-md-flex justify-content-md-end">
         <div class="col-md-12"></div>
         <div class="col-md-10">
-            <H1>Projects</H1>
+            <H1>Expense items</H1>
         </div>
         <div class="col-md-2">
-            <a href="{% url 'projects_add' %}" class="btn btn-info" name="btn_add">ADD NEW</a>
+            <a href="{% url 'expenses_item_add' %}" class="btn btn-info" name="btn_add">ADD NEW</a>
         </div>
     </div>
     <br>
@@ -18,19 +18,17 @@
         <div class="table-responsive" style="height: 550px">
             <table class="table table-sm table-scroll table-striped table-bordered" >
                 <tr>
-                    <th align="center">Organizations</th>
-                    <th align="center">Project</th>
-                    <th align="center">Comments</th>
+                    <th align="center">Expense groups</th>
+                    <th align="center">Expense items</th>
                     <th align="center">Edit  |  Del</th>
                 </tr>
-                {% for i in projects %}
+                {% for i in expense_items %}
                 <tr>
-                    <td width="100">{{i.organization}}</td>
-                    <td width="100">{{i.project}}</td>
-                    <td width="200">{{i.comments}}</td>
+                    <td width="100">{{i.expense_group}}</td>
+                    <td width="100">{{i.expense_item}}</td>
                     <td width="10" align="center">
-                        <a href="#" class='btn btn-info btn-sm'><i class="bi bi-pencil-square"></i></a>
-                        <a href="{% url 'project_del' i.id %}" class='btn btn-info btn-sm'><i class="bi bi-basket2-fill"></i></a>
+                        <a href="{% url 'expenses_item_id' i.id %}" class='btn btn-info btn-sm'><i class="bi bi-pencil-square"></i></a>
+                        <a href="{% url 'expenses_item_delete' i.id %}" class='btn btn-info btn-sm'><i class="bi bi-basket2-fill"></i></a>
                     </td>
                 </tr>
                 {% endfor %}
@@ -39,4 +37,3 @@
     </div>
 </div>
 {% endblock %}
-

@@ -17,39 +17,86 @@ import csv
 
 def IncomeGroupView(request):
     income_groups = IncomeGroup.objects.all()
-    if request.method == 'POST':
-        form = IncomeGroupAdd(request.POST)
-        if form.is_valid():
-            try:
-                form.save()
-                return redirect('income_group')
-            except:
-                form.add_error(None, 'Data save error')
-    else:
-        form = IncomeGroupAdd()
-    context = {'form': form,
-               'income_groups': income_groups}
-    return render(request, 'receipts/income_group.html', context=context)
+    context = {'income_groups': income_groups}
+
+    return render(request, 'receipts/income_groups.html', context=context)
+
+
+class IncomeGroupIdView(UpdateView):
+    model = IncomeGroup
+    template_name = 'receipts/income_group_id.html'
+    form_class = IncomeGroupAdd
+
+    def get_object(self, queryset=None):
+        if 'pk' in self.kwargs:
+            return super().get_object(queryset)
+
+    def form_valid(self, form):
+        try:
+            form.save()
+            return redirect('income_groups')
+        except:
+            form.add_error(None, 'Data save error')
+
+
+class IncomeGroupDeleteView(DeleteView):
+    error = ''
+    model = IncomeGroup
+    success_url = '/income_groups'
+    template_name = 'receipts/income_group_delete.html'
+
+    def post(self, request, *args, **kwargs):
+        try:
+            return super().delete(request, *args, **kwargs)
+        except ProtectedError as error:
+            self.object = self.get_object()
+            context = self.get_context_data(
+                object=self.object,
+                error=f'Error: {error.protected_objects}'
+            )
+            return self.render_to_response(context)
 
 
 def IncomeItemView(request):
     income_items = IncomeItem.objects.all()
+    context = {'income_items': income_items}
 
-    if request.method == 'POST':
-        form = IncomeItemAdd(request.POST)
-        if form.is_valid():
-            try:
-                form.save()
-                return redirect('income_item')
-            except:
-                form.add_error(None, 'Data save error')
-    else:
-        form = IncomeItemAdd()
+    return render(request, 'receipts/income_items.html', context=context)
 
-    context = {'form': form,
-               'income_items': income_items}
 
-    return render(request, 'receipts/income_item.html', context=context)
+class IncomeItemIdView(UpdateView):
+    model = IncomeItem
+    template_name = 'receipts/income_item_id.html'
+    form_class = IncomeItemAdd
+
+    def get_object(self, queryset=None):
+        if 'pk' in self.kwargs:
+            return super().get_object(queryset)
+
+    def form_valid(self, form):
+        try:
+            form.save()
+            return redirect('income_items')
+        except:
+            form.add_error(None, 'Data save error')
+
+
+class IncomeItemDeleteView(DeleteView):
+    error = ''
+    model = IncomeItem
+    success_url = '/income_items'
+    template_name = 'receipts/income_item_delete.html'
+
+    def post(self, request, *args, **kwargs):
+        try:
+            return super().delete(request, *args, **kwargs)
+        except ProtectedError as error:
+            self.object = self.get_object()
+            context = self.get_context_data(
+                object=self.object,
+                error=f'Error: {error.protected_objects}'
+            )
+            return self.render_to_response(context)
 
 # -------------------------------------------
 
@@ -159,22 +206,7 @@ class ReceiptsDeleteView(DeleteView):
     template_name = 'receipts/receipts_delete.html'
 
 
-class IncomeItemDeleteView(DeleteView):
-    error = ''
-    model = IncomeItem
-    success_url = '/income_item'
-    template_name = 'receipts/income_item_delete.html'
 
-    def post(self, request, *args, **kwargs):
-        try:
-            return super().delete(request, *args, **kwargs)
-        except ProtectedError as error:
-            self.object = self.get_object()
-            context = self.get_context_data(
-                object=self.object,
-                error=f'Error: {error.protected_objects}'
-            )
-            return self.render_to_response(context)
 
 
 

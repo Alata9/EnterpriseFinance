@@ -5,14 +5,17 @@
 
 <div class="container">
     <div class="row d-grid gap-2 d-md-flex justify-content-md-end">
-       <div class="col-md-10"></div>
-           <div class="col-md-2">
-               <a href="{% url 'currency_add' %}" class="btn btn-info" name="btn_add">ADD NEW</a>
-           </div>
+        <div class="col-md-12"></div>
+        <div class="col-md-10">
+            <H1>Currencies</H1>
+        </div>
+        <div class="col-md-2">
+            <a href="{% url 'currency_add' %}" class="btn btn-info" name="btn_add">ADD NEW</a>
+        </div>
     </div>
     <br>
     <div class="row p-1 g-1">
-        <div class="table-responsive" style="height: 450px">
+        <div class="table-responsive" style="height: 550px">
             <table class="table table-sm table-scroll table-striped table-bordered" >
                 <tr>
                     <th align="center">Currencies</th>
@@ -21,8 +24,8 @@
                 </tr>
                 {% for i in currencies %}
                 <tr>
-                    <td width="100">{{i.currency}}</td>
-                    <td width="100">{{i.code}}</td>
+                    <td width="200">{{i.currency}}</td>
+                    <td width="200">{{i.code}}</td>
                     <td width="10" align="center">
                         <a href="#" class='btn btn-info btn-sm'><i class="bi bi-pencil-square"></i></a>
                         <a href="{% url 'currency_del' i.id %}" class='btn btn-info btn-sm'><i class="bi bi-basket2-fill"></i></a>

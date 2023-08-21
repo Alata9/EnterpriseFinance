@@ -1,5 +1,5 @@
 {% extends 'registers/base.html' %}
-{% block title %}Counterparties{% endblock %}
+{% block title %}Income items{% endblock %}
 {% load crispy_forms_tags %}
 {% block content %}
 
@@ -9,19 +9,17 @@
             <form  method='POST'>
                 <div class="row p-2 g-3">
                     <div class="col-md-10">
-                        <h2>Add new counterparty</h2>
+                        <h2>Add new income item</h2>
                         {% csrf_token %}
                         {{ form|crispy }}
                         <div class="col-md-12">
                             <button class="btn btn-info" type="submit" name="btn_add">ADD NEW</button>
-                            <a href="/counterparties" class='btn btn-info'>CANCEL</a>
+                            <a href="/income_items" class='btn btn-info'>CANCEL</a>
                         </div>
                     </div>
                 </div>
             </form>
         </div>
     </div>
+</div>
 {% endblock %}
-
-
-
