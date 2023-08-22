@@ -1,6 +1,6 @@
 from django.db.models import ProtectedError
 from django.shortcuts import render, redirect
-from django.views.generic import DeleteView
+from django.views.generic import DeleteView, UpdateView
 
 from directory.forms import CounterpartyAdd, OrganizationAdd, CurrencyAdd, ProjectAdd, PaymentAccountAdd
 from directory.models import Counterparties, Organization, Project, PaymentAccount, Currencies
@@ -13,25 +13,24 @@ def CounterpartiesView(request):
     context = {'counterparties': counterparties}
     return render(request, 'directory/counterparties.html', context=context)
 
+class CounterpartyIdView(UpdateView):
+    model = Counterparties
+    template_name = 'directory/counterparty_id.html'
+    form_class = CounterpartyAdd
 
-def CounterpartyIdView(request):
-    if request.method == 'POST':
-        form = CounterpartyAdd(request.POST)
-        if form.is_valid():
-            try:
-                c = form.save(commit=False)
-                type_counterparty = [c.suppliers, c.customer, c.employee, c.other]
-                if any(type_counterparty):
-                    c.save()
-                    return redirect('counterparties')
-            except:
-                form.add_error(None, 'Data save error')
-    else:
-        form = CounterpartyAdd()
+    def get_object(self, queryset=None):
+        if 'pk' in self.kwargs:
+            return super().get_object(queryset)
 
-    context = {'form': form}
-
-    return render(request, 'directory/counterparty_id.html', context=context)
+    def form_valid(self, form):
+        try:
+            c = form.save(commit=False)
+            type_counterparty = [c.suppliers, c.customer, c.employee, c.other]
+            if any(type_counterparty):
+                c.save()
+                return redirect('counterparties')
+        except:
+            form.add_error(None, 'Data save error')
 
 
 class CounterpartyDeleteView(DeleteView):
@@ -59,6 +58,7 @@ def OrganizationsView(request):
     context = {'organizations': organizations}
 
     return render(request, 'directory/organizations.html', context=context)
+
 
 
 def OrganizationAddView(request):
@@ -122,21 +122,21 @@ def CurrenciesView(request):
     return render(request, 'directory/currencies.html', context=context)
 
 
-def CurrenciesIdView(request):
-    if request.method == 'POST':
-        form = CurrencyAdd(request.POST)
-        if form.is_valid():
-            try:
-                form.save()
-                return redirect('currencies')
-            except:
-                form.add_error(None, 'Data save error')
-    else:
-        form = CurrencyAdd()
+class CurrenciesIdView(UpdateView):
+    model = Currencies
+    template_name = 'directory/currency_id.html'
+    form_class = CurrencyAdd
 
-    context = {'form': form}
+    def get_object(self, queryset=None):
+        if 'pk' in self.kwargs:
+            return super().get_object(queryset)
 
-    return render(request, 'directory/currency_id.html', context=context)
+    def form_valid(self, form):
+        try:
+            form.save()
+            return redirect('currencies')
+        except:
+            form.add_error(None, 'Data save error')
 
 
 class CurrencyDeleteView(DeleteView):
@@ -165,21 +165,21 @@ def ProjectsView(request):
 
     return render(request, 'directory/projects.html', context=context)
 
+class ProjectsIdView(UpdateView):
+    model = Project
+    template_name = 'directory/project_id.html'
+    form_class = ProjectAdd
 
-def ProjectsIdView(request):
+    def get_object(self, queryset=None):
+        if 'pk' in self.kwargs:
+            return super().get_object(queryset)
 
-    if request.method == 'POST':
-        form = ProjectAdd(request.POST)
-        if form.is_valid():
-            try:
-                form.save()
-                return redirect('projects')
-            except:
-                form.add_error(None, 'Data save error')
-    else:
-        form = ProjectAdd()
-    context = {'form': form}
-    return render(request, 'directory/projects_id.html', context=context)
+    def form_valid(self, form):
+        try:
+            form.save()
+            return redirect('projects')
+        except:
+            form.add_error(None, 'Data save error')
 
 
 class ProjectDeleteView(DeleteView):
@@ -208,22 +208,21 @@ def PaymentAccountsView(request):
 
     return render(request, 'directory/payment_accounts.html', context=context)
 
+class PaymentAccountIdView(UpdateView):
+    model = PaymentAccount
+    template_name = 'directory/payment_account_id.html'
+    form_class = PaymentAccountAdd
 
-def PaymentAccountIdView(request):
-    if request.method == 'POST':
-        form = PaymentAccountAdd(request.POST)
-        if form.is_valid():
-            try:
-                form.save()
-                return redirect('payment_accounts')
-            except:
-                form.add_error(None, 'Data save error')
-    else:
-        form = PaymentAccountAdd()
+    def get_object(self, queryset=None):
+        if 'pk' in self.kwargs:
+            return super().get_object(queryset)
 
-    context = {'form': form}
-
-    return render(request, 'directory/payment_account_id.html', context=context)
+    def form_valid(self, form):
+        try:
+            form.save()
+            return redirect('payment_accounts')
+        except:
+            form.add_error(None, 'Data save error')
 
 
 class PaymentAccountDeleteView(DeleteView):

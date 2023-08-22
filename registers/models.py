@@ -23,6 +23,8 @@ class AccountSettings(models.Model):
     multiple_currencies = models.BooleanField('Use multiple accounting currencies', blank=False)
     multiple_projects = models.BooleanField('Keep records of projects', blank=False)
     organization_default = models.ForeignKey(Organization, on_delete=models.PROTECT, blank=True)
+    # accounting_currency = models.ForeignKey('Main accounting currency', Currencies, on_delete=models.CASCADE,
+    #                                         null=True, blank=True)
 
     def get_absolute_url(self):
         return '/settings'
@@ -42,3 +44,10 @@ class AccountSettings(models.Model):
         except:
             ...
         return None
+
+    # def currency(self):
+    #     try:
+    #         return self.accounting_currency
+    #     except:
+    #         ...
+    #     return None

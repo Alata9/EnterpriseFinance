@@ -24,9 +24,9 @@
                     </tr>
                     {% for i in income_groups %}
                     <tr>
-                        <td width="200">{{i.income_group}}</td>
-                        <td width="200">{{i.comments}}</td>
-                        <td width="30" align="center">
+                        <td width="300">{{i.income_group}}</td>
+                        <td width="300">{{i.comments}}</td>
+                        <td width="10" align="center">
                         <a href="{% url 'income_group_id' i.id %}" class='btn btn-info btn-sm'><i class="bi bi-pencil-square"></i></a>
                         <a href="{% url 'income_group_delete' i.id %}" class='btn btn-info btn-sm'><i class="bi bi-basket2-fill"></i></a>
                     </td>

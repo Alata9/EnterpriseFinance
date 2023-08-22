@@ -1,7 +1,8 @@
 from django.shortcuts import render
 from django.views.generic import UpdateView
 
-from registers.forms import *
+from registers.forms import AccountSettingsSet
+from registers.models import AccountSettings
 
 
 def HomeView(request):
@@ -15,6 +16,10 @@ def ReportsView(request):
 
 def DashboardView(request):
     return render(request, 'registers/dashboard.html')
+
+
+def AccountBalancesView(request):
+    return render(request, 'registers/account_balances.html')
 
 
 class AccountSettingsView(UpdateView):

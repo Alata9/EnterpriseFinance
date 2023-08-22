@@ -10,12 +10,12 @@
             <H1>Payment accounts</H1>
         </div>
         <div class="col-md-2">
-            <a href="{% url 'payment_accounts_add' %}" class="btn btn-info" name="btn_add">ADD NEW</a>
+            <a href="{% url 'payment_account_add' %}" class="btn btn-info" name="btn_add">ADD NEW</a>
         </div>
     </div>
     <br>
     <div class="row p-1 g-1">
-        <div class="table-responsive" style="height: 550px">
+        <div class="table-responsive" style="height: 500px">
             <table class="table table-sm table-scroll table-striped table-bordered" >
                 <tr>
                     <th align="center">Organizations</th>
@@ -33,7 +33,7 @@
                     <td width="10" align="center">{% if i.is_cash %}<i class="bi bi-check2-square"></i>{% endif %}</td>
                     <td width="200">{{i.comments}}</td>
                     <td width="60" align="center">
-                        <a href="#" class='btn btn-info btn-sm'><i class="bi bi-pencil-square"></i></a>
+                        <a href="{% url 'payment_account_id' i.id %}" class='btn btn-info btn-sm'><i class="bi bi-pencil-square"></i></a>
                         <a href="{% url 'payment_account_del' i.id %}" class='btn btn-info btn-sm'><i class="bi bi-basket2-fill"></i></a>
                     </td>
                 </tr>
