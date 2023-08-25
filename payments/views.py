@@ -22,27 +22,22 @@ def ExpensesGroupView(request):
 
     return render(request, 'payments/expenses_groups.html', context=context)
 
+
 class ExpensesGroupIdView(UpdateView):
     model = ExpenseGroup
     template_name = 'payments/expenses_group_id.html'
     form_class = ExpenseGroupAdd
+    success_url = '/expenses_groups'
 
     def get_object(self, queryset=None):
         if 'pk' in self.kwargs:
             return super().get_object(queryset)
 
-    def form_valid(self, form):
-        try:
-            form.save()
-            return redirect('expenses_groups')
-        except:
-            form.add_error(None, 'Data save error')
-
 
 class ExpensesGroupDeleteView(DeleteView):
     error = ''
     model = ExpenseGroup
-    success_url = '/expenses_group'
+    success_url = '/expenses_groups'
     template_name = 'payments/expenses_group_delete.html'
 
     def post(self, request, *args, **kwargs):
@@ -55,6 +50,7 @@ class ExpensesGroupDeleteView(DeleteView):
                 error=f'Error: {error.protected_objects}'
             )
             return self.render_to_response(context)
+
 
 # Expenses Item----------------------------------------
 
@@ -69,17 +65,11 @@ class ExpensesItemIdView(UpdateView):
     model = ExpensesItem
     template_name = 'payments/expenses_item_id.html'
     form_class = ExpenseItemAdd
+    success_url = '/expenses_items'
 
     def get_object(self, queryset=None):
         if 'pk' in self.kwargs:
             return super().get_object(queryset)
-
-    def form_valid(self, form):
-        try:
-            form.save()
-            return redirect('expenses_items')
-        except:
-            form.add_error(None, 'Data save error')
 
 
 class ExpensesItemDeleteView(DeleteView):
@@ -118,18 +108,18 @@ class PaymentsView(ListView):
             my_data.append([i.organization, i.account, i.date, i.amount, i.currency, i.counterparty, i.item, i.project, i.comments])
 
         t = str(datetime.datetime.today().strftime('%d-%m-%Y-%H%M%S'))
-        name_file = 'payments' + t + '.csv'
-        my_file = StringIO('dfgh')
-        # wrapper = TextIOWrapper(my_file)
+        file_name = 'payments' + t + '.csv'
+        file_buffer = StringIO()
 
-        writer = csv.writer(my_file, delimiter=';')
+        writer = csv.writer(file_buffer, delimiter=';')
         writer.writerows(my_data)
-        my_file.seek(0, 0)
-        my_file_bytes = BytesIO(my_file.read().encode('utf8'))
-        response = FileResponse(my_file_bytes, filename=name_file)
+
+        file_bytes = BytesIO(file_buffer.getvalue().encode('utf8'))
+        file_bytes.seek(0)
+
+        response = FileResponse(file_bytes, filename=file_name, as_attachment=True)
 
         return response
-
 
     def get_context_data(self, *, object_list=None, **kwargs):
         ctx = super().get_context_data(object_list=None, **kwargs)
@@ -170,6 +160,7 @@ class PaymentsIdView(UpdateView):
     model = Payments
     template_name = 'payments/payments_id.html'
     form_class = PaymentsAdd
+    success_url = '/payments'
 
     def get_object(self, queryset=None):
         if 'pk' in self.kwargs:
@@ -182,15 +173,6 @@ class PaymentsIdView(UpdateView):
 
         org = AccountSettings.load().organization()
         return self.model(organization=org)
-
-    def form_valid(self, form):
-        try:
-            payment = form.save(commit=False)
-            payment.currency = payment.account.currency
-            payment.save()
-            return redirect('payments')
-        except:
-            form.add_error(None, 'Data save error')
 
     @staticmethod
     def htmx_accounts(request):
@@ -208,8 +190,6 @@ class PaymentsDeleteView(DeleteView):
     model = Payments
     success_url = '/payments'
     template_name = 'payments/payments_delete.html'
-
-
 
 
 def PaymentsPlanView(request):
