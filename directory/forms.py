@@ -38,9 +38,11 @@ class CounterpartyAdd(ModelForm):
         fields = ('counterparty', 'suppliers', 'customer', 'employee', 'other', 'comments')
 
     def clean(self):
-        # type_counterparty = [self.data.get('suppliers'), self.data.get('customer'), self.data.get('employee'), self.data.get('other')]
+        cleaned_data = super().clean()
         if not any(self.data.get(x, '') == 'on' for x in ['suppliers', 'customer', 'employee', 'other']):
             raise ValidationError('Error')
+
+        return cleaned_data
 
 
 
