@@ -1,6 +1,7 @@
 from django.forms import ModelForm, DateInput, DateField
 
-from directory.models import Organization
+from directory.models import Organization, PaymentAccount
+from payments.models import Payments
 from registers.models import AccountSettings
 
 
@@ -14,19 +15,15 @@ class AccountSettingsSet(ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['organization_default'].empty_label = ''
 
-# account balances
-# cash flow statement
-# cash flow budget
-# cash flow plan-fact
 
 
 class AccountBalancesFilter(ModelForm):
-    # date_start = DateField(lable="From", widget=DateInput(attrs={'type': 'date'}), required=False)
-    # date_end = DateField(lable="To", widget=DateInput(attrs={'type': 'date'}), required=False)
+    date_start = DateField(label="From", widget=DateInput(attrs={'type': 'date'}), required=False)
+    date_end = DateField(label="To", widget=DateInput(attrs={'type': 'date'}), required=False)
 
     class Meta:
-        model = Organization
-        fields = ['organization']
+        model = PaymentAccount
+        fields = ['organization', 'is_cash', 'currency', ]
         # widgets = {
         #     'date_start': DateInput(attrs={'type': 'Date'}),
         #     'date_end': DateInput(attrs={'type': 'Date'}),
@@ -36,5 +33,8 @@ class AccountBalancesFilter(ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['organization'].empty_label = ''
         self.fields['organization'].required = False
-        # self.fields['date_start'].required = False
-        # self.fields['date_end'].required = False
+        self.fields['currency'].empty_label = ''
+        self.fields['currency'].label = 'Сonversion currency'
+        self.fields['currency'].required = False
+        self.fields['date_start'].required = False
+        self.fields['date_end'].required = False

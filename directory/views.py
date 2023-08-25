@@ -17,20 +17,11 @@ class CounterpartyIdView(UpdateView):
     model = Counterparties
     template_name = 'directory/counterparty_id.html'
     form_class = CounterpartyAdd
+    success_url = '/counterparties'
 
     def get_object(self, queryset=None):
         if 'pk' in self.kwargs:
             return super().get_object(queryset)
-
-    def form_valid(self, form):
-        try:
-            c = form.save(commit=False)
-            type_counterparty = [c.suppliers, c.customer, c.employee, c.other]
-            if any(type_counterparty):
-                c.save()
-                return redirect('counterparties')
-        except:
-            form.add_error(None, 'Data save error')
 
 
 class CounterpartyDeleteView(DeleteView):

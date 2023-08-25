@@ -3,6 +3,65 @@
 {% load crispy_forms_tags %}
 {% load widget_tweaks %}
 {% block content %}
-<h1>Account balances</h1>
 
+<div class="container-fluid px-10">
+    <div class="row-fluid">
+        <h1>Account balances</h1>
+        <form action="" method="GET"
+              hx-get="#"
+              hx-trigger="change"
+              hx-target="#id_table">
+            <div class="col-md-2 border p-2 shadow">
+                <h3>Filters:</h3>
+                {% csrf_token %}
+                <div class="form-group">
+                {{ form.organization.label_tag }}
+                {% render_field form.organization class="select form-control" %}
+                </div>
+                <div class="form-group">
+                {{ form.date_start.label_tag }}
+                {% render_field form.date_start class="select form-control" %}
+                </div>
+                <div class="form-group">
+                {{ form.date_end.label_tag }}
+                {% render_field form.date_end class="select form-control" %}
+                </div>
+                <div class="form-group">
+                {{ form.is_cash.label_tag }}
+                {% render_field form.is_cash  %}
+                </div>
+                <div class="form-group">
+                {{ form.currency.label_tag }}
+                {% render_field form.currency class="select form-control" %}
+                </div>
+                <div hx-get="#" hx-trigger="click" hx-target="#id_table">
+                    <button class="btn btn-info" type="reset" name="btn_reset" >RESET FILTERS</button>
+                </div>
+            </div>
+            <div class="col-md-1 border shadow"></div>
+            <div class="col-md-8 border shadow">
+                <table class="table table-sm table-scroll table-striped" id="id_table" >
+                    <tr>
+                        <th align="center">account</th>
+                        <th align="center">currency</th>
+                        <th align="center">opening balance</th>
+                        <th align="center">income</th>
+                        <th align="center">payments</th>
+                        <th align="center">closing balance</th>
+                    </tr>
+                    {% for i in payments_queryset %}
+                    <tr>
+                        <td width="300">{{i.account}}</td>
+                        <td width="200">{{i.currency}}</td>
+                        <td width="10">{{i.amount}}</td>
+                        <td width="10">{{i.sum_payment}}</td>
+                        <td width="10">{{i.sum_income}}</td>
+                        <td width="10">{{i.amount}}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </form>
+    </div>
+</div>
 {% endblock %}

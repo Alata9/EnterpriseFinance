@@ -42,6 +42,20 @@ class Project(models.Model):
         verbose_name_plural = 'Projects'
 
 
+class PaymentAccountOpenBalance(models.Model):
+    account = models.ForeignKey(PaymentAccount, on_delete=models.PROTECT, blank=False, null=False)
+    date_open = models.DateField(blank=True)
+    balance = models.DecimalField(max_digits=15, decimal_places=2)
+
+    def __str__(self):
+        return f'{self.account}, {self.date_open}, {self.balance}'
+
+    class Meta:
+        ordering = ['account', 'date_open', 'balance']
+        verbose_name = 'Open_balance'
+        verbose_name_plural = 'Open_balances'
+
+
 class Counterparties(models.Model):
     counterparty = models.CharField(max_length=100, unique=True)
     suppliers = models.BooleanField(blank=False)

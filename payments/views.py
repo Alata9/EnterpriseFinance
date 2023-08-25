@@ -1,7 +1,7 @@
 import csv
 import datetime
 from decimal import Decimal
-from io import TextIOWrapper
+from io import TextIOWrapper, BytesIO, StringIO
 
 from django.db.models import ProtectedError
 from django.http import HttpResponse, FileResponse
@@ -119,14 +119,16 @@ class PaymentsView(ListView):
 
         t = str(datetime.datetime.today().strftime('%d-%m-%Y-%H%M%S'))
         name_file = 'payments' + t + '.csv'
-        my_file = open(name_file, 'w',  newline='')
-        with my_file:
-            writer = csv.writer(my_file, delimiter=';')
-            writer.writerows(my_data)
+        my_file = StringIO('dfgh')
+        # wrapper = TextIOWrapper(my_file)
 
-        f = open(name_file, 'rb')
+        writer = csv.writer(my_file, delimiter=';')
+        writer.writerows(my_data)
+        my_file.seek(0, 0)
+        my_file_bytes = BytesIO(my_file.read().encode('utf8'))
+        response = FileResponse(my_file_bytes, filename=name_file)
 
-        return FileResponse(f)
+        return response
 
 
     def get_context_data(self, *, object_list=None, **kwargs):

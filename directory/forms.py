@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.forms import ModelForm, Textarea
 
 from directory.models import Organization, Project, PaymentAccount, Counterparties, Currencies
@@ -35,6 +36,12 @@ class CounterpartyAdd(ModelForm):
     class Meta:
         model = Counterparties
         fields = ('counterparty', 'suppliers', 'customer', 'employee', 'other', 'comments')
+
+    def clean(self):
+        # type_counterparty = [self.data.get('suppliers'), self.data.get('customer'), self.data.get('employee'), self.data.get('other')]
+        if not any(self.data.get(x, '') == 'on' for x in ['suppliers', 'customer', 'employee', 'other']):
+            raise ValidationError('Error')
+
 
 
 class CurrencyAdd(ModelForm):

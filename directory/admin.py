@@ -1,6 +1,7 @@
 from django.contrib import admin
 
-from directory.models import Organization, PaymentAccount, Project, Currencies, Counterparties
+from directory.models import Organization, PaymentAccount, Project, Currencies, Counterparties, \
+    PaymentAccountOpenBalance
 
 
 # directory
@@ -14,6 +15,12 @@ class PaymentAccountAdmin(admin.ModelAdmin):
     list_display = ['id', 'account', 'organization', 'is_cash', 'currency', 'comments']
     list_display_links = ['id', 'account', 'organization', 'currency', 'comments']
     search_fields = ['account', 'organization', 'is_cash']
+
+class PaymentAccountOpenBalanceAdmin(admin.ModelAdmin):
+    list_display = ['id', 'account', 'date_open', 'balance']
+    list_display_links = ['id', 'account', 'date_open', 'balance']
+    search_fields = ['account', 'date_open', 'balance']
+
 
 
 class ProjectAdmin(admin.ModelAdmin):
@@ -36,6 +43,7 @@ class CounterpartiesAdmin(admin.ModelAdmin):
 
 admin.site.register(Organization, OrganizationAdmin)
 admin.site.register(PaymentAccount, PaymentAccountAdmin)
+admin.site.register(PaymentAccountOpenBalance, PaymentAccountOpenBalanceAdmin)
 admin.site.register(Project, ProjectAdmin)
 admin.site.register(Currencies, CurrenciesAdmin)
 admin.site.register(Counterparties, CounterpartiesAdmin)
