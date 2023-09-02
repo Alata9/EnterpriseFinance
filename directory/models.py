@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.db import models
 
 
@@ -17,6 +19,8 @@ class PaymentAccount(models.Model):
     organization = models.ForeignKey(Organization, on_delete=models.PROTECT, blank=False, null=False)
     is_cash = models.BooleanField(blank=False)
     currency = models.ForeignKey('Currencies', on_delete=models.PROTECT, blank=False, null=False)
+    open_date = models.DateField(blank=False)
+    open_balance = models.DecimalField(max_digits=15, decimal_places=2, blank=False, default=0)
     comments = models.CharField(max_length=100, blank=True)
 
     def __str__(self):
@@ -41,19 +45,6 @@ class Project(models.Model):
         verbose_name = 'Project'
         verbose_name_plural = 'Projects'
 
-
-class PaymentAccountOpenBalance(models.Model):
-    account = models.ForeignKey(PaymentAccount, on_delete=models.PROTECT, blank=False, null=False)
-    date_open = models.DateField(blank=True)
-    balance = models.DecimalField(max_digits=15, decimal_places=2)
-
-    def __str__(self):
-        return f'{self.account}, {self.date_open}, {self.balance}'
-
-    class Meta:
-        ordering = ['account', 'date_open', 'balance']
-        verbose_name = 'Open_balance'
-        verbose_name_plural = 'Open_balances'
 
 
 class Counterparties(models.Model):

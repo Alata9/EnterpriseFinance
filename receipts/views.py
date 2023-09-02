@@ -1,6 +1,6 @@
 import datetime
 from decimal import Decimal
-from io import TextIOWrapper
+from io import TextIOWrapper, StringIO, BytesIO
 
 from django.db.models import ProtectedError
 from django.http import HttpResponse, FileResponse
@@ -117,15 +117,17 @@ class ReceiptsView(ListView):
             my_data.append([i.organization, i.account, i.date, i.amount, i.currency, i.counterparty, i.item, i.project, i.comments])
 
         t = str(datetime.datetime.today().strftime('%d-%m-%Y-%H%M%S'))
-        name_file = 'receipts_' + t + '.csv'
-        my_file = open(name_file, 'w',  newline='')
-        with my_file:
-            writer = csv.writer(my_file, delimiter=';')
-            writer.writerows(my_data)
+        file_name = 'receipts_' + t + '.csv'
+        file_buffer = StringIO()
 
-        f = open(name_file, 'rb')
+        writer = csv.writer(file_buffer, delimiter=';')
+        writer.writerows(my_data)
+        file_bytes = BytesIO(file_buffer.getvalue().encode('cp1251'))
+        file_bytes.seek(0)
 
-        return FileResponse(f)
+        response = FileResponse(file_bytes, filename=file_name, as_attachment=True)
+
+        return response
 
     def get_context_data(self, *, object_list=None, **kwargs):
         ctx = super().get_context_data(object_list=None, **kwargs)
@@ -166,6 +168,7 @@ class ReceiptsIdView(UpdateView):
     model = Receipts
     template_name = 'receipts/receipts_id.html'
     form_class = ReceiptsAdd
+    success_url = '/receipts'
 
     def get_object(self, queryset=None):
         if 'pk' in self.kwargs:
@@ -179,14 +182,6 @@ class ReceiptsIdView(UpdateView):
         org = AccountSettings.load().organization()
         return self.model(organization=org)
 
-    def form_valid(self, form):
-        try:
-            receipt = form.save(commit=False)
-            receipt.currency = receipt.account.currency
-            receipt.save()
-            return redirect('receipts')
-        except:
-            form.add_error(None, 'Data save error')
 
     @staticmethod
     def htmx_accounts(request):

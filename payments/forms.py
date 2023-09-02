@@ -50,6 +50,17 @@ class PaymentsAdd(DynamicFormMixin, ModelForm):
         self.fields['project'].empty_label = 'Project:'
         self.fields['project'].required = False
 
+    def clean(self):
+        cleaned_data = super().clean()
+        acc = cleaned_data.get('account')
+
+        if not acc or not acc.currency:
+            raise ValidationError("Account with currency required")
+
+        cleaned_data['currency'] = acc.currency
+
+        return cleaned_data
+
 
 class PaymentsFilter(ModelForm):
     date_end = DateField(label="To", widget=DateInput(attrs={'type': 'date'}), required=False)

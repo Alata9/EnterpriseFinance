@@ -1,5 +1,5 @@
 from django.core.exceptions import ValidationError
-from django.forms import ModelForm, Textarea
+from django.forms import ModelForm, Textarea, DateInput
 
 from directory.models import Organization, Project, PaymentAccount, Counterparties, Currencies
 
@@ -24,12 +24,17 @@ class ProjectAdd(ModelForm):
 class PaymentAccountAdd(ModelForm):
     class Meta:
         model = PaymentAccount
-        fields = ('account', 'organization', 'currency', 'is_cash', 'comments')
+        fields = ('account', 'organization', 'currency', 'is_cash', 'open_date', 'open_balance', 'comments')
+        widgets = {
+            'open_date': DateInput(attrs={'type': 'Date'})
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['organization'].empty_label = ''
         self.fields['currency'].empty_label = ''
+        self.fields['open_date'].label = 'Opening date'
+        self.fields['open_balance'].label = 'Opening balance'
 
 
 class CounterpartyAdd(ModelForm):
@@ -38,10 +43,11 @@ class CounterpartyAdd(ModelForm):
         fields = ('counterparty', 'suppliers', 'customer', 'employee', 'other', 'comments')
 
     def clean(self):
-        # type_counterparty = [self.data.get('suppliers'), self.data.get('customer'), self.data.get('employee'), self.data.get('other')]
+        cleaned_data = super().clean()
         if not any(self.data.get(x, '') == 'on' for x in ['suppliers', 'customer', 'employee', 'other']):
             raise ValidationError('Error')
 
+        return cleaned_data
 
 
 class CurrencyAdd(ModelForm):
