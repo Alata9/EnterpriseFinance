@@ -2,8 +2,9 @@ from django.db.models import ProtectedError
 from django.shortcuts import render, redirect
 from django.views.generic import DeleteView, UpdateView
 
-from directory.forms import CounterpartyAdd, OrganizationAdd, CurrencyAdd, ProjectAdd, PaymentAccountAdd
-from directory.models import Counterparties, Organization, Project, PaymentAccount, Currencies
+from directory.forms import CounterpartyAdd, OrganizationAdd, CurrencyAdd, ProjectAdd, PaymentAccountAdd, \
+    CurrenciesRatesAdd
+from directory.models import Counterparties, Organization, Project, PaymentAccount, Currencies, CurrenciesRates
 
 
 # Counterparties-------------------
@@ -156,6 +157,7 @@ def ProjectsView(request):
 
     return render(request, 'directory/projects.html', context=context)
 
+
 class ProjectsIdView(UpdateView):
     model = Project
     template_name = 'directory/project_id.html'
@@ -221,6 +223,48 @@ class PaymentAccountDeleteView(DeleteView):
     model = PaymentAccount
     success_url = '/payment_accounts'
     template_name = 'directory/payment_account_delete.html'
+
+    def post(self, request, *args, **kwargs):
+        try:
+            return super().delete(request, *args, **kwargs)
+        except ProtectedError as error:
+            self.object = self.get_object()
+            context = self.get_context_data(
+                object=self.object,
+                error=f'Error: {error.protected_objects}'
+            )
+            return self.render_to_response(context)
+
+
+def RatesView(request):
+    rates = CurrenciesRates.objects.all()
+    context = {'rates': rates}
+
+    return render(request, 'directory/rates.html', context=context)
+
+
+class RatesIdView(UpdateView):
+    model = CurrenciesRates
+    template_name = 'directory/rate_id.html'
+    form_class = CurrenciesRatesAdd
+
+    def get_object(self, queryset=None):
+        if 'pk' in self.kwargs:
+            return super().get_object(queryset)
+
+    def form_valid(self, form):
+        try:
+            form.save()
+            return redirect('rates')
+        except:
+            form.add_error(None, 'Data save error')
+
+
+class RatesDeleteView(DeleteView):
+    error = ''
+    model = CurrenciesRates
+    success_url = '/rates'
+    template_name = 'directory/rate_delete.html'
 
     def post(self, request, *args, **kwargs):
         try:

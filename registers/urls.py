@@ -1,13 +1,12 @@
 from django.urls import path
 
 from registers.views import (
-    HomeView, RatesView, DashboardView, AccountSettingsView,
+    HomeView, DashboardView, AccountSettingsView,
     ReportsView,  AccountBalancesView, CfStatementView, CfBudgetView, PlanFactAnalysisView,
 )
 
 urlpatterns = [
     path('', HomeView, name='home'),
-    path('rates/', RatesView, name='rates'),
     path('dashboard/', DashboardView, name='dashboard'),
 
     path('reports/', ReportsView, name='reports'),

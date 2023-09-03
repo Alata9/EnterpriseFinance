@@ -1,6 +1,6 @@
 from django.forms import ModelForm, DateInput, DateField
 
-from directory.models import Organization, PaymentAccount
+from directory.models import Organization, PaymentAccount, CurrenciesRates
 from payments.models import Payments
 from registers.models import AccountSettings
 
@@ -8,13 +8,13 @@ from registers.models import AccountSettings
 class AccountSettingsSet(ModelForm):
     class Meta:
         model = AccountSettings
-        fields = ('multiple_organizations', 'multiple_accounts',
-                  'multiple_currencies', 'multiple_projects', 'organization_default')
+        fields = ('multiple_organizations', 'organization_default', 'multiple_accounts',
+                  'multiple_currencies', 'accounting_currency', 'multiple_projects')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['organization_default'].empty_label = ''
-
+        self.fields['accounting_currency'].empty_label = ''
 
 
 class AccountBalancesFilter(ModelForm):

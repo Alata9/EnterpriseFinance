@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from directory.models import Organization, PaymentAccount, Project, Currencies, Counterparties
+from directory.models import Organization, PaymentAccount, Project, Currencies, Counterparties, CurrenciesRates
 
 
 # directory
@@ -28,6 +28,12 @@ class CurrenciesAdmin(admin.ModelAdmin):
     search_fields = ['currency', 'code']
 
 
+class CurrenciesRatesAdmin(admin.ModelAdmin):
+    list_display = ['id', 'accounting_currency', 'currency', 'date', 'rate']
+    list_display_links = ['id', 'accounting_currency', 'currency', 'date', 'rate']
+    search_fields = ['accounting_currency', 'code']
+
+
 class CounterpartiesAdmin(admin.ModelAdmin):
     list_display = ['id', 'counterparty', 'suppliers', 'customer', 'employee', 'other', 'comments']
     list_display_links = ['id', 'counterparty', 'suppliers', 'customer', 'employee', 'other', 'comments']
@@ -38,4 +44,5 @@ admin.site.register(Organization, OrganizationAdmin)
 admin.site.register(PaymentAccount, PaymentAccountAdmin)
 admin.site.register(Project, ProjectAdmin)
 admin.site.register(Currencies, CurrenciesAdmin)
+admin.site.register(CurrenciesRates, CurrenciesRatesAdmin)
 admin.site.register(Counterparties, CounterpartiesAdmin)

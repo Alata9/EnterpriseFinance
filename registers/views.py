@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.views.generic import UpdateView
 
-from directory.models import PaymentAccount
+from directory.models import PaymentAccount, CurrenciesRates
 from payments.models import Payments
 from receipts.models import Receipts
 from registers.forms import AccountSettingsSet, AccountBalancesFilter
@@ -21,8 +21,6 @@ class AccountSettingsView(UpdateView):
 def HomeView(request):
     return render(request, 'registers/home.html')
 
-def RatesView(request):
-    return render(request, 'registers/rates.html')
 
 def ReportsView(request):
     return render(request, 'registers/reports.html')

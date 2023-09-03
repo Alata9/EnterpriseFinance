@@ -1,7 +1,7 @@
 from django.core.exceptions import ValidationError
 from django.forms import ModelForm, Textarea, DateInput
 
-from directory.models import Organization, Project, PaymentAccount, Counterparties, Currencies
+from directory.models import Organization, Project, PaymentAccount, Counterparties, Currencies, CurrenciesRates
 
 
 class OrganizationAdd(ModelForm):
@@ -54,3 +54,17 @@ class CurrencyAdd(ModelForm):
     class Meta:
         model = Currencies
         fields = ('currency', 'code')
+
+
+class CurrenciesRatesAdd(ModelForm):
+    class Meta:
+        model = CurrenciesRates
+        fields = ('accounting_currency', 'currency', 'date', 'rate')
+        widgets = {
+            'date': DateInput(attrs={'type': 'Date'})
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['currency'].empty_label = ''
+        self.fields['accounting_currency'].empty_label = ''

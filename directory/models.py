@@ -20,7 +20,7 @@ class PaymentAccount(models.Model):
     is_cash = models.BooleanField(blank=False)
     currency = models.ForeignKey('Currencies', on_delete=models.PROTECT, blank=False, null=False)
     open_date = models.DateField(blank=False)
-    open_balance = models.DecimalField(max_digits=15, decimal_places=2, blank=False, default=0)
+    open_balance = models.DecimalField(max_digits=15, decimal_places=2, blank=False, default=0.00)
     comments = models.CharField(max_length=100, blank=True)
 
     def __str__(self):
@@ -75,3 +75,18 @@ class Currencies(models.Model):
         ordering = ['currency']
         verbose_name = 'Currency'
         verbose_name_plural = 'Currencies'
+
+
+class CurrenciesRates(models.Model):
+    date = models.DateField(blank=False)
+    accounting_currency = models.ForeignKey(Currencies, related_name='cur1', on_delete=models.CASCADE, blank=True, null=True)
+    currency = models.ForeignKey(Currencies, on_delete=models.CASCADE, related_name='cur2', blank=True, null=True)
+    rate = models.DecimalField(max_digits=15, decimal_places=4, blank=False, default=0.00)
+
+    def __str__(self):
+        return f'{self.accounting_currency}, {self.currency}, {self.date}, {self.rate}'
+
+    class Meta:
+        ordering = ['date', 'accounting_currency', 'currency']
+        verbose_name = 'Rate'
+        verbose_name_plural = "Currency rates"
