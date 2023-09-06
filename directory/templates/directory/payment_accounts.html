@@ -33,8 +33,8 @@
                     <td width="100">{{i.account}}</td>
                     <td width="100">{{i.currency}}</td>
                     <td width="10" align="center">{% if i.is_cash %}<i class="bi bi-check2-square"></i>{% endif %}</td>
-                    <td width="60">{{i.open_date}}</td>
-                    <td width="60">{{i.open_balance}}</td>
+                    <td width="60">{{i.open_date|date:"d.m.Y"}}</td>
+                    <td width="60" align="right">{{i.open_balance}}</td>
                     <td width="100">{{i.comments}}</td>
                     <td width="60" align="center">
                         <a href="{% url 'payment_account_id' i.id %}" class='btn btn-info btn-sm'><i class="bi bi-pencil-square"></i></a>

@@ -1,44 +1,54 @@
 {% extends 'registers/base.html' %}
-{% block title %}
-RATES
-{% endblock %}
-
+{% block title %}Rates{% endblock %}
+{% load crispy_forms_tags %}
+{% load widget_tweaks %}
 {% block content %}
-<div class="container">
-    <div class="row d-grid gap-2 d-md-flex justify-content-md-end">
-        <div class="col-md-12"></div>
-        <div class="col-md-10">
-            <H1>Currency rate</H1>
+
+<div class="container-fluid px-10">
+    <div class="row">
+        <div class="col-md-1 border p-2 shadow"></div>
+        <form action="" method="GET"
+            hx-get="/rates/list"
+            hx-trigger="change"
+            hx-target="#id_table">
+        <div class="col-md-2 border p-2 shadow">
+                <h1>Currency rates</h1>
+                {% csrf_token %}
+                <div class="form-group">
+                {{ form.accounting_currency.label_tag }}
+                {% render_field form.accounting_currency class="select form-control" %}
+                </div>
+                <div class="form-group">
+                {{ form.currency.label_tag }}
+                {% render_field form.currency class="select form-control" %}
+                </div>
+                <div class="form-group">
+                {{ form.date.label_tag }}
+                {% render_field form.date class="select form-control" %}
+                </div>
+                <div class="form-group">
+                {{ form.date_end.label_tag }}
+                {% render_field form.date_end class="select form-control" %}
+                </div>
+                <div hx-get="/rates/list" hx-trigger="click" hx-target="#id_table">
+                    <button class="btn btn-info" type="reset" name="btn_reset" >RESET FILTERS</button>
+                </div>
         </div>
-        <div class="col-md-2">
-            <a href="{% url 'rate_add' %}" class="btn btn-info" name="btn_add">ADD NEW</a>
-        </div>
-    </div>
-    <br>
-    <div class="row p-1 g-1">
-        <div class="table-responsive" style="height: 500px">
-            <table class="table table-sm table-scroll table-striped table-bordered" >
-                <tr>
-                    <th align="center">main currency</th>
-                    <th align="center">currency</th>
-                    <th align="center">date</th>
-                    <th align="center">rate</th>
-                    <th align="center">Edit  |  Del</th>
-                </tr>
-                {% for i in rates %}
-                <tr>
-                    <td width="100">{{ i.accounting_currency }}</td>
-                    <td width="100">{{ i.currency }}</td>
-                    <td width="100">{{ i.date }}</td>
-                    <td width="100" align="right">{{ i.rate }}</td>
-                    <td width="10" align="center">
-                        <a href="{% url 'rate_id' i.id %}" class='btn btn-info btn-sm'><i class="bi bi-pencil-square"></i></a>
-                        <a href="{% url 'rate_del' i.id %}" class='btn btn-info btn-sm'><i class="bi bi-basket2-fill"></i></a>
-                    </td>
-                </tr>
-                {% endfor %}
-            </table>
-        </div>
+            <div class="col-md-8 border p-2 shadow">
+                <div class="row d-grid gap-2 d-md-flex justify-content-md-end">
+                    <div class="col-md-7"></div>
+                    <div class="col-md-5">
+                        <a href="{% url 'rate_add' %}" class="btn btn-info" name="btn_add">ADD NEW</a>
+                        <a href="{% url 'rates_parsing' %}" class="btn btn-info" name="btn_add">IMPORT</a>
+                    </div>
+                </div>
+                <br>
+                <div class="table-responsive" style="height: 550px">
+                    {% include "directory/rates_list.html" %}
+                </div>
+            </div>
+        </form>
     </div>
 </div>
+
 {% endblock %}

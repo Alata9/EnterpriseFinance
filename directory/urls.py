@@ -5,7 +5,8 @@ from directory.views import (
     OrganizationsView, OrganizationAddView, OrganizationIdView, OrganizationDeleteView,
     ProjectsView, ProjectsIdView, ProjectDeleteView,
     PaymentAccountsView, PaymentAccountIdView, PaymentAccountDeleteView,
-    CurrenciesView, CurrenciesIdView, CurrencyDeleteView, RatesView, RatesIdView, RatesDeleteView,
+    CurrenciesView, CurrenciesIdView, CurrencyDeleteView,
+    RatesView, RatesIdView, RatesDeleteView, RatesParsingView
 )
 
 urlpatterns = [
@@ -34,9 +35,11 @@ urlpatterns = [
     path('currency/add/', CurrenciesIdView.as_view(), name='currency_add'),
     path('<int:pk>/currency/delete/', CurrencyDeleteView.as_view(), name='currency_del'),
 
-    path('rates/', RatesView, name='rates'),
+    path('rates/', RatesView.as_view(), name='rates'),
     path('rates/<int:pk>/', RatesIdView.as_view(), name='rate_id'),
     path('rates/add', RatesIdView.as_view(), name='rate_add'),
+    path('rates/list', RatesView.htmx_list, name='rate_list'),
+    path('rates/import', RatesParsingView.as_view(), name='rates_parsing'),
     path('<int:pk>/rates/delete', RatesDeleteView.as_view(), name='rate_del'),
 
 ]

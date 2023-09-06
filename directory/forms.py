@@ -1,5 +1,6 @@
 from django.core.exceptions import ValidationError
-from django.forms import ModelForm, Textarea, DateInput
+from django.db.models import DateField
+from django.forms import ModelForm, Textarea, DateInput, DateField
 
 from directory.models import Organization, Project, PaymentAccount, Counterparties, Currencies, CurrenciesRates
 
@@ -68,3 +69,46 @@ class CurrenciesRatesAdd(ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['currency'].empty_label = ''
         self.fields['accounting_currency'].empty_label = ''
+
+
+class RatesFilter(ModelForm):
+    date_end = DateField(label='To', widget=DateInput(attrs={'type': 'date'}), required=False)
+
+    class Meta:
+        model = CurrenciesRates
+        fields = ['accounting_currency', 'currency', 'date']
+        widgets = {
+            'date': DateInput(attrs={'type': 'Date'}),
+            'date_end': DateInput(attrs={'type': 'Date'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['accounting_currency'].empty_label = ''
+        self.fields['accounting_currency'].required = False
+        self.fields['currency'].empty_label = ''
+        self.fields['currency'].required = False
+        self.fields['date'].label = 'From'
+        self.fields['date'].required = False
+        self.fields['date_end'].required = False
+
+
+class RatesParser(ModelForm):
+    date_end = DateField(label='To', widget=DateInput(attrs={'type': 'date'}), required=False)
+
+    class Meta:
+        model = CurrenciesRates
+        fields = ['accounting_currency', 'currency', 'date']
+        widgets = {
+            'date': DateInput(attrs={'type': 'Date'}),
+            'date_end': DateInput(attrs={'type': 'Date'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['accounting_currency'].empty_label = ''
+        self.fields['accounting_currency'].required = True
+        self.fields['currency'].empty_label = ''
+        self.fields['currency'].required = True
+        self.fields['date'].label = 'From'
+        self.fields['date_end'].required = True

@@ -1,13 +1,19 @@
+import datetime
+
 from django.db.models import ProtectedError
 from django.shortcuts import render, redirect
-from django.views.generic import DeleteView, UpdateView
+from django.views.generic import DeleteView, UpdateView, ListView
 
-from directory.forms import CounterpartyAdd, OrganizationAdd, CurrencyAdd, ProjectAdd, PaymentAccountAdd, \
-    CurrenciesRatesAdd
+from directory.forms import (
+    CounterpartyAdd, OrganizationAdd, ProjectAdd, PaymentAccountAdd,
+    CurrencyAdd, CurrenciesRatesAdd, RatesFilter, RatesParser
+)
 from directory.models import Counterparties, Organization, Project, PaymentAccount, Currencies, CurrenciesRates
 
 
 # Counterparties-------------------
+from registers.models import AccountSettings
+
 
 def CounterpartiesView(request):
     counterparties = Counterparties.objects.all()
@@ -236,11 +242,39 @@ class PaymentAccountDeleteView(DeleteView):
             return self.render_to_response(context)
 
 
-def RatesView(request):
-    rates = CurrenciesRates.objects.all()
-    context = {'rates': rates}
+# Rates----------------------------------
 
-    return render(request, 'directory/rates.html', context=context)
+class RatesView(ListView):
+    model = CurrenciesRates
+    template_name = 'directory/rates.html'
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        ctx = super().get_context_data(object_list=None, **kwargs)
+        ctx['form'] = RatesFilter()
+        return ctx
+
+    @staticmethod
+    def rates_queryset(request):
+        rates = CurrenciesRates.objects.all()
+
+        form = RatesFilter(request.GET)
+        if form.is_valid():
+            if form.cleaned_data['date']:
+                rates = rates.filter(date__gte=form.cleaned_data['date'])
+            if form.cleaned_data['date_end']:
+                rates = rates.filter(date__lte=form.cleaned_data['date_end'])
+            if form.cleaned_data['currency']:
+                rates = rates.filter(currency=form.cleaned_data['currency'])
+            if form.cleaned_data['accounting_currency']:
+                rates = rates.filter(accounting_currency=form.cleaned_data['accounting_currency'])
+
+        return rates
+
+    @staticmethod
+    def htmx_list(request):
+        context = {'object_list': RatesView.rates_queryset(request)}
+
+        return render(request, 'directory/rates_list.html', context=context)
 
 
 class RatesIdView(UpdateView):
@@ -252,12 +286,16 @@ class RatesIdView(UpdateView):
         if 'pk' in self.kwargs:
             return super().get_object(queryset)
 
+        cur = AccountSettings.load().currency()
+        return self.model(accounting_currency=cur)
+
     def form_valid(self, form):
         try:
             form.save()
             return redirect('rates')
         except:
             form.add_error(None, 'Data save error')
+
 
 
 class RatesDeleteView(DeleteView):
@@ -276,3 +314,18 @@ class RatesDeleteView(DeleteView):
                 error=f'Error: {error.protected_objects}'
             )
             return self.render_to_response(context)
+
+
+class RatesParsingView(UpdateView):
+    model = CurrenciesRates
+    template_name = 'directory/rates_parsing.html'
+    form_class = RatesParser
+
+    def get_object(self, queryset=None):
+        if 'pk' in self.kwargs:
+            return super().get_object(queryset)
+
+        cur = AccountSettings.load().currency()
+
+        return self.model(accounting_currency=cur)
+

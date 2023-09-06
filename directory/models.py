@@ -81,7 +81,7 @@ class CurrenciesRates(models.Model):
     date = models.DateField(blank=False)
     accounting_currency = models.ForeignKey(Currencies, related_name='cur1', on_delete=models.CASCADE, blank=True, null=True)
     currency = models.ForeignKey(Currencies, on_delete=models.CASCADE, related_name='cur2', blank=True, null=True)
-    rate = models.DecimalField(max_digits=15, decimal_places=4, blank=False, default=0.00)
+    rate = models.DecimalField(max_digits=15, decimal_places=6, blank=False, default=0.00)
 
     def __str__(self):
         return f'{self.accounting_currency}, {self.currency}, {self.date}, {self.rate}'
