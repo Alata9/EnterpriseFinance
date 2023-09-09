@@ -1,6 +1,8 @@
+from django import forms
 from django.forms import ModelForm, DateInput, DateField, ModelChoiceField
+from dynamic_forms import DynamicField, DynamicFormMixin
 
-from directory.models import Organization, PaymentAccount, CurrenciesRates, Currencies
+from directory.models import Organization, PaymentAccount, CurrenciesRates, Currencies, Project
 from payments.models import Payments
 from registers.models import AccountSettings
 
@@ -36,6 +38,29 @@ class AccountBalancesFilter(ModelForm):
         self.fields['conversion_currency'].required = False
         self.fields['date_start'].required = False
         self.fields['date_end'].required = False
+
+
+class DashboardFilter(DynamicFormMixin, ModelForm):
+    conversion_currency = ModelChoiceField(queryset=Currencies.objects.values_list("code", flat=True),
+                                           empty_label='', required=False)
+    date_start = DateField(label="From", widget=DateInput(attrs={'type': 'date'}), required=False)
+    date_end = DateField(label="To", widget=DateInput(attrs={'type': 'date'}), required=False)
+
+    class Meta:
+        model = Payments
+        fields = ['organization', 'project']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['organization'].empty_label = ''
+        self.fields['organization'].required = False
+        self.fields['project'].empty_label = ''
+        self.fields['project'].required = False
+
+    project = DynamicField(
+        ModelChoiceField,
+        queryset=lambda form: Project.objects.filter(organization=form['organization'].value()),
+    )
 
 
 

@@ -37,3 +37,14 @@ class AccountSettings(models.Model):
         except:
             ...
         return None
+
+
+# class AccountBalancesSlice(models.Model):
+#     account =
+#     organization =
+#     is_cash =
+#     currency =
+#     open_date =
+#     open_balance =
+#     close_date =
+#     close_balance =

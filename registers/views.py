@@ -1,13 +1,16 @@
+from datetime import datetime
+
+from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.views.generic import UpdateView, ListView
 
 from directory.models import PaymentAccount, CurrenciesRates
 from payments.models import Payments
 from receipts.models import Receipts
-from registers.forms import AccountSettingsSet, AccountBalancesFilter
+from registers.forms import AccountSettingsSet, AccountBalancesFilter, DashboardFilter
 from registers.models import AccountSettings
+import pandas as pd
 
-from itertools import chain
 
 
 class AccountSettingsView(UpdateView):
@@ -37,29 +40,6 @@ def AccountBalancesView(request):
         for i in accounts:
             object_list[i.account] = [i.organization, i.currency, i.is_cash]
 
-        # gte after, lte before
-        # for i in accounts:
-        #     if form.cleaned_data['date_start']:
-        #         pay_before_start = payments.filter(account=accounts, date__lte=form.cleaned_data['date'])
-        #         pay_sum_before_start = pay_before_start.aggregate(sum=sum('amount'))['amount']
-        #         income_before_start = income.filter(account=accounts, date__lte=form.cleaned_data['date'])
-        #         income_sum_before_start = income_before_start.aggregate(sum=sum('amount'))['amount']
-        #         pay_after_start = payments.filter(account=accounts, date__gte=form.cleaned_data['date'])
-        #         income_after_start = income.filter(account=accounts, date__gte=form.cleaned_data['date'])
-        #     if form.cleaned_data['date_end']:
-        #         pay_in_period = pay_after_start.filter(date__lte=form.cleaned_data['date'])
-        #         pay_sum_in_period = pay_in_period.aggregate(sum=sum('amount'))['amount']
-        #         income_in_period = income_after_start.filter(date__lte=form.cleaned_data['date'])
-        #         income_sum_in_period = income_in_period.aggregate(sum=sum('amount'))['amount']
-        #
-        #     object_list = {}
-        #     balance_open =
-        #     balance_start = balance_open + income_sum_before_start - pay_sum_before_start
-        #     balance_end = balance_start + income_sum_in_period - pay_sum_in_period
-
-        # if form.cleaned_data['conversion_currency']:
-        #     accounts = accounts.filter(conversion_currency=form.cleaned_data['conversion_currency'])
-
 
     context = {'object_list': object_list,
                'accounts': accounts,
@@ -68,6 +48,83 @@ def AccountBalancesView(request):
 
     return render(request, 'registers/account_balances.html', context=context)
 
+def DashboardView(request):
+    form = DashboardFilter(request.GET)
+    receipts = Receipts.objects.all()
+    payments = Payments.objects.all()
+
+    if form.is_valid():
+        if form.cleaned_data['organization']:
+            receipts = receipts.filter(organization=form.cleaned_data['organization'])
+            payments = payments.filter(organization=form.cleaned_data['organization'])
+        if form.cleaned_data['project']:
+            receipts = receipts.filter(project=form.cleaned_data['project'])
+            payments = payments.filter(project=form.cleaned_data['project'])
+
+        if form.cleaned_data['date_start']:
+            receipts = receipts.filter(date__gte=form.cleaned_data['date_start'])
+            payments = payments.filter(date__gte=form.cleaned_data['date_start'])
+        if form.cleaned_data['date_end']:
+            receipts = receipts.filter(date__lte=form.cleaned_data['date_end'])
+            payments = payments.filter(date__lte=form.cleaned_data['date_end'])
+
+        if form.cleaned_data['conversion_currency']:
+            receipts = receipts.filter(currency=form.cleaned_data['conversion_currency'])
+            payments = payments.filter(currency=form.cleaned_data['conversion_currency'])
+
+
+    receipts_structure = {}
+    for d in receipts:
+        item = str(d.item)
+        amount = float(d.amount)
+        if item not in receipts_structure:
+            receipts_structure[item] = amount
+        else:
+            receipts_structure[item] += amount
+    receipts_structure = list(map(list, list(zip(list(receipts_structure), list(receipts_structure.values())))))
+
+    payments_structure = {}
+    for d in payments:
+        item = str(d.item)
+        amount = float(d.amount)
+        if item not in payments_structure:
+            payments_structure[item] = amount
+        else:
+            payments_structure[item] += amount
+    payments_structure = list(map(list, list(zip(list(payments_structure), list(payments_structure.values())))))
+
+
+    payments_dynamics = {}
+    for i in payments:
+        period = f'{str(i.date.year)}/{str(i.date.month)}'
+        amount = float(i.amount)
+        if period not in payments_dynamics:
+            payments_dynamics[period] = amount
+        else:
+            payments_dynamics[period] += amount
+    payments_dynamics = list(map(list, list(zip(list(payments_dynamics), list(payments_dynamics.values())))))
+
+
+    receipts_dynamics = {}
+    for i in receipts:
+        period = f'{str(i.date.year)}/{str(i.date.month)}'
+        amount = float(i.amount)
+        if period not in receipts_dynamics:
+            receipts_dynamics[period] = amount
+        else:
+            receipts_dynamics[period] += amount
+    receipts_dynamics = list(map(list, list(zip(list(receipts_dynamics), list(receipts_dynamics.values())))))
+
+
+    context = {'receipts_structure': receipts_structure,
+               'payments_structure': payments_structure,
+               'receipts_dynamics': receipts_dynamics,
+               'payments_dynamics': payments_dynamics,
+               # 'cf_dynamics': cf_dynamics,
+               'form': form,
+               }
+
+    return render(request, 'registers/dashboard.html', context=context)
 
 
 def HomeView(request):
@@ -76,10 +133,6 @@ def HomeView(request):
 
 def ReportsView(request):
     return render(request, 'registers/reports.html')
-
-
-def DashboardView(request):
-    return render(request, 'registers/dashboard.html')
 
 
 def CfStatementView(request):

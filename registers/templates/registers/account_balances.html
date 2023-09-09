@@ -1,7 +1,6 @@
 {% extends 'registers/base.html' %}
 {% block title %}Account balances{% endblock %}
 {% load crispy_forms_tags %}
-{% load widget_tweaks %}
 {% block content %}
 
 <div class="container-fluid px-10">
@@ -11,10 +10,8 @@
                 <h3>Filters:</h3>
                 {% csrf_token %}
                 {{ form|crispy }}
-                <div class="col-md-12">
-                    <button class="btn btn-info" type="submit">SHOW | RESET</button>
-<!--                    <button class="btn btn-info" type="reset" name="btn_reset" >RESET</button>-->
-                </div>
+                <br>
+                <button class="btn btn-info" type="submit">SHOW | RESET</button>
             </div>
         </form>
         <div class="col-md-1 border shadow"></div>
