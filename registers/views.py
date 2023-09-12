@@ -1,5 +1,8 @@
 from datetime import datetime
+from collections import defaultdict
+from itertools import chain
 
+from django.db.models import Sum, Avg
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.views.generic import UpdateView, ListView
@@ -47,6 +50,7 @@ def AccountBalancesView(request):
                }
 
     return render(request, 'registers/account_balances.html', context=context)
+
 
 def DashboardView(request):
     form = DashboardFilter(request.GET)
@@ -102,6 +106,7 @@ def DashboardView(request):
             payments_dynamics[period] = amount
         else:
             payments_dynamics[period] += amount
+    print(payments_dynamics)
     payments_dynamics = list(map(list, list(zip(list(payments_dynamics), list(payments_dynamics.values())))))
 
 
@@ -113,15 +118,45 @@ def DashboardView(request):
             receipts_dynamics[period] = amount
         else:
             receipts_dynamics[period] += amount
+    print(receipts_dynamics)
     receipts_dynamics = list(map(list, list(zip(list(receipts_dynamics), list(receipts_dynamics.values())))))
+
+    # rp_dynamics = {}
+    # rp_dynamics = defaultdict(list)
+    #
+    # for key in set(list(receipts_dynamics.keys()) + list(payments_dynamics.keys())):
+    #     if key in receipts_dynamics:
+    #         rp_dynamics[key].append(receipts_dynamics[key])
+    #     if key in payments_dynamics:
+    #         rp_dynamics[key].append(payments_dynamics[key])
+    #
+    # rp_dynamics = list(map(list, list(zip(list(rp_dynamics), list(rp_dynamics.values())))))
+    # rp_dynamics = sorted(rp_dynamics)
+    #
+    # print(rp_dynamics)
+
+
+    total_cf = {}
+    receipts_sum = receipts.aggregate(Sum("amount")).get('amount__sum', 0.00)
+    payments_sum = payments.aggregate(Sum("amount")).get('amount__sum', 0.00)
+    cf = receipts_sum - payments_sum
+
+    total_cf['total receipts'] = int(receipts_sum)
+    total_cf['total payments'] = int(payments_sum)
+    total_cf['total cf'] = int(cf)
+
+    total_cf = list(map(list, list(zip(list(total_cf), list(total_cf.values())))))
+
 
 
     context = {'receipts_structure': receipts_structure,
                'payments_structure': payments_structure,
                'receipts_dynamics': receipts_dynamics,
-               'payments_dynamics': payments_dynamics,
+               # 'rp_dynamics': rp_dynamics,
+               'total_cf': total_cf,
                # 'cf_dynamics': cf_dynamics,
                'form': form,
+               'today': datetime.today()
                }
 
     return render(request, 'registers/dashboard.html', context=context)

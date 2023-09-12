@@ -5,90 +5,92 @@ google.charts.load('current', {'packages':['corechart']});
     google.charts.setOnLoadCallback(PaymentsDynamics);
     google.charts.setOnLoadCallback(CashFlowDynamics);
 
+    google.charts.load('current', {'packages':['table']});
+    google.charts.setOnLoadCallback(TableBalances);
+    google.charts.setOnLoadCallback(TotalCF);
+
+
 
     function IncomeStructure() {
 
-        var data = new google.visualization.DataTable();
-            data.addColumn('string', 'Items');
-            data.addColumn('number', 'Amount');
-            data.addRows({{ receipts_structure|safe }});
+    var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Items');
+        data.addColumn('number', 'Amount');
+        data.addRows({{ receipts_structure|safe }});
 
-        var options = {
-           title: 'Income structure',
-           'width':350,
-           'height':200,
-           'is3D': true,
-           'legend': 'right'
-           };
+    var options = {
+       'width':350,
+       'height':200,
+       'is3D': true,
+       'legend': 'right'
+       };
 
-        var chart = new google.visualization.PieChart(document.getElementById('chart_income_structure'));
-        chart.draw(data, options);
-    }
+    var chart = new google.visualization.PieChart(document.getElementById('chart_income_structure'));
+    chart.draw(data, options);
+}
 
 
 
     function PaymentsStructure() {
 
-        var data = new google.visualization.DataTable();
-            data.addColumn('string', 'Items');
-            data.addColumn('number', 'Amount');
-            data.addRows({{ payments_structure|safe }});
+    var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Items');
+        data.addColumn('number', 'Amount');
+        data.addRows({{ payments_structure|safe }});
 
-        var options = {
-           title: 'Payments structure',
-           'width':350,
-           'height':200,
-           'is3D': true,
-           'legend': 'right'
-           };
+    var options = {
+       'width':350,
+       'height':200,
+       'is3D': true,
+       'legend': 'right'
+       };
 
-        var chart = new google.visualization.PieChart(document.getElementById('chart_payments_structure'));
-        chart.draw(data, options);
-    }
+    var chart = new google.visualization.PieChart(document.getElementById('chart_payments_structure'));
+    chart.draw(data, options);
+}
 
 
-    function IncomeDynamics() {
+function IncomeDynamics() {
         var data = new google.visualization.DataTable();
         data.addColumn('string', 'Period');
         data.addColumn('number', 'Amount');
         data.addRows({{ receipts_dynamics|safe }});
 
         var options = {
-          title: 'Receipts dynamics',
           curveType: 'function',
           legend: { position: 'bottom' }
         };
 
-        var chart = new google.visualization.ColumnChart(document.getElementById('chart_income_dynamics'));
-        chart.draw(data, options);
-      }
+    var chart = new google.visualization.LineChart(document.getElementById('chart_income_dynamics'));
+    chart.draw(data, options);
+  }
 
 
-    function PaymentsDynamics() {
+function PaymentsDynamics() {
         var data = new google.visualization.DataTable();
         data.addColumn('string', 'Period');
         data.addColumn('number', 'Amount');
         data.addRows({{ payments_dynamics|safe }});
 
         var options = {
-          title: 'Payments dynamics',
           curveType: 'function',
           legend: { position: 'bottom' }
         };
 
-        var chart = new google.visualization.ColumnChart(document.getElementById('chart_payments_dynamics'));
-        chart.draw(data, options);
-      }
+    var chart = new google.visualization.LineChart(document.getElementById('chart_payments_dynamics'));
+    chart.draw(data, options);
+  }
 
 
-    function CashFlowDynamics() {
+function CashFlowDynamics() {
+        // Some raw data (not necessarily accurate)
 <!--        var data = new google.visualization.DataTable();-->
-<!--        data.addColumn('string', 'Period');-->
+<!--        data.addColumn('string', 'Month');-->
 <!--        data.addColumn('number', 'Amount');-->
 <!--        data.addRows({{ cf_dynamics|safe }});-->
 
         var data = google.visualization.arrayToDataTable([
-          ['Month', 'Income', 'Payments', 'Cash Flow', ],
+          ['Month', 'Receipts', 'Payments', 'Cash Flow', ],
           ['2004/05',  165,      938,         522,  ],
           ['2005/06',  135,      1120,        -599,  ],
           ['2006/07',  157,      1167,        587,  ],
@@ -102,13 +104,46 @@ google.charts.load('current', {'packages':['corechart']});
         ]);
 
         var options = {
-          title : 'Cash Flow Dynamics',
-          vAxis: {title: 'Cups'},
+          vAxis: {title: 'Amount'},
           hAxis: {title: 'Month'},
           seriesType: 'bars',
-          series: {2: {type: 'line'}}
+          series: {2: {type: 'line'}},
+          legend: { position: 'bottom' }
         };
 
         var chart = new google.visualization.ComboChart(document.getElementById('chart_cash_flow_dynamics'));
         chart.draw(data, options);
+      }
+
+
+      function TableBalances() {
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Currency');
+        data.addColumn('number', 'Amount');
+        data.addRows([
+          ['USD',  10000],
+          ['EUR',  8000],
+          ['ILS',  12456],
+          ['RUB',  450000]
+        ]);
+
+        var table = new google.visualization.Table(document.getElementById('table_balances'));
+
+        table.draw(data, {showRowNumber: true, width: '100%', height: '100%'});
+      }
+
+
+      function TotalCF() {
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Item');
+        data.addColumn('number', 'Cash flow');
+        data.addRows([
+          ['total receipts', 10000000],
+          ['total payments', 800000],
+          ['total cash flow', 200000],
+        ]);
+
+        var table = new google.visualization.Table(document.getElementById('total_cf'));
+
+        table.draw(data, {showRowNumber: true, width: '100%', height: '100%'});
       }

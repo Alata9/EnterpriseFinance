@@ -3,7 +3,7 @@ from django.contrib import admin
 from directory.models import Organization, PaymentAccount, Project, Currencies, Counterparties, CurrenciesRates
 
 
-# directory
+
 class OrganizationAdmin(admin.ModelAdmin):
     list_display = ['id', 'organization', 'comments']
     list_display_links = ['id', 'organization', 'comments']

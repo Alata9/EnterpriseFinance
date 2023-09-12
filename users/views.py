@@ -9,17 +9,17 @@ from django.views.generic import UpdateView, CreateView, TemplateView, DeleteVie
 from users.forms import ChangeUserInfoForm, RegisterUserForm
 
 
-# Вход пользователя на сайт
+# login
 class UserLoginView(LoginView):
     template_name = 'users/login.html'
 
 
-# Выход
+# logout
 class UserLogoutView(LoginRequiredMixin, LogoutView):
     template_name = 'users/logout.html'
 
 
-# Смена данных пользователя
+# change personal info
 class ChangeUserInfoView(SuccessMessageMixin, LoginRequiredMixin, UpdateView):
     model = User
     template_name = 'users/personal_account.html'
@@ -37,14 +37,14 @@ class ChangeUserInfoView(SuccessMessageMixin, LoginRequiredMixin, UpdateView):
         return get_object_or_404(queryset, pk=self.user_id)
 
 
-# Смена пароля
+# change password
 class UserPasswordChangeView(SuccessMessageMixin, LoginRequiredMixin, PasswordChangeView):
     template_name = 'users/password_change.html'
     success_url = reverse_lazy('home')
     success_message = 'User password changed successfully'
 
 
-# Регистрация пользователя
+# sign in
 class RegisterUserView(CreateView):
     model = User
     template_name = 'users/register_user.html'
@@ -56,7 +56,7 @@ class RegisterDoneView(TemplateView):
     template_name = 'users/register_done.html'
 
 
-# Удаление пользователя
+# delete user
 class DeleteUserView(LoginRequiredMixin, DeleteView):
     model = User
     template_name = 'users/profile_delete.html'

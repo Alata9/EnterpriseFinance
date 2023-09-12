@@ -3,7 +3,7 @@ from django.contrib import admin
 from receipts.models import IncomeGroup, IncomeItem, Receipts, ReceiptsPlan
 
 
-# receipts
+
 class IncomeGroupAdmin(admin.ModelAdmin):
     list_display = ['id', 'income_group', 'comments']
     list_display_links = ['id', 'income_group', 'comments']

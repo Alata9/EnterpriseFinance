@@ -3,7 +3,7 @@ from django.contrib import admin
 from payments.models import ExpenseGroup, ExpensesItem, Payments, PaymentsPlan
 
 
-# payments
+
 class ExpensesGroupAdmin(admin.ModelAdmin):
     list_display = ['id', 'expense_group', 'comments']
     list_display_links = ['id', 'expense_group', 'comments']

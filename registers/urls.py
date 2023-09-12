@@ -7,8 +7,8 @@ from registers.views import (
 
 urlpatterns = [
     path('', HomeView, name='home'),
+    path('dashboard', DashboardView, name='dashboard'),
     path('settings/', AccountSettingsView.as_view(), name='settings'),
-    path('dashboard/', DashboardView, name='dashboard'),
     path('reports/', ReportsView, name='reports'),
     path('account_balances/', AccountBalancesView, name='account_balances'),
     path('cf_statement/', CfStatementView, name='cf_statement'),
