@@ -1,0 +1,36 @@
+version: "2.4"
+services:
+  app:
+    image: django-app
+    build:
+      context: .
+    ports:
+      - "8000:8000"
+    depends_on:
+      app-postgres:
+        condition: service_healthy
+    volumes:
+      - "/opt/myapp_static:/static"
+    environment:
+      DB_HOST: app-postgres
+      DB_NAME: django_app
+      DB_USER: django_app
+      DB_PASSWORD: django_app
+    restart: always
+
+  app-postgres:
+    image: postgres:15-alpine
+#    ports:
+#      - "5432:5432"
+    volumes:
+      - "./myapp_data:/var/lib/postgresql/data"
+    environment:
+      POSTGRES_DB: django_app
+      POSTGRES_USER: django_app
+      POSTGRES_PASSWORD: django_app
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready", "-U", "django_app"]
+      interval: 1s
+      timeout: 5s
+      retries: 10
+    restart: always

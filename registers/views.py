@@ -57,6 +57,11 @@ def DashboardView(request):
     receipts = Receipts.objects.all()
     payments = Payments.objects.all()
 
+    def get_currency_rate(currency1, currency2, date):
+        rates = CurrenciesRates.object.all()
+        rate = rates.object.latest(accounting_currency=currency1, currency=currency2, date=date)
+        return rate.rate
+
     if form.is_valid():
         if form.cleaned_data['organization']:
             receipts = receipts.filter(organization=form.cleaned_data['organization'])
@@ -73,90 +78,99 @@ def DashboardView(request):
             payments = payments.filter(date__lte=form.cleaned_data['date_end'])
 
         if form.cleaned_data['conversion_currency']:
-            receipts = receipts.filter(currency=form.cleaned_data['conversion_currency'])
-            payments = payments.filter(currency=form.cleaned_data['conversion_currency'])
-
-
-    receipts_structure = {}
-    for d in receipts:
-        item = str(d.item)
-        amount = float(d.amount)
-        if item not in receipts_structure:
-            receipts_structure[item] = amount
-        else:
-            receipts_structure[item] += amount
-    receipts_structure = list(map(list, list(zip(list(receipts_structure), list(receipts_structure.values())))))
-
-    payments_structure = {}
-    for d in payments:
-        item = str(d.item)
-        amount = float(d.amount)
-        if item not in payments_structure:
-            payments_structure[item] = amount
-        else:
-            payments_structure[item] += amount
-    payments_structure = list(map(list, list(zip(list(payments_structure), list(payments_structure.values())))))
-
-
-    payments_dynamics = {}
-    for i in payments:
-        period = f'{str(i.date.year)}/{str(i.date.month)}'
-        amount = float(i.amount)
-        if period not in payments_dynamics:
-            payments_dynamics[period] = amount
-        else:
-            payments_dynamics[period] += amount
-    print(payments_dynamics)
-    payments_dynamics = list(map(list, list(zip(list(payments_dynamics), list(payments_dynamics.values())))))
-
-
-    receipts_dynamics = {}
-    for i in receipts:
-        period = f'{str(i.date.year)}/{str(i.date.month)}'
-        amount = float(i.amount)
-        if period not in receipts_dynamics:
-            receipts_dynamics[period] = amount
-        else:
-            receipts_dynamics[period] += amount
-    print(receipts_dynamics)
-    receipts_dynamics = list(map(list, list(zip(list(receipts_dynamics), list(receipts_dynamics.values())))))
-
-    # rp_dynamics = {}
-    # rp_dynamics = defaultdict(list)
-    #
-    # for key in set(list(receipts_dynamics.keys()) + list(payments_dynamics.keys())):
-    #     if key in receipts_dynamics:
-    #         rp_dynamics[key].append(receipts_dynamics[key])
-    #     if key in payments_dynamics:
-    #         rp_dynamics[key].append(payments_dynamics[key])
-    #
-    # rp_dynamics = list(map(list, list(zip(list(rp_dynamics), list(rp_dynamics.values())))))
-    # rp_dynamics = sorted(rp_dynamics)
-    #
-    # print(rp_dynamics)
-
-
-    total_cf = {}
-    receipts_sum = receipts.aggregate(Sum("amount")).get('amount__sum', 0.00)
-    payments_sum = payments.aggregate(Sum("amount")).get('amount__sum', 0.00)
-    cf = receipts_sum - payments_sum
-
-    total_cf['total receipts'] = int(receipts_sum)
-    total_cf['total payments'] = int(payments_sum)
-    total_cf['total cf'] = int(cf)
-
-    total_cf = list(map(list, list(zip(list(total_cf), list(total_cf.values())))))
+            for i in receipts:
+                i.amount = i.amount * get_currency_rate(i.currency, form.cleaned_data['conversion_currency'], i.date)
+            for i in payments:
+                i.amount = i.amount * get_currency_rate(i.currency, form.cleaned_data['conversion_currency'], i.date)
 
 
 
-    context = {'receipts_structure': receipts_structure,
-               'payments_structure': payments_structure,
-               'receipts_dynamics': receipts_dynamics,
-               # 'rp_dynamics': rp_dynamics,
-               'total_cf': total_cf,
-               # 'cf_dynamics': cf_dynamics,
+    def get_structure(flow):
+        structure = {}
+        for i in flow:
+            item = str(i.item)
+            amount = float(i.amount)
+            if item not in structure:
+                structure[item] = amount
+            else:
+                structure[item] += amount
+        return list(map(list, list(zip(list(structure), list(structure.values())))))
+    print('rec_struc:', get_structure(receipts))
+    # print('pay_struc:', get_structure(payments))
+
+
+    def get_dynamics(flow):
+        dynamics = {}
+        for i in flow:
+            period = f'{str(i.date.year)}/{str(i.date.month)}'
+            amount = float(i.amount)
+            if period not in dynamics:
+                dynamics[period] = amount
+            else:
+                dynamics[period] += amount
+
+        return dynamics
+
+    # print('rec_dyn:', get_dynamics(receipts))
+    # print('pay_dyn:', get_dynamics(payments))
+
+
+    # data payments and receipts
+    def get_total_cf():
+        payments_dynamics = get_dynamics(payments)
+        receipts_dynamics = get_dynamics(receipts)
+
+        total_cf = {k: [receipts_dynamics.get(k, 0), payments_dynamics.get(k, 0)]
+                    for k in set(receipts_dynamics) | set(payments_dynamics)}
+        total_cf = sorted(total_cf.items(), key=lambda x: x[0])
+        total_cf = dict(total_cf)
+
+        return total_cf
+    # print('total_cf:', get_total_cf())
+
+    # diagr 2 total cash flow
+    def get_cf_dynamics():
+        total_cf = get_total_cf()
+        cf_dynamics = []
+        for k, v in total_cf.items():
+            cf_dynamics.append([k, *v, v[0] - v[1]])
+
+        return cf_dynamics
+    # print('cf_dynamics:', get_cf_dynamics())
+
+    # diagr 3 cf table
+    def get_cf_table():
+        cf_table = {}
+        receipts_sum = receipts.aggregate(Sum("amount")).get('amount__sum', 0.00)
+        payments_sum = payments.aggregate(Sum("amount")).get('amount__sum', 0.00)
+        cf = receipts_sum - payments_sum
+
+        cf_table['total receipts'] = int(receipts_sum)
+        cf_table['total payments'] = int(payments_sum)
+        cf_table['total cf'] = int(cf)
+
+        return list(map(list, list(zip(list(cf_table), list(cf_table.values())))))
+    # print('cf_table:', get_cf_table())
+
+    # diagr 6 receipts and payments dynamics
+    def get_rp_dynamics():
+        total_cf = get_total_cf()
+        rp_dynamics = []
+        for k, v in total_cf.items():
+            rp_dynamics.append([k, *v])
+
+        return rp_dynamics
+    # print('rp_dynamics:', get_rp_dynamics())
+
+    context = {
                'form': form,
-               'today': datetime.today()
+               'today': datetime.today(),
+               # 'balances': balances,
+               'cf_dynamics': get_cf_dynamics(),
+               'cf_table': get_cf_table(),
+               'receipts_structure': get_structure(receipts),
+               'payments_structure': get_structure(payments),
+               'rp_dynamics': get_rp_dynamics(),
                }
 
     return render(request, 'registers/dashboard.html', context=context)

@@ -17,7 +17,7 @@
 
     google.charts.load('current', {'packages':['table']});
     google.charts.setOnLoadCallback(TableBalances);
-    google.charts.setOnLoadCallback(TotalCF);
+    google.charts.setOnLoadCallback(CFTable);
 
 
 
@@ -63,8 +63,9 @@
 function rpDynamics() {
         var data = new google.visualization.DataTable();
         data.addColumn('string', 'Period');
-        data.addColumn('number', 'Amount');
-        data.addRows({{ receipts_dynamics|safe }});
+        data.addColumn('number', 'Receipts');
+        data.addColumn('number', 'Payments');
+        data.addRows({{ rp_dynamics |safe }});
 
         var options = {
           curveType: 'function',
@@ -77,29 +78,16 @@ function rpDynamics() {
 
 
 function CashFlowDynamics() {
-        // Some raw data (not necessarily accurate)
-<!--        var data = new google.visualization.DataTable();-->
-<!--        data.addColumn('string', 'Month');-->
-<!--        data.addColumn('number', 'Amount');-->
-<!--        data.addRows({{ cf_dynamics|safe }});-->
-
-        var data = google.visualization.arrayToDataTable([
-          ['Month', 'Receipts', 'Payments', 'Cash Flow', ],
-          ['2004/05',  165,      938,         522,  ],
-          ['2005/06',  135,      1120,        -599,  ],
-          ['2006/07',  157,      1167,        587,  ],
-          ['2007/08',  1390,      1110,        615,  ],
-          ['2008/09',  136,      691,         -629,  ],
-          ['2004/10',  165,      938,         522,  ],
-          ['2005/11',  135,      1120,        -599,  ],
-          ['2006/12',  157,      1167,        587,  ],
-          ['2007/08',  1390,      1110,        615,  ],
-          ['2008/09',  136,      691,         -629,  ]
-        ]);
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Period');
+        data.addColumn('number', 'Receipts');
+        data.addColumn('number', 'Payments');
+        data.addColumn('number', 'Cash Flow');
+        data.addRows({{ cf_dynamics|safe }});
 
         var options = {
           vAxis: {title: 'Amount'},
-          hAxis: {title: 'Month'},
+          hAxis: {title: 'Period'},
           seriesType: 'bars',
           series: {2: {type: 'line'}},
           legend: { position: 'bottom' }
@@ -127,19 +115,13 @@ function CashFlowDynamics() {
       }
 
 
-      function TotalCF() {
+      function CFTable() {
         var data = new google.visualization.DataTable();
         data.addColumn('string', 'Item');
         data.addColumn('number', 'Cash flow');
-        data.addRows({{ total_cf|safe }});
+        data.addRows({{ cf_table|safe }});
 
-<!--        data.addRows([-->
-<!--          ['total receipts', {{ receipts_sum }}],-->
-<!--          ['total payments', {{ payments_sum }}],-->
-<!--          ['total cash flow', {{ total_cf }}],-->
-<!--        ]);-->
-
-        var table = new google.visualization.Table(document.getElementById('total_cf'));
+        var table = new google.visualization.Table(document.getElementById('cf_table'));
 
         table.draw(data, {showRowNumber: true, width: '100%', height: '100%'});
       }
@@ -202,7 +184,7 @@ function CashFlowDynamics() {
                 <div class="col-md-2 border p-2 shadow">
                     <b>Total Cash flow</b>
                     <hr>
-                    <div id="total_cf"></div>
+                    <div id="cf_table"></div>
                 </div>
             </div>
             <br><br><br>
