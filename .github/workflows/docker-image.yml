@@ -10,7 +10,6 @@ env:
   # github.repository as <account>/<repo>
   IMAGE_NAME: alata9/enterprise_finance
 
-
 jobs:
   build:
 
