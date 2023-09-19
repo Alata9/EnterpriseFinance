@@ -1,7 +1,7 @@
 version: "2.4"
 services:
   app:
-    image: django-app
+    image: ghcr.io/alata9/enterprise_finance:latest
     build:
       context: .
     ports:
