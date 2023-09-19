@@ -4,8 +4,8 @@ from django.db import models
 
 
 class Organization(models.Model):
-    organization = models.CharField(max_length=100)
-    comments = models.CharField(max_length=250, blank=True)
+    organization = models.CharField(max_length=100, unique=True)
+    comments = models.CharField(max_length=250, blank=True, null=True)
 
     def __str__(self):
         return self.organization
@@ -21,7 +21,7 @@ class PaymentAccount(models.Model):
     currency = models.ForeignKey('Currencies', on_delete=models.PROTECT, blank=False, null=False)
     open_date = models.DateField(blank=False)
     open_balance = models.DecimalField(max_digits=15, decimal_places=2, blank=False, default=0.00)
-    comments = models.CharField(max_length=100, blank=True)
+    comments = models.CharField(max_length=100, blank=True, null=True)
 
     def __str__(self):
         return self.account
@@ -35,7 +35,7 @@ class PaymentAccount(models.Model):
 class Project(models.Model):
     project = models.CharField(max_length=100, unique=True)
     organization = models.ForeignKey(Organization, on_delete=models.PROTECT, blank=False)
-    comments = models.CharField(max_length=250, blank=True)
+    comments = models.CharField(max_length=250, blank=True, null=True)
 
     def __str__(self):
         return self.project
@@ -53,7 +53,7 @@ class Counterparties(models.Model):
     customer = models.BooleanField(blank=False)
     employee = models.BooleanField(blank=False)
     other = models.BooleanField(blank=False)
-    comments = models.CharField(max_length=100, blank=True)
+    comments = models.CharField(max_length=100, blank=True, null=True)
 
     def __str__(self):
         return self.counterparty

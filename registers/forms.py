@@ -20,7 +20,8 @@ class AccountSettingsSet(ModelForm):
 
 
 class AccountBalancesFilter(ModelForm):
-    conversion_currency = ModelChoiceField(queryset=Currencies.objects.values_list("code", flat=True), empty_label='')
+    conversion_currency = ModelChoiceField(queryset=Currencies.objects.values_list("code", flat=True),
+                                           empty_label='', required=True)
     date_start = DateField(label="From", widget=DateInput(attrs={'type': 'date'}), required=False)
     date_end = DateField(label="To", widget=DateInput(attrs={'type': 'date'}), required=False)
 
@@ -35,7 +36,6 @@ class AccountBalancesFilter(ModelForm):
         self.fields['currency'].empty_label = ''
         self.fields['currency'].label = 'Accounting currency'
         self.fields['currency'].required = False
-        self.fields['conversion_currency'].required = False
         self.fields['date_start'].required = False
         self.fields['date_end'].required = False
 

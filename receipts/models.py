@@ -5,7 +5,7 @@ from directory.models import Organization, PaymentAccount, Currencies, Project, 
 
 class IncomeGroup(models.Model):
     income_group = models.CharField(max_length=50)
-    comments = models.CharField(max_length=255, blank=True)
+    comments = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
         return self.income_group
@@ -44,7 +44,7 @@ class Receipts(models.Model):
     project = models.ForeignKey(Project, on_delete=models.PROTECT, blank=True, null=True)
     counterparty = models.ForeignKey(Counterparties, on_delete=models.PROTECT, blank=False)
     item = models.ForeignKey(IncomeItem, on_delete=models.PROTECT, blank=False)
-    comments = models.CharField(max_length=255, blank=True)
+    comments = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
         return f'{self.date}, {self.counterparty}, {self.item}, {self.amount} {self.currency}'
@@ -67,7 +67,7 @@ class ReceiptsPlan(models.Model):
     project = models.ForeignKey(Project, on_delete=models.PROTECT, blank=False, null=True)
     counterparty = models.ForeignKey(Counterparties, on_delete=models.PROTECT, blank=True)
     item = models.ForeignKey(IncomeItem, on_delete=models.PROTECT, blank=True)
-    comments = models.CharField(max_length=255, blank=True)
+    comments = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
         return f'{self.date}, {self.counterparty}, {self.item}, {self.amount}'

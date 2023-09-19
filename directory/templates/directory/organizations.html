@@ -28,7 +28,7 @@
                     <td width="5" align="center"><a href="{% url 'organization_id' i.id %}" class='btn btn-info btn-sm'>
                         <i class="bi bi-book"></i></a></td>
                     <td width="400">{{i.organization}}</td>
-                    <td width="400">{{i.comments}}</td>
+                    <td width="400">{% if i.comments != None %}{{i.comments}}{% endif %}</td>
                     <td width="5" align="center"><a href="{% url 'organization_del' i.id %}" class='btn btn-info btn-sm'>
                         <i class="bi bi-basket2-fill"></i></a></td>
                 </tr>

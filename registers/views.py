@@ -59,8 +59,8 @@ def DashboardView(request):
 
     def get_currency_rate(currency1, currency2, date):
         rates = CurrenciesRates.object.all()
-        rate = rates.object.latest(accounting_currency=currency1, currency=currency2, date=date)
-        return rate.rate
+        rate = rates.object.filter(accounting_currency=currency1, currency=currency2).latest(date=date)
+        return rate.get('rate')
 
     if form.is_valid():
         if form.cleaned_data['organization']:
@@ -78,12 +78,14 @@ def DashboardView(request):
             payments = payments.filter(date__lte=form.cleaned_data['date_end'])
 
         if form.cleaned_data['conversion_currency']:
-            for i in receipts:
-                i.amount = i.amount * get_currency_rate(i.currency, form.cleaned_data['conversion_currency'], i.date)
-            for i in payments:
-                i.amount = i.amount * get_currency_rate(i.currency, form.cleaned_data['conversion_currency'], i.date)
-
-
+            receipts = receipts
+            payments = payments
+            # for i in receipts:
+            #     i.amount = i.amount * get_currency_rate(i.currency, form.cleaned_data['conversion_currency'], i.date)
+            #     print(i)
+            # for i in payments:
+            #     i.amount = i.amount * get_currency_rate(i.currency, form.cleaned_data['conversion_currency'], i.date)
+            #     print(i)
 
     def get_structure(flow):
         structure = {}
@@ -95,7 +97,7 @@ def DashboardView(request):
             else:
                 structure[item] += amount
         return list(map(list, list(zip(list(structure), list(structure.values())))))
-    print('rec_struc:', get_structure(receipts))
+    # print('rec_struc:', get_structure(receipts))
     # print('pay_struc:', get_structure(payments))
 
 
@@ -143,6 +145,10 @@ def DashboardView(request):
         cf_table = {}
         receipts_sum = receipts.aggregate(Sum("amount")).get('amount__sum', 0.00)
         payments_sum = payments.aggregate(Sum("amount")).get('amount__sum', 0.00)
+        if receipts_sum == None:
+            receipts_sum = 0
+        if payments_sum == None:
+            payments_sum = 0
         cf = receipts_sum - payments_sum
 
         cf_table['total receipts'] = int(receipts_sum)
