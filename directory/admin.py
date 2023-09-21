@@ -1,7 +1,6 @@
 from django.contrib import admin
 
-from directory.models import Organization, PaymentAccount, Project, Currencies, Counterparties, CurrenciesRates
-
+from directory.models import Organization, PaymentAccount, Project, Currencies, Counterparties, CurrenciesRates, TypeCF
 
 
 class OrganizationAdmin(admin.ModelAdmin):
@@ -39,6 +38,11 @@ class CounterpartiesAdmin(admin.ModelAdmin):
     list_display_links = ['id', 'counterparty', 'suppliers', 'customer', 'employee', 'other', 'comments']
     search_fields = ['counterparty']
 
+class TypeCFAdmin(admin.ModelAdmin):
+    list_display = ['id', 'type']
+    list_display_links = ['id', 'type']
+    search_fields = ['type']
+
 
 admin.site.register(Organization, OrganizationAdmin)
 admin.site.register(PaymentAccount, PaymentAccountAdmin)
@@ -46,3 +50,4 @@ admin.site.register(Project, ProjectAdmin)
 admin.site.register(Currencies, CurrenciesAdmin)
 admin.site.register(CurrenciesRates, CurrenciesRatesAdmin)
 admin.site.register(Counterparties, CounterpartiesAdmin)
+admin.site.register(TypeCF, TypeCFAdmin)

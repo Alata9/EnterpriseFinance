@@ -1,3 +1,4 @@
+from django import forms
 from django.core.exceptions import ValidationError
 from django.forms import ModelForm, DateInput, Textarea, HiddenInput, DateField, ModelChoiceField, Form, FileField
 from dynamic_forms import DynamicField, DynamicFormMixin
@@ -9,7 +10,10 @@ from receipts.models import IncomeGroup, IncomeItem, Receipts
 class IncomeGroupAdd(ModelForm):
     class Meta:
         model = IncomeGroup
-        fields = ('income_group', 'comments')
+        fields = ('income_group', 'type_cf', 'comments')
+        widgets = {
+            'type_cf': forms.RadioSelect()
+        }
 
 
 class IncomeItemAdd(ModelForm):

@@ -90,3 +90,15 @@ class CurrenciesRates(models.Model):
         ordering = ['date', 'accounting_currency', 'currency']
         verbose_name = 'Rate'
         verbose_name_plural = "Currency rates"
+
+
+class TypeCF(models.Model):
+    type = models.CharField(max_length=50)
+
+    def __str__(self):
+        return self.type
+
+    class Meta:
+        ordering = ['id']
+        verbose_name = 'Type CF'
+        verbose_name_plural = "Types CF"

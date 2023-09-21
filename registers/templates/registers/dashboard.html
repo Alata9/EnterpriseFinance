@@ -31,7 +31,7 @@
     var options = {
        'width':350,
        'height':200,
-       'is3D': true,
+       'is3D': false,
        'legend': 'right'
        };
 
@@ -51,7 +51,7 @@
     var options = {
        'width':350,
        'height':200,
-       'is3D': true,
+       'is3D': false,
        'legend': 'right'
        };
 
@@ -154,9 +154,13 @@ function CashFlowDynamics() {
                     {% render_field form.project class="select form-control" %}
                     </div>
                     <div class="form-group">
-                    {{ form.conversion_currency.label_tag }}
-                    {% render_field form.conversion_currency class="select form-control" %}
+                    {{ form.type_cf.label_tag }}
+                    {% render_field form.type_cf class="select form-control" %}
                     </div>
+<!--                    <div class="form-group">-->
+<!--                    {{ form.conversion_currency.label_tag }}-->
+<!--                    {% render_field form.conversion_currency class="select form-control" %}-->
+<!--                    </div>-->
                     <div class="form-group">
                     {{ form.date_start.label_tag }}
                     {% render_field form.date_start class="select form-control" %}

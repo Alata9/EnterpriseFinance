@@ -1,3 +1,4 @@
+from django import forms
 from django.core.exceptions import ValidationError
 from django.forms import ModelForm, DateInput, Textarea, HiddenInput, ModelChoiceField, DateField, Form, FileField
 from dynamic_forms import DynamicFormMixin, DynamicField
@@ -9,7 +10,11 @@ from payments.models import ExpenseGroup, ExpensesItem, Payments
 class ExpenseGroupAdd(ModelForm):
     class Meta:
         model = ExpenseGroup
-        fields = ('expense_group', 'comments')
+        fields = ('expense_group', 'type_cf', 'comments')
+        widgets = {
+            'type_cf': forms.RadioSelect()
+        }
+
 
 
 class ExpenseItemAdd(ModelForm):

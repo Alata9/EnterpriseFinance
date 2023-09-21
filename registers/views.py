@@ -7,9 +7,9 @@ from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.views.generic import UpdateView, ListView
 
-from directory.models import PaymentAccount, CurrenciesRates
+from directory.models import PaymentAccount, CurrenciesRates, TypeCF
 from payments.models import Payments
-from receipts.models import Receipts
+from receipts.models import Receipts, IncomeItem
 from registers.forms import AccountSettingsSet, AccountBalancesFilter, DashboardFilter
 from registers.models import AccountSettings
 import pandas as pd
@@ -57,18 +57,17 @@ def DashboardView(request):
     receipts = Receipts.objects.all()
     payments = Payments.objects.all()
 
-    def get_currency_rate(currency1, currency2, date):
-        rates = CurrenciesRates.object.all()
-        rate = rates.object.filter(accounting_currency=currency1, currency=currency2).latest(date=date)
-        return rate.get('rate')
-
     if form.is_valid():
+        if form.cleaned_data['type_cf']:
+            receipts = receipts.filter(item__income_group_type=form.cleaned_data['type_cf'])
+            payments = payments.filter(item__expense_group_type=form.cleaned_data['type_cf'])
         if form.cleaned_data['organization']:
             receipts = receipts.filter(organization=form.cleaned_data['organization'])
             payments = payments.filter(organization=form.cleaned_data['organization'])
         if form.cleaned_data['project']:
             receipts = receipts.filter(project=form.cleaned_data['project'])
             payments = payments.filter(project=form.cleaned_data['project'])
+
 
         if form.cleaned_data['date_start']:
             receipts = receipts.filter(date__gte=form.cleaned_data['date_start'])
@@ -77,9 +76,9 @@ def DashboardView(request):
             receipts = receipts.filter(date__lte=form.cleaned_data['date_end'])
             payments = payments.filter(date__lte=form.cleaned_data['date_end'])
 
-        if form.cleaned_data['conversion_currency']:
-            receipts = receipts
-            payments = payments
+        # if form.cleaned_data['conversion_currency']:
+        #     receipts = receipts
+        #     payments = payments
             # for i in receipts:
             #     i.amount = i.amount * get_currency_rate(i.currency, form.cleaned_data['conversion_currency'], i.date)
             #     print(i)
@@ -104,7 +103,8 @@ def DashboardView(request):
     def get_dynamics(flow):
         dynamics = {}
         for i in flow:
-            period = f'{str(i.date.year)}/{str(i.date.month)}'
+            month = str(i.date.month).rjust(2, '0')
+            period = f'{str(i.date.year)}/{month}'
             amount = float(i.amount)
             if period not in dynamics:
                 dynamics[period] = amount

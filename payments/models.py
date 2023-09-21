@@ -1,17 +1,18 @@
 from django.db import models
 
-from directory.models import Organization, PaymentAccount, Project, Counterparties, Currencies
+from directory.models import Organization, PaymentAccount, Project, Counterparties, Currencies, TypeCF
 
 
 class ExpenseGroup(models.Model):
     expense_group = models.CharField(max_length=50)
     comments = models.CharField(max_length=255, blank=True, null=True)
+    type_cf = models.ForeignKey(TypeCF, on_delete=models.PROTECT, blank=True, null=True)
 
     def __str__(self):
         return self.expense_group
 
     class Meta:
-        ordering = ['expense_group']
+        ordering = ['type_cf', 'expense_group']
         verbose_name = 'Expense group'
         verbose_name_plural = 'Expense groups'
 

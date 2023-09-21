@@ -1,9 +1,10 @@
 from django import forms
-from django.forms import ModelForm, DateInput, DateField, ModelChoiceField
+from django.forms import ModelForm, DateInput, DateField, ModelChoiceField, ChoiceField
 from dynamic_forms import DynamicField, DynamicFormMixin
 
-from directory.models import Organization, PaymentAccount, CurrenciesRates, Currencies, Project
+from directory.models import Organization, PaymentAccount, CurrenciesRates, Currencies, Project, TypeCF
 from payments.models import Payments
+from receipts.models import IncomeGroup
 from registers.models import AccountSettings
 
 
@@ -41,10 +42,13 @@ class AccountBalancesFilter(ModelForm):
 
 
 class DashboardFilter(DynamicFormMixin, ModelForm):
+
     conversion_currency = ModelChoiceField(queryset=Currencies.objects.values_list("code", flat=True),
                                            empty_label='', required=False)
     date_start = DateField(label="From", widget=DateInput(attrs={'type': 'date'}), required=False)
     date_end = DateField(label="To", widget=DateInput(attrs={'type': 'date'}), required=False)
+    type_cf = ModelChoiceField(queryset=TypeCF.objects.values_list("type", flat=True),
+                                           empty_label='', required=False)
 
     class Meta:
         model = Payments

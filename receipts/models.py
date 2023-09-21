@@ -1,17 +1,18 @@
 from django.db import models
 
-from directory.models import Organization, PaymentAccount, Currencies, Project, Counterparties
+from directory.models import Organization, PaymentAccount, Currencies, Project, Counterparties, TypeCF
 
 
 class IncomeGroup(models.Model):
     income_group = models.CharField(max_length=50)
     comments = models.CharField(max_length=255, blank=True, null=True)
+    type_cf = models.ForeignKey(TypeCF, on_delete=models.PROTECT, blank=True, null=True)
 
     def __str__(self):
         return self.income_group
 
     class Meta:
-        ordering = ['income_group']
+        ordering = ['type_cf', 'income_group']
         verbose_name = 'Income group'
         verbose_name_plural = 'Income groups'
 
