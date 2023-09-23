@@ -1,6 +1,7 @@
 from django import forms
 from django.core.exceptions import ValidationError
-from django.forms import ModelForm, DateInput, Textarea, HiddenInput, DateField, ModelChoiceField, Form, FileField
+from django.forms import ModelForm, DateInput, Textarea, HiddenInput, DateField, ModelChoiceField, Form, FileField, \
+    ChoiceField
 from dynamic_forms import DynamicField, DynamicFormMixin
 
 from directory.models import PaymentAccount, Project
@@ -27,6 +28,7 @@ class IncomeItemAdd(ModelForm):
 
 
 class ReceiptsAdd(DynamicFormMixin, ModelForm):
+
     class Meta:
         model = Receipts
         fields = (
@@ -69,7 +71,14 @@ class ReceiptsAdd(DynamicFormMixin, ModelForm):
 
 class ReceiptsFilter(ModelForm):
     date_end = DateField(label="To", widget=DateInput(attrs={'type': 'date'}), required=False)
-
+    ordering = ChoiceField(label='Ordering', required=False,
+                           choices=[
+                               ['date', 'by date'],
+                               ['amount', 'by amount'],
+                               ['counterparty', 'by counterparty'],
+                               ['item', 'by item'],
+                               ['project', 'by project']
+                           ])
     class Meta:
         model = Receipts
         fields = ['organization', 'account', 'project', 'counterparty', 'item', 'date']
@@ -80,16 +89,16 @@ class ReceiptsFilter(ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['organization'].empty_label = ''
+        self.fields['organization'].empty_label = 'Organization:'
         self.fields['organization'].required = False
-        self.fields['account'].empty_label = ''
+        self.fields['account'].empty_label = 'Account:'
         self.fields['account'].required = False
         self.fields['account'].bold = True
-        self.fields['project'].empty_label = ''
+        self.fields['project'].empty_label = 'Project:'
         self.fields['project'].required = False
-        self.fields['counterparty'].empty_label = ''
+        self.fields['counterparty'].empty_label = 'Counterparty:'
         self.fields['counterparty'].required = False
-        self.fields['item'].empty_label = ''
+        self.fields['item'].empty_label = 'Item:'
         self.fields['item'].required = False
         self.fields['date'].label = 'From'
         self.fields['date'].required = False

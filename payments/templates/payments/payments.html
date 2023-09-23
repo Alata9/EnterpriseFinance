@@ -14,24 +14,8 @@
                 <h1>Payments</h1>
                 {% csrf_token %}
                 <div class="form-group">
-                {{ form.organization.label_tag }}
-                {% render_field form.organization class="select form-control" %}
-                </div>
-                <div class="form-group">
-                {{ form.account.label_tag }}
-                {% render_field form.account class="select form-control" %}
-                </div>
-                <div class="form-group">
-                {{ form.counterparty.label_tag }}
-                {% render_field form.counterparty class="select form-control" %}
-                </div>
-                <div class="form-group">
-                {{ form.item.label_tag }}
-                {% render_field form.item class="select form-control" %}
-                </div>
-                <div class="form-group">
-                {{ form.project.label_tag }}
-                {% render_field form.project class="select form-control" %}
+                {{ form.ordering.label_tag }}
+                {% render_field form.ordering class="select form-control" %}
                 </div>
                 <div class="form-group">
                 {{ form.date.label_tag }}
@@ -40,6 +24,22 @@
                 <div class="form-group">
                 {{ form.date_end.label_tag }}
                 {% render_field form.date_end class="select form-control" %}
+                </div>
+                <hr>
+                <div class="form-group">
+                {% render_field form.organization class="select form-control" %}
+                </div>
+                <div class="form-group">
+                {% render_field form.account class="select form-control" %}
+                </div>
+                <div class="form-group">
+                {% render_field form.counterparty class="select form-control" %}
+                </div>
+                <div class="form-group">
+                {% render_field form.item class="select form-control" %}
+                </div>
+                <div class="form-group">
+                {% render_field form.project class="select form-control" %}
                 </div>
                 <div hx-get="/payments/list" hx-trigger="click" hx-target="#id_table">
                     <button class="btn btn-info" type="reset" name="btn_reset" >RESET FILTERS</button>

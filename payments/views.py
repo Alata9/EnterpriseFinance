@@ -145,6 +145,8 @@ class PaymentsView(ListView):
                 payments = payments.filter(project=form.cleaned_data['project'])
             if form.cleaned_data['account']:
                 payments = payments.filter(account=form.cleaned_data['account'])
+            if form.cleaned_data['ordering']:
+                payments = payments.order_by(form.cleaned_data['ordering'])
 
         return payments
 

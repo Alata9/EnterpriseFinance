@@ -1,5 +1,6 @@
 from django.urls import path
 
+
 from registers.views import (
     HomeView, DashboardView, AccountSettingsView,
     ReportsView,  AccountBalancesView, CfStatementView, CfBudgetView, PlanFactAnalysisView,
@@ -17,3 +18,4 @@ urlpatterns = [
 
 
 ]
+

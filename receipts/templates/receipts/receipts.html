@@ -4,7 +4,7 @@
 {% load widget_tweaks %}
 {% block content %}
 
-<div class="container-fluid px-10">
+<div class="container-fluid px-1">
     <div class="row">
         <form action="" method="GET"
               hx-get="/receipts/list"
@@ -14,24 +14,8 @@
                 <h1>Receipts</h1>
                 {% csrf_token %}
                 <div class="form-group">
-                {{ form.organization.label_tag }}
-                {% render_field form.organization class="select form-control" placeholder="org" %}
-                </div>
-                <div class="form-group">
-                {{ form.account.label_tag }}
-                {% render_field form.account class="select form-control" %}
-                </div>
-                <div class="form-group">
-                {{ form.counterparty.label_tag }}
-                {% render_field form.counterparty class="select form-control" %}
-                </div>
-                <div class="form-group">
-                {{ form.item.label_tag }}
-                {% render_field form.item class="select form-control" %}
-                </div>
-                <div class="form-group">
-                {{ form.project.label_tag }}
-                {% render_field form.project class="select form-control" %}
+                {{ form.ordering.label_tag }}
+                {% render_field form.ordering class="select form-control" %}
                 </div>
                 <div class="form-group">
                 {{ form.date.label_tag }}
@@ -41,15 +25,29 @@
                 {{ form.date_end.label_tag }}
                 {% render_field form.date_end class="select form-control" %}
                 </div>
+                <hr>
+                <div class="form-group">
+                {% render_field form.organization class="select form-control" placeholder="org" %}
+                </div>
+                <div class="form-group">
+                {% render_field form.account class="select form-control" %}
+                </div>
+                <div class="form-group">
+                {% render_field form.counterparty class="select form-control" %}
+                </div>
+                <div class="form-group">
+                {% render_field form.item class="select form-control" %}
+                </div>
+                <div class="form-group">
+                {% render_field form.project class="select form-control" %}
+                </div>
+
                 <div hx-get="/receipts/list" hx-trigger="click" hx-target="#id_table">
                     <button class="btn btn-info" type="reset" name="btn_reset" >RESET FILTERS</button>
                 </div>
-
         </div>
         <div class="col-md-10 border p-2 shadow">
-
             <div class="row d-grid gap-2 d-md-flex justify-content-md-end">
-
                 <div class="col-md-7"></div>
                 <div class="col-md-5">
                     <a href="{% url 'receipts_add' %}" class="btn btn-info" name="btn_add">ADD NEW</a>
@@ -65,6 +63,5 @@
         </form>
     </div>
 </div>
-
 
 {% endblock %}
