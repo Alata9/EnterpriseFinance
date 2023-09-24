@@ -11,7 +11,7 @@
                 {% csrf_token %}
                 {{ form|crispy }}
                 <br>
-                <button class="btn btn-info" type="submit">SHOW | RESET</button>
+                <button class="btn btn-info" type="submit">SHOW</button>
             </div>
         </form>
         <div class="col-md-1 border shadow"></div>
@@ -24,21 +24,21 @@
                         <th align="center">account</th>
                         <th align="center">currency</th>
                         <th align="center">is cash</th>
-<!--                        <th align="center">opening balance</th>-->
-<!--                        <th align="center">income</th>-->
-<!--                        <th align="center">payments</th>-->
-<!--                        <th align="center">closing balance</th>-->
+                        <th align="center">opening balance</th>
+                        <th align="center">receipts</th>
+                        <th align="center">payments</th>
+                        <th align="center">final balance</th>
                     </tr>
-                    {% for i in accounts %}
+                    {% for i in account_balances %}
                     <tr>
-                        <td width="200">{{i.organization}}</td>
-                        <td width="200">{{i.account}}</td>
-                        <td width="100">{{i.currency}}</td>
-                        <td width="100" align="center">{% if i.is_cash %}<i class="bi bi-check2-square"></i>{% endif %}</td>
-<!--                        <td width="10">{{i.open_balance}}</td>-->
-<!--                        <td width="10" align="right">{{i.open_balance}}</td>-->
-<!--                        <td width="10" align="right">{{i.open_balance}}</td>-->
-<!--                        <td width="10" align="right">{{i.open_balance}}</td>-->
+                        <td width="100">{{i.1}}</td>
+                        <td width="100">{{i.0}}</td>
+                        <td width="100">{{i.2}}</td>
+                        <td width="100" align="center">{% if i.3 %}<i class="bi bi-check2-square"></i>{% endif %}</td>
+                        <td width="10">{{i.4}}</td>
+                        <td width="10" align="right">{{i.5}}</td>
+                        <td width="10" align="right">{{i.6}}</td>
+                        <td width="10" align="right">{{i.7}}</td>
                     </tr>
                     {% endfor %}
                 </table>

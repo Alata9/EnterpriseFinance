@@ -9,36 +9,31 @@
 <script>
     google.charts.load('current', {'packages':['corechart']});
     google.charts.setOnLoadCallback(CashFlowDynamics);
+    google.charts.setOnLoadCallback(CashFlowBar);
 
     google.charts.load('current', {'packages':['table']});
     google.charts.setOnLoadCallback(TableBalancesAccount);
     google.charts.setOnLoadCallback(TableCashFlow);
 
-    google.charts.load('current', {'packages':['bar']});
-    google.charts.setOnLoadCallback(CFStructure);
 
 
+function CashFlowBar() {
 
+    var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Items');
+        data.addColumn('number', 'Amount');
+        data.addRows({{ cf_bar|safe }});
 
-    function CFStructure() {
-        var data = google.visualization.arrayToDataTable([
-          ['Activities', 'Receipts', 'Payments', 'CF'],
-          ['Operating', 1000, 400, 200],
-          ['Investment', 1170, 460, 250],
-          ['Financing', 660, 1120, -300]
-        ]);
+    var options = {
+       'width':400,
+       'height':250,
+       colors: ['#FF4500'],
+       legend: { position: 'none' }
+       };
 
-        var options = {
-          colors: ['#00BFFF', '#2F4F4F', 'FFD700'],
-          chart: {
-            legend: { position: 'bottom' }
-          }
-        };
-
-        var chart = new google.charts.Bar(document.getElementById('cf_structure'));
-
-        chart.draw(data, google.charts.Bar.convertOptions(options));
-      }
+    var chart = new google.visualization.BarChart(document.getElementById('cf_bar'));
+    chart.draw(data, options);
+}
 
 
 function CashFlowDynamics() {
@@ -50,10 +45,10 @@ function CashFlowDynamics() {
         data.addRows({{ cf_dynamics|safe }});
 
         var options = {
-          height:320,
+          height:280,
           vAxis: {title: 'Amount'},
           hAxis: {title: 'Period'},
-          colors: ['#00BFFF', '#2F4F4F', 'FFD700'],
+          colors: ['#00CED1', '#FF4500', 'FFD700'],
           seriesType: 'bars',
           series: {2: {type: 'line'}},
           legend: { position: 'bottom' }
@@ -69,14 +64,7 @@ function CashFlowDynamics() {
         data.addColumn('string', 'Account');
         data.addColumn('number', 'Amount');
         data.addColumn('string', 'Currency');
-        data.addRows([
-          ['UniCreditBank', 100000, 'RUB'],
-          ['Pochtobank',  80000, 'USD'],
-          ['THSS Sberbank',  5600, 'ILS'],
-          ['Sberbank',  50000, 'RUB'],
-          ['Safe',  1200000, 'EUR'],
-          ['BGagarina cash desk',  50000, 'ILS'],
-        ]);
+        data.addRows({{ account_balances|safe }});
 
         var table = new google.visualization.Table(document.getElementById('table_balances_account'));
 
@@ -91,13 +79,8 @@ function CashFlowDynamics() {
         data.addColumn('number', 'Investment');
         data.addColumn('number', 'Financing');
         data.addColumn('number', 'Total');
-<!--        data.addRows({{ cf_table|safe }});-->
+        data.addRows({{ cf_table|safe }});
 
-        data.addRows([
-          ['receipts',  100000, 200000, 300000, 600000],
-          ['payments',  80000, 100000, 400000, 580000],
-          ['cash flow',  20000, 100000, -100000, 20000],
-        ]);
 
         var table = new google.visualization.Table(document.getElementById('cf_table'));
 
@@ -152,17 +135,17 @@ function CashFlowDynamics() {
                     <hr>
                     <div id="table_balances_account"></div>
                 </div>
-                <div class="col-md-4 border p-2 shadow">
+                <div class="col-md-5 border p-2 shadow">
                     <b>Total Cash flow</b>
                     <hr>
                     <div id="cf_table"></div>
                 </div>
-                <div class="col-md-5 border p-2 shadow">
-                    <b>Cash flow structure</b>
-                    <hr>
-                    <div id="cf_structure"></div>
+                <div class="col-md-4 border p-2 shadow">
+                    <b>Cash flow bar</b>
+                    <div id="cf_bar"></div>
                 </div>
             </div>
+            <br>
             <div class="row p-1 g-1">
                 <div class="col-md-12 border p-2 shadow">
                     <b>Cash flow dynamics</b>
