@@ -1,0 +1,215 @@
+{% extends 'registers/base.html' %}
+{% block title %}Dashboard{% endblock %}
+{% load crispy_forms_tags %}
+{% load widget_tweaks %}
+{% block content %}
+{% load static %}
+
+
+<script>
+    google.charts.load('current', {'packages':['corechart']});
+    google.charts.setOnLoadCallback(IncomeStructure);
+    google.charts.setOnLoadCallback(PaymentsStructure);
+    google.charts.setOnLoadCallback(rpDynamics);
+    google.charts.setOnLoadCallback(CashFlowDynamics);
+
+    google.charts.load('current', {'packages':['table']});
+    google.charts.setOnLoadCallback(TableBalances);
+    google.charts.setOnLoadCallback(CFTable);
+
+
+
+    function IncomeStructure() {
+
+    var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Items');
+        data.addColumn('number', 'Amount');
+        data.addRows({{ receipts_structure|safe }});
+
+    var options = {
+       'width':350,
+       'height':200,
+       'is3D': false,
+       'legend': 'right'
+       };
+
+    var chart = new google.visualization.PieChart(document.getElementById('chart_income_structure'));
+    chart.draw(data, options);
+}
+
+
+
+    function PaymentsStructure() {
+
+    var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Items');
+        data.addColumn('number', 'Amount');
+        data.addRows({{ payments_structure|safe }});
+
+    var options = {
+       'width':350,
+       'height':200,
+       'is3D': false,
+       'legend': 'right'
+       };
+
+    var chart = new google.visualization.PieChart(document.getElementById('chart_payments_structure'));
+    chart.draw(data, options);
+}
+
+
+function rpDynamics() {
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Period');
+        data.addColumn('number', 'Receipts');
+        data.addColumn('number', 'Payments');
+        data.addRows({{ rp_dynamics |safe }});
+
+        var options = {
+          curveType: 'function',
+          legend: { position: 'bottom' }
+        };
+
+    var chart = new google.visualization.LineChart(document.getElementById('chart_rp_dynamics'));
+    chart.draw(data, options);
+  }
+
+
+function CashFlowDynamics() {
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Period');
+        data.addColumn('number', 'Receipts');
+        data.addColumn('number', 'Payments');
+        data.addColumn('number', 'Cash Flow');
+        data.addRows({{ cf_dynamics|safe }});
+
+        var options = {
+          vAxis: {title: 'Amount'},
+          hAxis: {title: 'Period'},
+          seriesType: 'bars',
+          series: {2: {type: 'line'}},
+          legend: { position: 'bottom' }
+        };
+
+        var chart = new google.visualization.ComboChart(document.getElementById('chart_cash_flow_dynamics'));
+        chart.draw(data, options);
+      }
+
+
+      function TableBalances() {
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Currency');
+        data.addColumn('number', 'Amount');
+        data.addRows([
+          ['USD',  10000],
+          ['EUR',  8000],
+          ['ILS',  12456],
+          ['RUB',  450000]
+        ]);
+
+        var table = new google.visualization.Table(document.getElementById('table_balances'));
+
+        table.draw(data, {showRowNumber: true, width: '100%', height: '100%'});
+      }
+
+
+      function CFTable() {
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Item');
+        data.addColumn('number', 'Cash flow');
+        data.addRows({{ cf_table|safe }});
+
+        var table = new google.visualization.Table(document.getElementById('cf_table'));
+
+        table.draw(data, {showRowNumber: true, width: '100%', height: '100%'});
+      }
+
+</script>
+
+
+<div class="container-fluid px-10">
+    <div class="row fluid">
+        <div class="col-md-2 border p-3 shadow">
+            <div class="text-center">
+                <h2>Credits and loans</h2>
+                <h5>{{ today }}</h5>
+            </div>
+            <br>
+            <form method='GET'>
+                <div class="col-md-12">
+                    {% csrf_token %}
+                    <div id="div_id_organization"
+                         class="form-group"
+                         hx-get="/dashboard/projects"
+                         hx-vals="js:{organization:document.getElementById('id_organization').value}"
+                         hx-trigger="change"
+                         hx-target="#id_project">
+                        {{ form.organization.label_tag }}
+                        {% render_field form.organization class="select form-control" hx-get="/dashboard/project" hx-trigger="change" hx-target="#id_project" %}
+                    </div>
+                    <div id="div_id_project" class="form-group">
+                    {{ form.project.label_tag }}
+                    {% render_field form.project class="select form-control" %}
+                    </div>
+                    <div class="form-group">
+                    {{ form.type_cf.label_tag }}
+                    {% render_field form.type_cf class="select form-control" %}
+                    </div>
+<!--                    <div class="form-group">-->
+<!--                    {{ form.conversion_currency.label_tag }}-->
+<!--                    {% render_field form.conversion_currency class="select form-control" %}-->
+<!--                    </div>-->
+                    <div class="form-group">
+                    {{ form.date_start.label_tag }}
+                    {% render_field form.date_start class="select form-control" %}
+                    </div>
+                    <div class="form-group">
+                    {{ form.date_end.label_tag }}
+                    {% render_field form.date_end class="select form-control" %}
+                    </div>
+                    <br><button class="btn btn-info" type="submit" name="btn_show">SHOW</button>
+                </div>
+            </form>
+        </div>
+        <br>
+        <div class="col-md-10 border p-2 shadow">
+            <div class="row p-1 g-1">
+                <div class="col-md-2 border p-2 shadow">
+                    <b>Balances today</b>
+                    <hr>
+                    <div id="table_balances"></div>
+                </div>
+                <div class="col-md-8 border p-2 shadow">
+                    <b>Cash flow dynamics</b>
+                    <div id="chart_cash_flow_dynamics"></div>
+                </div>
+                <div class="col-md-2 border p-2 shadow">
+                    <b>Total Cash flow</b>
+                    <hr>
+                    <div id="cf_table"></div>
+                </div>
+            </div>
+            <br><br><br>
+            <div class="row p-1 g-1">
+                <div class="col-md-3 border p-3 shadow">
+                    <b>Receipts structure</b>
+                    <div id="chart_income_structure"></div>
+                </div>
+                <div class="col-md-3 border p-3 shadow">
+                    <b>Payments structure</b>
+                    <div id="chart_payments_structure"></div>
+                </div>
+                <div class="col-md-6 border p-3 shadow">
+                    <b>Receipts and payments dynamics</b>
+                    <div id="chart_rp_dynamics"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript" src="{% static '/registers/js/scripts.js' %}"></script>
+<script src="https://www.gstatic.com/charts/loader.js"></script>
+
+
+{% endblock %}

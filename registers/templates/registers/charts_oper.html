@@ -1,0 +1,241 @@
+{% extends 'registers/base.html' %}
+{% block title %}Dashboard{% endblock %}
+{% load crispy_forms_tags %}
+{% load widget_tweaks %}
+{% block content %}
+{% load static %}
+
+
+<script>
+    google.charts.load('current', {'packages':['corechart']});
+    google.charts.setOnLoadCallback(IncomeStructure);
+    google.charts.setOnLoadCallback(PaymentsStructure);
+    google.charts.setOnLoadCallback(rpDynamics);
+    google.charts.setOnLoadCallback(IncomeBar);
+    google.charts.setOnLoadCallback(PaymentsBar);
+    google.charts.setOnLoadCallback(TopCustomers);
+    google.charts.setOnLoadCallback(TopSuppliers);
+
+
+
+    function IncomeStructure() {
+
+    var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Items');
+        data.addColumn('number', 'Amount');
+        data.addRows({{ receipts_structure|safe }});
+
+    var options = {
+       'width':350,
+       'height':200,
+       colors: ['#008B8B', '#20B2AA', '#00CED1', '#40E0D0', '#AFEEEE'],
+       'legend': 'right'
+       };
+
+    var chart = new google.visualization.PieChart(document.getElementById('chart_income_structure'));
+    chart.draw(data, options);
+}
+
+
+
+    function PaymentsStructure() {
+
+    var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Items');
+        data.addColumn('number', 'Amount');
+        data.addRows({{ payments_structure|safe }});
+
+    var options = {
+       'width':350,
+       'height':200,
+       colors: ['#FF4500', '#FF8C00', '#FFA500', '#FFD700', '#FFFF00'],
+       'legend': 'right'
+       };
+
+    var chart = new google.visualization.PieChart(document.getElementById('chart_payments_structure'));
+    chart.draw(data, options);
+}
+
+
+function rpDynamics() {
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Period');
+        data.addColumn('number', 'Receipts');
+        data.addColumn('number', 'Payments');
+        data.addRows({{ rp_dynamics |safe }});
+
+        var options = {
+          curveType: 'function',
+          colors: ['#008B8B', '#FF4500'],
+          legend: { position: 'bottom' }
+        };
+
+    var chart = new google.visualization.LineChart(document.getElementById('chart_rp_dynamics'));
+    chart.draw(data, options);
+  }
+
+
+      function IncomeBar() {
+
+    var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Items');
+        data.addColumn('number', 'Amount');
+        data.addRows({{ receipts_structure|safe }});
+
+    var options = {
+       'width':350,
+       'height':200,
+       colors: ['#008B8B'],
+       legend: {position: 'none'},
+       hAxis: {minValue:0}
+       };
+
+    var chart = new google.visualization.BarChart(document.getElementById('chart_income_bar'));
+    chart.draw(data, options);
+}
+
+function PaymentsBar() {
+
+    var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Items');
+        data.addColumn('number', 'Amount');
+        data.addRows({{ payments_bar|safe }});
+
+    var options = {
+       'width':350,
+       'height':200,
+       colors: ['FF4500'],
+       legend: {position: 'none'},
+       hAxis: {minValue:0}
+       };
+
+    var chart = new google.visualization.BarChart(document.getElementById('chart_payments_bar'));
+    chart.draw(data, options);
+}
+
+
+function TopCustomers() {
+
+    var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Items');
+        data.addColumn('number', 'Amount');
+        data.addRows({{ top_customers|safe }});
+
+    var options = {
+       'width':350,
+       'height':200,
+       colors: ['#00CED1'],
+       legend: {position: 'none'},
+       hAxis: {minValue:0}
+       };
+
+    var chart = new google.visualization.BarChart(document.getElementById('chart_top_customers'));
+    chart.draw(data, options);
+}
+
+function TopSuppliers() {
+
+    var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Items');
+        data.addColumn('number', 'Amount');
+        data.addRows({{ top_suppliers|safe }});
+
+    var options = {
+       'width':350,
+       'height':200,
+       colors: ['FF8C00'],
+       legend: {position: 'none'},
+       hAxis: {minValue:0}
+       };
+
+    var chart = new google.visualization.BarChart(document.getElementById('chart_top_suppliers'));
+    chart.draw(data, options);
+}
+
+</script>
+
+
+<div class="container-fluid px-10">
+    <div class="row fluid">
+        <div class="col-md-2 border p-3 shadow">
+            <div class="text-center">
+                <h2>Operating dashboard</h2>
+                <h5>{{ today }}</h5>
+            </div>
+            <br>
+            <form method='GET'>
+                <div class="col-md-12">
+                    {% csrf_token %}
+                    <div id="div_id_organization"
+                         class="form-group"
+                         hx-get="/dashboard/projects"
+                         hx-vals="js:{organization:document.getElementById('id_organization').value}"
+                         hx-trigger="change"
+                         hx-target="#id_project">
+                        {{ form.organization.label_tag }}
+                        {% render_field form.organization class="select form-control" hx-get="/dashboard/project" hx-trigger="change" hx-target="#id_project" %}
+                    </div>
+                    <div id="div_id_project" class="form-group">
+                    {{ form.project.label_tag }}
+                    {% render_field form.project class="select form-control" %}
+                    </div>
+<!--                    <div class="form-group">-->
+<!--                    {{ form.conversion_currency.label_tag }}-->
+<!--                    {% render_field form.conversion_currency class="select form-control" %}-->
+<!--                    </div>-->
+                    <div class="form-group">
+                    {{ form.date_start.label_tag }}
+                    {% render_field form.date_start class="select form-control" %}
+                    </div>
+                    <div class="form-group">
+                    {{ form.date_end.label_tag }}
+                    {% render_field form.date_end class="select form-control" %}
+                    </div>
+                    <br><button class="btn btn-info" type="submit" name="btn_show">SHOW</button>
+                </div>
+            </form>
+        </div>
+        <br>
+        <div class="col-md-10 border p-2 shadow">
+            <div class="row p-1 g-1">
+                <div class="col-md-3 border p-3 shadow">
+                    <b>Receipts structure</b>
+                    <div id="chart_income_structure"></div>
+                </div>
+                <div class="col-md-3 border p-3 shadow">
+                    <b>Payments structure</b>
+                    <div id="chart_payments_structure"></div>
+                </div>
+                <div class="col-md-6 border p-3 shadow">
+                    <b>Receipts and payments dynamics</b>
+                    <div id="chart_rp_dynamics"></div>
+                </div>
+            </div>
+            <br><br><br>
+            <div class="row p-1 g-1">
+                <div class="col-md-3 border p-2 shadow">
+                    <b>Receipts bar</b>
+                    <div id="chart_income_bar"></div>
+                </div>
+                <div class="col-md-3 border p-2 shadow">
+                    <b>Payments bar</b>
+                    <div id="chart_payments_bar"></div>
+                </div>
+                <div class="col-md-3 border p-2 shadow">
+                    <b>TOP-10 customers</b>
+                    <div id="chart_top_customers"></div>
+                </div>
+                <div class="col-md-3 border p-2 shadow">
+                    <b>TOP-10 suppliers</b>
+                    <div id="chart_top_suppliers"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript" src="{% static '/registers/js/scripts.js' %}"></script>
+<script src="https://www.gstatic.com/charts/loader.js"></script>
+
+
+{% endblock %}
