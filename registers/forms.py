@@ -59,9 +59,16 @@ class DashboardFilter(DynamicFormMixin, ModelForm):
         self.fields['project'].empty_label = ''
         self.fields['project'].required = False
 
+    @staticmethod
+    def project_filter(form):
+        if form['organization'].value():
+            return Project.objects.filter(organization=form['organization'].value())
+
+        return Project.objects.all()
+
     project = DynamicField(
         ModelChoiceField,
-        queryset=lambda form: Project.objects.filter(organization=form['organization'].value()),
+        queryset=project_filter,
     )
 
 

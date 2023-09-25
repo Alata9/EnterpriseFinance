@@ -166,14 +166,9 @@ function TopSuppliers() {
             <form method='GET'>
                 <div class="col-md-12">
                     {% csrf_token %}
-                    <div id="div_id_organization"
-                         class="form-group"
-                         hx-get="/dashboard/projects"
-                         hx-vals="js:{organization:document.getElementById('id_organization').value}"
-                         hx-trigger="change"
-                         hx-target="#id_project">
+                    <div id="div_id_organization" class="form-group">
                         {{ form.organization.label_tag }}
-                        {% render_field form.organization class="select form-control" hx-get="/dashboard/project" hx-trigger="change" hx-target="#id_project" %}
+                        {% render_field form.organization class="select form-control" hx-get="/operating/project" hx-trigger="change" hx-target="#id_project" %}
                     </div>
                     <div id="div_id_project" class="form-group">
                     {{ form.project.label_tag }}
