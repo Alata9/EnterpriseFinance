@@ -1,5 +1,5 @@
 {% extends 'registers/base.html' %}
-{% block title %}Dashboard{% endblock %}
+{% block title %}Main dashboard{% endblock %}
 {% load crispy_forms_tags %}
 {% load widget_tweaks %}
 {% block content %}
@@ -48,7 +48,7 @@ function CashFlowDynamics() {
           height:280,
           vAxis: {title: 'Amount'},
           hAxis: {title: 'Period'},
-          colors: ['#00CED1', '#FF4500', 'FFD700'],
+          colors: ['#00CED1', '#FF4500', '2F4F4F'],
           seriesType: 'bars',
           series: {2: {type: 'line'}},
           legend: { position: 'bottom' }
@@ -131,7 +131,7 @@ function CashFlowDynamics() {
         <div class="col-md-10 border p-2 shadow">
             <div class="row p-1 g-1">
                 <div class="col-md-3 border p-2 shadow">
-                    <b>Account balances today</b>
+                    <b>Account balances on {{today|date:"d.m.Y"}}</b>
                     <hr>
                     <div id="table_balances_account"></div>
                 </div>

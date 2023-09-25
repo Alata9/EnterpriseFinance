@@ -20,7 +20,7 @@ class AccountSettingsSet(ModelForm):
         self.fields['accounting_currency'].empty_label = ''
 
 
-class AccountBalancesFilter(ModelForm):
+class AccountBalancesFilter(DynamicFormMixin, ModelForm):
     # conversion_currency = ModelChoiceField(queryset=Currencies.objects.values_list("code", flat=True),
     #                                        empty_label='', required=True)
     date_start = DateField(label="From", widget=DateInput(attrs={'type': 'date'}), required=False)
@@ -47,8 +47,6 @@ class DashboardFilter(DynamicFormMixin, ModelForm):
                                            empty_label='', required=False)
     date_start = DateField(label="From", widget=DateInput(attrs={'type': 'date'}), required=False)
     date_end = DateField(label="To", widget=DateInput(attrs={'type': 'date'}), required=False)
-    type_cf = ModelChoiceField(queryset=TypeCF.objects.values_list("type", flat=True),
-                                           empty_label='', required=False)
 
     class Meta:
         model = Payments

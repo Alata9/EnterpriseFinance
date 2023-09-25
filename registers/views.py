@@ -14,6 +14,9 @@ from registers.forms import AccountSettingsSet, AccountBalancesFilter, Dashboard
 from registers.models import AccountSettings
 
 
+def HomeView(request):
+    return render(request, 'registers/home.html')
+
 
 class AccountSettingsView(UpdateView):
     model = AccountSettings
@@ -25,61 +28,67 @@ class AccountSettingsView(UpdateView):
         return self.model.load()
 
 
-def AccountBalancesView(request):
-    form = AccountBalancesFilter(request.GET)
-    accounts = PaymentAccount.objects.all()
-    receipts = Receipts.objects.all()
-    payments = Payments.objects.all()
+class AccountBalancesView(ListView):
+    model = PaymentAccount
+    template_name = 'registers/account_balances.html'
 
-    if form.is_valid():
-        if form.cleaned_data['organization']:
-            accounts = accounts.filter(organization=form.cleaned_data['organization'])
-        if form.cleaned_data['currency']:
-            accounts = accounts.filter(currency=form.cleaned_data['currency'])
-        if form.cleaned_data['is_cash']:
-            accounts = accounts.filter(is_cash=form.cleaned_data['is_cash'])
-        if form.cleaned_data['date_start']:
-            receipts = receipts.filter(date__gte=form.cleaned_data['date_start'])
-            payments = payments.filter(date__gte=form.cleaned_data['date_start'])
-        if form.cleaned_data['date_end']:
-            receipts = receipts.filter(date__lte=form.cleaned_data['date_end'])
-            payments = payments.filter(date__lte=form.cleaned_data['date_end'])
+    def get_context_data(self, *, object_list=None, **kwargs):
+        ctx = super().get_context_data(object_list=None, **kwargs)
+        ctx['form'] = AccountBalancesFilter()
+        return ctx
 
-    def get_balances():
-        account_balances = {}
-        nonlocal receipts, payments
+    @staticmethod
+    def account_balances_queryset(request):
 
-        for i in accounts:
-            organization = PaymentAccount.objects.filter(account=i).values_list('organization__organization', flat=True)[0]
-            currency = PaymentAccount.objects.filter(account=i).values_list('currency__code', flat=True)[0]
-            is_cash = PaymentAccount.objects.filter(account=i).values_list('is_cash', flat=True)[0]
-            open_balance = PaymentAccount.objects.filter(account=i).values_list('open_balance', flat=True)[0]
+        accounts = PaymentAccount.objects.all()
+        receipts = Receipts.objects.all()
+        payments = Payments.objects.all()
+        form = AccountBalancesFilter(request.GET)
+        if form.is_valid():
+            if form.cleaned_data['organization']:
+                accounts = accounts.filter(organization=form.cleaned_data['organization'])
+            if form.cleaned_data['currency']:
+                accounts = accounts.filter(currency=form.cleaned_data['currency'])
+            if form.cleaned_data['is_cash']:
+                accounts = accounts.filter(is_cash=form.cleaned_data['is_cash'])
+            if form.cleaned_data['date_start']:
+                receipts = receipts.filter(date__gte=form.cleaned_data['date_start'])
+                payments = payments.filter(date__gte=form.cleaned_data['date_start'])
+            if form.cleaned_data['date_end']:
+                receipts = receipts.filter(date__lte=form.cleaned_data['date_end'])
+                payments = payments.filter(date__lte=form.cleaned_data['date_end'])
 
-            receipts = receipts.filter(account=i)
-            receipts_sum = receipts.aggregate(Sum("amount")).get('amount__sum', 0.00)
-            print(receipts_sum)
-            if receipts_sum == None: receipts_sum = 0
+            account_balances = {}
 
-            payments = payments.filter(account=i)
-            payments_sum = payments.aggregate(Sum("amount")).get('amount__sum', 0.00)
-            print(payments_sum)
-            if payments_sum == None: payments_sum = 0
+            for i in accounts:
+                organization = PaymentAccount.objects.filter(account=i).values_list('organization__organization', flat=True)[0]
+                currency = PaymentAccount.objects.filter(account=i).values_list('currency__code', flat=True)[0]
+                is_cash = PaymentAccount.objects.filter(account=i).values_list('is_cash', flat=True)[0]
+                open_balance = PaymentAccount.objects.filter(account=i).values_list('open_balance', flat=True)[0]
 
-            final_balance = open_balance + receipts_sum - payments_sum
+                receipts = receipts.filter(account__account=i)
+                receipts_sum = receipts.aggregate(Sum("amount")).get('amount__sum', 0.00)
+                if receipts_sum == None: receipts_sum = 0
 
-            account_balances[i] = [organization, currency, is_cash, int(open_balance),
-                                   int(receipts_sum), int(payments_sum), int(final_balance)]
+                payments = payments.filter(account__account=i)
+                payments_sum = payments.aggregate(Sum("amount")).get('amount__sum', 0.00)
+                if payments_sum == None: payments_sum = 0
 
-        account_balances = [[k, *v] for k, v in account_balances.items()]
-        print(account_balances)
-        return account_balances
+                final_balance = open_balance + receipts_sum - payments_sum
 
-    context = {
-               'account_balances': get_balances(),
-               'form': AccountBalancesFilter(),
-               }
+                account_balances[i] = [organization, currency, is_cash, int(open_balance),
+                                            int(receipts_sum), int(payments_sum), int(final_balance)]
 
-    return render(request, 'registers/account_balances.html', context=context)
+            account_balances = [[k, *v] for k, v in account_balances.items()]
+            print(account_balances)
+            return account_balances
+
+    @staticmethod
+    def htmx_list(request):
+        context = {'object_list': AccountBalancesView.account_balances_queryset(request)}
+
+        return render(request, 'registers/account_balances_list.html', context=context)
+
 
 
 def DashboardView(request):
@@ -149,7 +158,9 @@ def DashboardView(request):
 
     # chart 2, 3 cf table and cf bar
     def get_cf_table():
-        nonlocal receipts_oper, payments_oper, receipts_invest, payments_invest, receipts_fin, payments_fin
+        nonlocal receipts, payments, receipts_oper, payments_oper, \
+            receipts_invest, payments_invest, receipts_fin, payments_fin
+
         cf_table = {}
         receipts_sum = receipts.aggregate(Sum("amount")).get('amount__sum', 0.00)
         payments_sum = payments.aggregate(Sum("amount")).get('amount__sum', 0.00)
@@ -159,6 +170,7 @@ def DashboardView(request):
         payments_invest = payments_invest.aggregate(Sum("amount")).get('amount__sum', 0.00)
         receipts_fin = receipts_fin.aggregate(Sum("amount")).get('amount__sum', 0.00)
         payments_fin = payments_fin.aggregate(Sum("amount")).get('amount__sum', 0.00)
+
 
         if receipts_sum == None: receipts_sum = 0
         if payments_sum == None: payments_sum = 0
@@ -358,6 +370,11 @@ def ChartsOperView(request):
         top = dict(top)
 
         return [[k, v] for k, v in top.items()][:10]
+
+    @staticmethod
+    def htmx_projects(request):
+        form = DashboardFilter(request.GET)
+        return HttpResponse(form["project"])
 
     context = {
                'form': form,
@@ -619,16 +636,42 @@ def ChartsFinView(request):
     return render(request, 'registers/charts_fin.html', context=context)
 
 
-def HomeView(request):
-    return render(request, 'registers/home.html')
 
 
-def ReportsView(request):
-    return render(request, 'registers/reports.html')
 
 
 def CfStatementView(request):
-    return render(request, 'registers/cf_statement.html')
+    form = DashboardFilter(request.GET)
+    receipts = Receipts.objects.filter(item__income_group__type_cf=1)
+    payments = Payments.objects.filter(item__expense_group__type_cf=1)
+
+    if form.is_valid():
+        if form.cleaned_data['organization']:
+            receipts = receipts.filter(organization=form.cleaned_data['organization'])
+            payments = payments.filter(organization=form.cleaned_data['organization'])
+        if form.cleaned_data['project']:
+            receipts = receipts.filter(project=form.cleaned_data['project'])
+            payments = payments.filter(project=form.cleaned_data['project'])
+        if form.cleaned_data['date_start']:
+            receipts = receipts.filter(date__gte=form.cleaned_data['date_start'])
+            payments = payments.filter(date__gte=form.cleaned_data['date_start'])
+        if form.cleaned_data['date_end']:
+            receipts = receipts.filter(date__lte=form.cleaned_data['date_end'])
+            payments = payments.filter(date__lte=form.cleaned_data['date_end'])
+
+    @staticmethod
+    def htmx_projects(request):
+        form = DashboardFilter(request.GET)
+        return HttpResponse(form["project"])
+
+    context = {
+        'form': form,
+        'today': datetime.today(),
+
+    }
+
+
+    return render(request, 'registers/cf_statement.html', context=context)
 
 
 def CfBudgetView(request):

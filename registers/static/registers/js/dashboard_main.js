@@ -1,74 +1,32 @@
-document.addEventListener('DOMContentLoaded', function()
-{
+google.charts.load('current', {'packages':['corechart']});
+    google.charts.setOnLoadCallback(CashFlowDynamics);
+    google.charts.setOnLoadCallback(CashFlowBar);
 
-        google.charts.load('current', {'packages':['corechart']});
-        google.charts.setOnLoadCallback(IncomeStructure);
-        google.charts.setOnLoadCallback(PaymentsStructure);
-        google.charts.setOnLoadCallback(rpDynamics);
-        google.charts.setOnLoadCallback(CashFlowDynamics);
-
-        google.charts.load('current', {'packages':['table']});
-        google.charts.setOnLoadCallback(TableBalances);
-        google.charts.setOnLoadCallback(CFTable);
+    google.charts.load('current', {'packages':['table']});
+    google.charts.setOnLoadCallback(TableBalancesAccount);
+    google.charts.setOnLoadCallback(TableCashFlow);
 
 
-        function IncomeStructure() {
 
+    function CashFlowBar() {
         var data = new google.visualization.DataTable();
-        data.addColumn('string', 'Items');
-        data.addColumn('number', 'Amount');
-        data.addRows({{ receipts_structure|safe }});
+            data.addColumn('string', 'Items');
+            data.addColumn('number', 'Amount');
+            data.addRows({{ cf_bar|safe }});
 
         var options = {
-        'width':350,
-        'height':200,
-        'is3D': false,
-        'legend': 'right'
-        };
+           'width':400,
+           'height':250,
+           colors: ['#FF4500'],
+           legend: { position: 'none' }
+           };
 
-        var chart = new google.visualization.PieChart(document.getElementById('chart_income_structure'));
+        var chart = new google.visualization.BarChart(document.getElementById('cf_bar'));
         chart.draw(data, options);
-        }
+}
 
 
-
-        function PaymentsStructure() {
-
-        var data = new google.visualization.DataTable();
-        data.addColumn('string', 'Items');
-        data.addColumn('number', 'Amount');
-        data.addRows({{ payments_structure|safe }});
-
-        var options = {
-        'width':350,
-        'height':200,
-        'is3D': false,
-        'legend': 'right'
-        };
-
-        var chart = new google.visualization.PieChart(document.getElementById('chart_payments_structure'));
-        chart.draw(data, options);
-        }
-
-
-        function rpDynamics() {
-        var data = new google.visualization.DataTable();
-        data.addColumn('string', 'Period');
-        data.addColumn('number', 'Receipts');
-        data.addColumn('number', 'Payments');
-        data.addRows({{ rp_dynamics |safe }});
-
-        var options = {
-          curveType: 'function',
-          legend: { position: 'bottom' }
-        };
-
-        var chart = new google.visualization.LineChart(document.getElementById('chart_rp_dynamics'));
-        chart.draw(data, options);
-        }
-
-
-        function CashFlowDynamics() {
+    function CashFlowDynamics() {
         var data = new google.visualization.DataTable();
         data.addColumn('string', 'Period');
         data.addColumn('number', 'Receipts');
@@ -77,8 +35,10 @@ document.addEventListener('DOMContentLoaded', function()
         data.addRows({{ cf_dynamics|safe }});
 
         var options = {
+          height:280,
           vAxis: {title: 'Amount'},
           hAxis: {title: 'Period'},
+          colors: ['#00CED1', '#FF4500', '2F4F4F'],
           seriesType: 'bars',
           series: {2: {type: 'line'}},
           legend: { position: 'bottom' }
@@ -86,36 +46,33 @@ document.addEventListener('DOMContentLoaded', function()
 
         var chart = new google.visualization.ComboChart(document.getElementById('chart_cash_flow_dynamics'));
         chart.draw(data, options);
-        }
+      }
 
 
-        function TableBalances() {
+      function TableBalancesAccount() {
         var data = new google.visualization.DataTable();
-        data.addColumn('string', 'Currency');
+        data.addColumn('string', 'Account');
         data.addColumn('number', 'Amount');
-        data.addRows([
-          ['USD',  10000],
-          ['EUR',  8000],
-          ['ILS',  12456],
-          ['RUB',  450000]
-        ]);
+        data.addColumn('string', 'Currency');
+        data.addRows({{ account_balances|safe }});
 
-        var table = new google.visualization.Table(document.getElementById('table_balances'));
+        var table = new google.visualization.Table(document.getElementById('table_balances_account'));
 
         table.draw(data, {showRowNumber: true, width: '100%', height: '100%'});
-        }
+      }
 
 
-        function CFTable() {
+      function TableCashFlow() {
         var data = new google.visualization.DataTable();
         data.addColumn('string', 'Item');
-        data.addColumn('number', 'Cash flow');
+        data.addColumn('number', 'Operating');
+        data.addColumn('number', 'Investment');
+        data.addColumn('number', 'Financing');
+        data.addColumn('number', 'Total');
         data.addRows({{ cf_table|safe }});
 
 
         var table = new google.visualization.Table(document.getElementById('cf_table'));
 
         table.draw(data, {showRowNumber: true, width: '100%', height: '100%'});
-        }
-
-});
+      }

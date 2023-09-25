@@ -1,53 +1,59 @@
 {% extends 'registers/base.html' %}
 {% block title %}Account balances{% endblock %}
 {% load crispy_forms_tags %}
+{% load widget_tweaks %}
 {% block content %}
 
 <div class="container-fluid px-10">
     <div class="row-fluid">
-        <form method="GET">
+        <form action="" method="GET"
+            hx-get="/account_balances/list"
+            hx-trigger="change"
+            hx-target="#id_table">
             <div class="col-md-2 border p-2 shadow">
-                <h3>Filters:</h3>
+                <h1>Filters</h1>
                 {% csrf_token %}
-                {{ form|crispy }}
-                <br>
-                <button class="btn btn-info" type="submit">SHOW</button>
+                <div class="form-group">
+                    {{ form.organization.label_tag }}
+                    {% render_field form.organization class="select form-control" %}
+                </div>
+                <div class="form-group">
+                    {{ form.is_cash.label_tag }}
+                    {% render_field form.is_cash class="select form-control" %}
+                </div>
+                <div class="form-group">
+                    {{ form.currency.label_tag }}
+                    {% render_field form.currency class="select form-control" %}
+                </div>
+<!--                <div class="form-group">&ndash;&gt;-->
+<!--                    {{ form.conversion_currency.label_tag }}-->
+<!--                    {% render_field form.conversion_currency class="select form-control" %}-->
+<!--                </div>-->
+                <div class="form-group">
+                    {{ form.date_start.label_tag }}
+                    {% render_field form.date_start class="select form-control" %}
+                </div>
+                <div class="form-group">
+                    {{ form.date_end.label_tag }}
+                    {% render_field form.date_end class="select form-control" %}
+                </div>
+                <hr>
+                <div hx-get="/account_balances/list" hx-trigger="click" hx-target="#id_table">
+                    <button class="btn btn-info" type="reset" name="btn_reset" >RESET FILTERS</button>
+                </div>
+            </div>
+            <div class="col-md-1 border shadow"></div>
+            <div class="col-md-8 border shadow">
+                <h1>Accounting balances</h1>
+                <div class="table-responsive" style="height: 350px">
+                    {% include "registers/account_balances_list.html" %}
+                </div>
+                <h3>Totals in conversion currency</h3>
+                <div class="table-responsive" style="height: 100px">
+                    <h5>total results</h5>
+                </div>
             </div>
         </form>
-        <div class="col-md-1 border shadow"></div>
-        <div class="col-md-8 border shadow">
-            <h1>Accounting balances</h1>
-            <div class="table-responsive" style="height: 350px">
-                <table class="table table-sm table-scroll table-striped" id="id_table" >
-                    <tr>
-                        <th align="center">organization</th>
-                        <th align="center">account</th>
-                        <th align="center">currency</th>
-                        <th align="center">is cash</th>
-                        <th align="center">opening balance</th>
-                        <th align="center">receipts</th>
-                        <th align="center">payments</th>
-                        <th align="center">final balance</th>
-                    </tr>
-                    {% for i in account_balances %}
-                    <tr>
-                        <td width="100">{{i.1}}</td>
-                        <td width="100">{{i.0}}</td>
-                        <td width="100">{{i.2}}</td>
-                        <td width="100" align="center">{% if i.3 %}<i class="bi bi-check2-square"></i>{% endif %}</td>
-                        <td width="10">{{i.4}}</td>
-                        <td width="10" align="right">{{i.5}}</td>
-                        <td width="10" align="right">{{i.6}}</td>
-                        <td width="10" align="right">{{i.7}}</td>
-                    </tr>
-                    {% endfor %}
-                </table>
-            </div>
-            <h3>Totals in conversion currency</h3>
-            <div class="table-responsive" style="height: 100px">
-                <h5>total results</h5>
-            </div>
-        </div>
     </div>
 </div>
 {% endblock %}

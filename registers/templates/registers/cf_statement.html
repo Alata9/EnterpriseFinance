@@ -2,7 +2,59 @@
 {% block title %}CF statement{% endblock %}
 {% load crispy_forms_tags %}
 {% load widget_tweaks %}
+{% load static %}
 {% block content %}
-<h1>Cash flow statement</h1>
 
+<div class="container-fluid px-10">
+    <div class="row fluid">
+        <div class="col-md-2 border p-3 shadow">
+            <div class="text-center">
+                <h2>Cash flow statement</h2>
+                <h5>{{ today }}</h5>
+            </div>
+            <br>
+            <form method='GET'>
+                <div class="col-md-12">
+                    {% csrf_token %}
+                    <div id="div_id_organization"
+                         class="form-group"
+                         hx-get="/dashboard/projects"
+                         hx-vals="js:{organization:document.getElementById('id_organization').value}"
+                         hx-trigger="change"
+                         hx-target="#id_project">
+                        {{ form.organization.label_tag }}
+                        {% render_field form.organization class="select form-control" hx-get="/dashboard/project" hx-trigger="change" hx-target="#id_project" %}
+                    </div>
+                    <div id="div_id_project" class="form-group">
+                    {{ form.project.label_tag }}
+                    {% render_field form.project class="select form-control" %}
+                    </div>
+<!--                    <div class="form-group">-->
+<!--                    {{ form.conversion_currency.label_tag }}-->
+<!--                    {% render_field form.conversion_currency class="select form-control" %}-->
+<!--                    </div>-->
+                    <div class="form-group">
+                    {{ form.date_start.label_tag }}
+                    {% render_field form.date_start class="select form-control" %}
+                    </div>
+                    <div class="form-group">
+                    {{ form.date_end.label_tag }}
+                    {% render_field form.date_end class="select form-control" %}
+                    </div>
+                    <br><button class="btn btn-info" type="submit" name="btn_show">SHOW</button>
+                </div>
+            </form>
+        </div>
+        <br>
+        <div class="col-md-10 border p-2 shadow">
+            <div class="row p-1 g-1">
+
+            </div>
+            <br><br><br>
+            <div class="row p-1 g-1">
+
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
