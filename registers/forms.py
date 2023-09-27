@@ -71,5 +71,36 @@ class DashboardFilter(DynamicFormMixin, ModelForm):
         queryset=project_filter,
     )
 
+class CFStatementFilter(DynamicFormMixin, ModelForm):
+    activities = ModelChoiceField(queryset=TypeCF.objects.values_list("type", flat=True),
+                                           empty_label='', required=False)
+    conversion_currency = ModelChoiceField(queryset=Currencies.objects.values_list("code", flat=True),
+                                           empty_label='', required=False)
+    date_start = DateField(label="From", widget=DateInput(attrs={'type': 'date'}), required=False)
+    date_end = DateField(label="To", widget=DateInput(attrs={'type': 'date'}), required=False)
+
+    class Meta:
+        model = Payments
+        fields = ['organization', 'project']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['organization'].empty_label = ''
+        self.fields['organization'].required = False
+        self.fields['project'].empty_label = ''
+        self.fields['project'].required = False
+
+
+    @staticmethod
+    def project_filter(form):
+        if form['organization'].value():
+            return Project.objects.filter(organization=form['organization'].value())
+
+        return Project.objects.all()
+
+    project = DynamicField(
+        ModelChoiceField,
+        queryset=project_filter,
+    )
 
 

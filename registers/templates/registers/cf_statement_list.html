@@ -1,4 +1,70 @@
+<style>
+table{
+	border: 1px solid #eee;
+	table-layout: fixed;
+	width: 100%;
+	margin-bottom: 20px;
+}
+table th {
+	position: sticky;
+	font-weight: bold;
+	width: 40%;
+	padding: 5px;
+	background: #efefef;
+	border: 1px solid #dddddd;
+	font-size: 12px;
+	top: 0;
+}
+table td{
+	padding: 1px 10px;
+	border: 1px solid #eee;
+	text-align: right;
+	font-size: 12px;
+}
+</style>
 
-{% for i in object_list%}
-<h5>i</h5>
-{% endfor%}
+<script>
+google.charts.load('current', {'packages':['table']});
+    google.charts.setOnLoadCallback(TableCashFlow);
+function TableCashFlow() {
+        var data = new google.visualization.DataTable();
+<!--        data.addColumn('string', 'Groups');-->
+<!--        data.addColumn('string', 'Items');-->
+<!--        data.addColumn('string', 'Month');-->
+
+        data.addColumn('number', 'January');
+        data.addColumn('number', 'February');
+        data.addColumn('number', 'March');
+        data.addColumn('number', 'April');
+        data.addColumn('number', 'May');
+        data.addColumn('number', 'June');
+        data.addColumn('number', 'July');
+        data.addColumn('number', 'August');
+        data.addColumn('number', 'September');
+        data.addColumn('number', 'October');
+        data.addColumn('number', 'November');
+        data.addColumn('number', 'December');
+        data.addColumn('number', 'Total');
+        data.addRows({{ object_list|safe }});
+
+        var table = new google.visualization.Table(document.getElementById('cf_table'));
+
+        table.draw(data, {showRowNumber: true, width: '100%', height: '100%'});
+      }
+</script>
+
+<div class="container">
+    <div class="row">
+<!--        <div class="table-responsive" style="height: 550px">-->
+<!--            <table class="table table-sm table-striped">-->
+<!--                {{ object_list|safe }}-->
+<!--            </table>-->
+<!--        </div>-->
+        <div class="table-responsive" style="height: 550px">
+            <div id="cf_table"></div>
+        </div>
+    </div>
+
+</div>
+
+

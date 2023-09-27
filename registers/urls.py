@@ -23,7 +23,9 @@ urlpatterns = [
     path('account_balances/list', AccountBalancesView.htmx_list, name='account_balances_list'),
 
     path('cf_statement/', CfStatementView.as_view(), name='cf_statement'),
-    # path('cf_statement/projects', CfStatementView.htmx_projects, name='cf_statement_projects'),
+    path('cf_statement/list', CfStatementView.htmx_list, name='cf_statement_list'),
+    path('cf_statement/projects', htmx_projects, name='cf_statement_projects'),
+
     path('cf_budget/', CfBudgetView, name='cf_budget'),
     path('plan_fact_analysis/', PlanFactAnalysisView, name='plan_fact_analysis'),
 
