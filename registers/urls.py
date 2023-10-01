@@ -13,11 +13,12 @@ urlpatterns = [
     path('', HomeView, name='home'),
     path('settings/', AccountSettingsView.as_view(), name='settings'),
 
-    path('dashboard_main', DashboardView, name='dashboard'),
-    path('operating', ChartsOperView, name='charts_oper'),
+    path('dashboard_main', DashboardView.as_view(), name='dashboard'),
+    # path('dashboard_main/cf_bar', DashboardView.cf_bar(), name='dashboard_cf_bar'),
+    path('operating', ChartsOperView.as_view(), name='charts_oper'),
     path('operating/project', htmx_projects, name='operating_project'),
     path('investment', ChartsInvestView, name='charts_invest'),
-    path('financing', ChartsFinView, name='charts_fin'),
+    path('financing', ChartsFinView.as_view(), name='charts_fin'),
 
     path('account_balances/', AccountBalancesView.as_view(), name='account_balances'),
     path('account_balances/list', AccountBalancesView.htmx_list, name='account_balances_list'),

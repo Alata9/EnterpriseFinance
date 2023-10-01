@@ -31,7 +31,6 @@ function TableCashFlow() {
 <!--        data.addColumn('string', 'Groups');-->
 <!--        data.addColumn('string', 'Items');-->
 <!--        data.addColumn('string', 'Month');-->
-
         data.addColumn('number', 'January');
         data.addColumn('number', 'February');
         data.addColumn('number', 'March');
@@ -49,7 +48,7 @@ function TableCashFlow() {
 
         var table = new google.visualization.Table(document.getElementById('cf_table'));
 
-        table.draw(data, {showRowNumber: true, width: '100%', height: '100%'});
+        table.draw(data, {showRowNumber: false, width: '100%', height: '100%'});
       }
 </script>
 

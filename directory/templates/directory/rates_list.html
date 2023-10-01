@@ -1,10 +1,4 @@
-<style>
-  th {
-  background: #F5F5F5;
-  position: sticky;
-  top: 0;
-  }
-</style>
+
 
 <table class="table table-sm table-scroll table-striped" id="id_table" >
     <tr>
@@ -12,16 +6,17 @@
         <th align="center">currency</th>
         <th align="center">date</th>
         <th align="center">rate</th>
-        <th align="center">edit | del</th>
+        <th align="center">edit | copy | del</th>
     </tr>
     {% for i in object_list %}
     <tr>
-        <td width="100">{{ i.accounting_currency }}</td>
-        <td width="100">{{ i.currency }}</td>
-        <td width="100">{{ i.date|date:"d.m.Y" }}</td>
-        <td width="100" align="right">{{ i.rate }}</td>
+        <td width="150">{{ i.accounting_currency }}</td>
+        <td width="150">{{ i.currency }}</td>
+        <td width="200">{{ i.date|date:"d.m.Y" }}</td>
+        <td width="150" align="right">{{ i.rate }}</td>
         <td width="10" align="center" style='white-space: nowrap'>
             <a href="{% url 'rate_id' i.id %}" class='btn btn-info btn-sm'><i class="bi bi-pencil-square"></i></a>
+            <a href="{% url 'rate_copy' i.id %}" class='btn btn-info btn-sm'><i class="bi bi-files"></i></a>
             <a href="{% url 'rate_del' i.id %}" class='btn btn-info btn-sm'><i class="bi bi-basket2-fill"></i></a>
          </td>
     </tr>

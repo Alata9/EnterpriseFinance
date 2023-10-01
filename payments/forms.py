@@ -12,10 +12,11 @@ class ExpenseGroupAdd(ModelForm):
     class Meta:
         model = ExpenseGroup
         fields = ('expense_group', 'type_cf', 'comments')
-        widgets = {
-            'type_cf': forms.RadioSelect()
-        }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['type_cf'].empty_label = ''
+        self.fields['type_cf'].label = 'Activities'
 
 
 class ExpenseItemAdd(ModelForm):
@@ -26,6 +27,8 @@ class ExpenseItemAdd(ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['expense_group'].empty_label = ''
+
+
 
 
 class PaymentsAdd(DynamicFormMixin, ModelForm):
@@ -55,6 +58,10 @@ class PaymentsAdd(DynamicFormMixin, ModelForm):
         self.fields['item'].empty_label = 'Item:'
         self.fields['project'].empty_label = 'Project:'
         self.fields['project'].required = False
+        self.fields['counterparty'].queryset = self.fields['counterparty'].queryset.order_by('counterparty')
+        self.fields['item'].queryset = self.fields['item'].queryset.order_by('expense_item')
+        self.fields['project'].queryset = self.fields['project'].queryset.order_by('project')
+        self.fields['account'].queryset = self.fields['account'].queryset.order_by('account')
 
     def clean(self):
         cleaned_data = super().clean()
@@ -101,6 +108,10 @@ class PaymentsFilter(ModelForm):
         self.fields['date'].label = 'From:'
         self.fields['date'].required = False
         self.fields['date_end'].required = False
+        self.fields['counterparty'].queryset = self.fields['counterparty'].queryset.order_by('counterparty')
+        self.fields['item'].queryset = self.fields['item'].queryset.order_by('expense_item')
+        self.fields['project'].queryset = self.fields['project'].queryset.order_by('project')
+        self.fields['account'].queryset = self.fields['account'].queryset.order_by('account')
 
 
 class UploadFile(Form):

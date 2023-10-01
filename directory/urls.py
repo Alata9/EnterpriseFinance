@@ -39,6 +39,7 @@ urlpatterns = [
     path('rates/<int:pk>/', RatesIdView.as_view(), name='rate_id'),
     path('rates/add', RatesIdView.as_view(), name='rate_add'),
     path('rates/list', RatesView.htmx_list, name='rate_list'),
+    path('rates/copy/<int:from_pk>', RatesIdView.as_view(), name='rate_copy'),
     path('rates/import', RatesParsingView.as_view(), name='rates_parsing'),
     path('<int:pk>/rates/delete', RatesDeleteView.as_view(), name='rate_del'),
 

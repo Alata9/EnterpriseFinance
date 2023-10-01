@@ -4,12 +4,12 @@
 {% block content %}
 
 <div class="container">
-    <div class="row"><h3>Exchange rates will be imported from the website...</h3>
+    <div class="row"><h3>Exchange rates will be imported from the website www.currency.me.uk for today</h3>
         <br>
         <div class="col-md-4 border p-2 shadow">
             <form  method='POST'>
                 <div class="col-md-10">
-                    <h4>Select currencies and date range:</h4>
+                    <h4>Select currencies:</h4>
                     {% csrf_token %}
                     {{ form|crispy }}
                     <div class="col-md-12">

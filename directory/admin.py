@@ -34,9 +34,12 @@ class CurrenciesRatesAdmin(admin.ModelAdmin):
 
 
 class CounterpartiesAdmin(admin.ModelAdmin):
-    list_display = ['id', 'counterparty', 'suppliers', 'customer', 'employee', 'other', 'comments']
-    list_display_links = ['id', 'counterparty', 'suppliers', 'customer', 'employee', 'other', 'comments']
+    list_display = ['id', 'counterparty', 'debit', 'credit', 'comments', 'suppliers', 'customer', 'employee', 'lender',
+                    'borrower']
+    list_display_links = ['id', 'counterparty', 'debit', 'credit', 'comments', 'suppliers', 'customer', 'employee',
+                          'lender', 'borrower']
     search_fields = ['counterparty']
+
 
 class TypeCFAdmin(admin.ModelAdmin):
     list_display = ['id', 'type']

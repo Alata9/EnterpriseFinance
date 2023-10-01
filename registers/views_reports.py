@@ -136,7 +136,7 @@ class CfStatementView(ListView):
             if form.cleaned_data['date_end']:
                 receipts = receipts.filter(date__lte=form.cleaned_data['date_end'])
                 payments = payments.filter(date__lte=form.cleaned_data['date_end'])
-
+        # print(payments)
 
         payments = payments.values('date', 'item__expense_group__expense_group', 'item__expense_item', 'amount')
         data_payments = pd.DataFrame(payments)
@@ -157,7 +157,12 @@ class CfStatementView(ListView):
 
         data = pd.pivot_table(data, index=['Items'], columns='Month', values='amount',
                               aggfunc='sum', margins=True, margins_name='Total', fill_value=0)
+        items = data.index.tolist()
         data = data.values.tolist()
+
+        # data = list(zip(items, *data))
+        # data = list(map(list, data))
+
         return data
 
     @staticmethod

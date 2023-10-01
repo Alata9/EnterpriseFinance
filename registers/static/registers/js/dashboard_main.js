@@ -1,4 +1,4 @@
-google.charts.load('current', {'packages':['corechart']});
+    google.charts.load('current', {'packages':['corechart']});
     google.charts.setOnLoadCallback(CashFlowDynamics);
     google.charts.setOnLoadCallback(CashFlowBar);
 
@@ -6,13 +6,27 @@ google.charts.load('current', {'packages':['corechart']});
     google.charts.setOnLoadCallback(TableBalancesAccount);
     google.charts.setOnLoadCallback(TableCashFlow);
 
-
-
     function CashFlowBar() {
+//        let request = new XMLHttpRequest();
+//        const url = `/dashboard_main/cf_bar`;
+//
+//        request.onreadystatechange = function() {
+//            if (this.readyState === 4 && this.status === 200) {
+//                const response = JSON.parse(this.responseText);
+//                CashFlowBarDraw(response);
+//            }
+//        }
+//
+//        request.open("GET", url, true);
+//        request.save();
+//    }
+//
+//    function CashFlowBarDraw(cfBarData) {
         var data = new google.visualization.DataTable();
             data.addColumn('string', 'Items');
             data.addColumn('number', 'Amount');
-            data.addRows({{ cf_bar|safe }});
+            // data.addRows({{ cf_bar|safe }});
+            data.addRows(cfBarData);
 
         var options = {
            'width':400,
@@ -23,7 +37,7 @@ google.charts.load('current', {'packages':['corechart']});
 
         var chart = new google.visualization.BarChart(document.getElementById('cf_bar'));
         chart.draw(data, options);
-}
+    }
 
 
     function CashFlowDynamics() {
@@ -32,7 +46,7 @@ google.charts.load('current', {'packages':['corechart']});
         data.addColumn('number', 'Receipts');
         data.addColumn('number', 'Payments');
         data.addColumn('number', 'Cash Flow');
-        data.addRows({{ cf_dynamics|safe }});
+        data.addRows(cfDynamicsData);
 
         var options = {
           height:280,
@@ -54,7 +68,7 @@ google.charts.load('current', {'packages':['corechart']});
         data.addColumn('string', 'Account');
         data.addColumn('number', 'Amount');
         data.addColumn('string', 'Currency');
-        data.addRows({{ account_balances|safe }});
+        data.addRows(accountBalancesData);
 
         var table = new google.visualization.Table(document.getElementById('table_balances_account'));
 
@@ -69,7 +83,7 @@ google.charts.load('current', {'packages':['corechart']});
         data.addColumn('number', 'Investment');
         data.addColumn('number', 'Financing');
         data.addColumn('number', 'Total');
-        data.addRows({{ cf_table|safe }});
+        data.addRows(cfTableData);
 
 
         var table = new google.visualization.Table(document.getElementById('cf_table'));

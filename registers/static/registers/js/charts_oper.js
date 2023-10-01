@@ -1,4 +1,4 @@
-google.charts.load('current', {'packages':['corechart']});
+    google.charts.load('current', {'packages':['corechart']});
     google.charts.setOnLoadCallback(IncomeStructure);
     google.charts.setOnLoadCallback(PaymentsStructure);
     google.charts.setOnLoadCallback(rpDynamics);
@@ -14,7 +14,7 @@ google.charts.load('current', {'packages':['corechart']});
     var data = new google.visualization.DataTable();
         data.addColumn('string', 'Items');
         data.addColumn('number', 'Amount');
-        data.addRows({{ receipts_structure|safe }});
+        data.addRows(receiptsStructureData);
 
     var options = {
        'width':350,
@@ -34,7 +34,7 @@ google.charts.load('current', {'packages':['corechart']});
     var data = new google.visualization.DataTable();
         data.addColumn('string', 'Items');
         data.addColumn('number', 'Amount');
-        data.addRows({{ payments_structure|safe }});
+        data.addRows(paymentsStructureData);
 
     var options = {
        'width':350,
@@ -53,7 +53,7 @@ function rpDynamics() {
         data.addColumn('string', 'Period');
         data.addColumn('number', 'Receipts');
         data.addColumn('number', 'Payments');
-        data.addRows({{ rp_dynamics |safe }});
+        data.addRows(rpDynamicsData);
 
         var options = {
           curveType: 'function',
@@ -71,7 +71,7 @@ function rpDynamics() {
     var data = new google.visualization.DataTable();
         data.addColumn('string', 'Items');
         data.addColumn('number', 'Amount');
-        data.addRows({{ receipts_structure|safe }});
+        data.addRows(receiptsStructureData);
 
     var options = {
        'width':350,
@@ -90,7 +90,7 @@ function PaymentsBar() {
     var data = new google.visualization.DataTable();
         data.addColumn('string', 'Items');
         data.addColumn('number', 'Amount');
-        data.addRows({{ payments_bar|safe }});
+        data.addRows(paymentsBarData);
 
     var options = {
        'width':350,
@@ -110,7 +110,7 @@ function TopCustomers() {
     var data = new google.visualization.DataTable();
         data.addColumn('string', 'Items');
         data.addColumn('number', 'Amount');
-        data.addRows({{ top_customers|safe }});
+        data.addRows(topCustomersData);
 
     var options = {
        'width':350,
@@ -129,7 +129,7 @@ function TopSuppliers() {
     var data = new google.visualization.DataTable();
         data.addColumn('string', 'Items');
         data.addColumn('number', 'Amount');
-        data.addRows({{ top_suppliers|safe }});
+        data.addRows(topSuppliersData);
 
     var options = {
        'width':350,

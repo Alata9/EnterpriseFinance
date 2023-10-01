@@ -1,6 +1,12 @@
 import datetime
 
+import request
+import requests
+import lxml
+from bs4 import BeautifulSoup as bs
+
 from django.db.models import ProtectedError
+from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.views.generic import DeleteView, UpdateView, ListView
 
@@ -286,6 +292,12 @@ class RatesIdView(UpdateView):
         if 'pk' in self.kwargs:
             return super().get_object(queryset)
 
+        if 'from_pk' in self.kwargs:
+            obj = self.model.objects.get(pk=self.kwargs['from_pk'])
+            obj.id = None
+            return obj
+
+
         cur = AccountSettings.load().currency()
         return self.model(accounting_currency=cur)
 
@@ -319,7 +331,9 @@ class RatesDeleteView(DeleteView):
 class RatesParsingView(UpdateView):
     model = CurrenciesRates
     template_name = 'directory/rates_parsing.html'
+    success_url = '/rates'
     form_class = RatesParser
+
 
     def get_object(self, queryset=None):
         if 'pk' in self.kwargs:
@@ -327,5 +341,28 @@ class RatesParsingView(UpdateView):
 
         cur = AccountSettings.load().currency()
 
-        return self.model(accounting_currency=cur)
+        return self.model(accounting_currency=cur, date=datetime.datetime.today())
+
+
+    def get_rates_queryset(self, request):
+        form = RatesParser(request.GET)
+        cur_1 = ''
+        cur_2 = ''
+
+        if form.is_valid():
+            if form.cleaned_data['currency']:
+                cur_1 = Currencies.objects.get(code=form.cleaned_data['currency'])
+                cur_1 = cur_1.lower()
+            if form.cleaned_data['currency']:
+                cur_2 = Currencies.objects.get(code=form.cleaned_data['currency'])
+                cur_2 = cur_2.lower()
+
+        url = f'https://www.currency.me.uk/convert/{cur_1}/{cur_2}'
+
+        r = requests.get(url)
+        soup = bs(r.text, 'lxml')
+        rate = soup.find('span', {'class': 'mini ccyrate'}).text
+        rate = float(rate[8:13])
+
+        return rate
 
