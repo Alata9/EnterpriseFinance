@@ -21,8 +21,6 @@ class AccountSettingsSet(ModelForm):
 
 
 class AccountBalancesFilter(DynamicFormMixin, ModelForm):
-    # conversion_currency = ModelChoiceField(queryset=Currencies.objects.values_list("code", flat=True),
-    #                                        empty_label='', required=True)
     date_start = DateField(label="From", widget=DateInput(attrs={'type': 'date'}), required=False)
     date_end = DateField(label="To", widget=DateInput(attrs={'type': 'date'}), required=False)
 

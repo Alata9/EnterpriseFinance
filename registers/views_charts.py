@@ -356,50 +356,58 @@ class ChartsFinView(View):
         lenders = Counterparties.objects.filter(lender=True)
         borrowers = Counterparties.objects.filter(borrower=True)
 
-        receipts_fin = Receipts.objects.filter(item__income_group__type_cf=3)
-        payments_fin = Payments.objects.filter(item__expense_group__type_cf=3)
+        receipts = Receipts.objects.filter(item__income_group__type_cf=3)
+        payments = Payments.objects.filter(item__expense_group__type_cf=3)
+        receipts_before = receipts
+        payments_before = payments
 
         if form.is_valid():
             if form.cleaned_data['organization']:
-                receipts_fin = receipts_fin.filter(organization=form.cleaned_data['organization'])
-                payments_fin = payments_fin.filter(organization=form.cleaned_data['organization'])
+                receipts = receipts.filter(organization=form.cleaned_data['organization'])
+                payments = payments.filter(organization=form.cleaned_data['organization'])
 
             if form.cleaned_data['date_start']:
-                receipts_fin = receipts_fin.filter(date__gte=form.cleaned_data['date_start'])
-                payments_fin = payments_fin.filter(date__gte=form.cleaned_data['date_start'])
-
+                receipts = receipts.filter(date__gte=form.cleaned_data['date_start'])
+                payments = payments.filter(date__gte=form.cleaned_data['date_start'])
+                receipts_before = receipts_before.filter(date__lte=form.cleaned_data['date_start'])
+                payments_before = payments_before.filter(date__lte=form.cleaned_data['date_start'])
+            else:
+                receipts_before = Receipts.objects.none()
+                payments_before = Payments.objects.none()
             if form.cleaned_data['date_end']:
-                receipts_fin = receipts_fin.filter(date__lte=form.cleaned_data['date_end'])
-                payments_fin = payments_fin.filter(date__lte=form.cleaned_data['date_end'])
+                receipts = receipts.filter(date__lte=form.cleaned_data['date_end'])
+                payments = payments.filter(date__lte=form.cleaned_data['date_end'])
 
-        loan_portfolio = self.get_loan_portfolio(lenders, receipts_fin, payments_fin)
-        debit_portfolio = self.get_loan_portfolio(borrowers, receipts_fin, payments_fin)
+        loan_portfolio = self.get_loan_portfolio(lenders, receipts, payments)
+        debit_portfolio = self.get_loan_portfolio(borrowers, receipts, payments)
+        lenders_table = self.get_tables(lenders, receipts, payments, receipts_before, payments_before)
+        borrowers_table = self.get_tables(borrowers, receipts, payments, receipts_before, payments_before)
 
         context = {
             'form': form,
             'today': datetime.today(),
             'loan_portfolio': loan_portfolio,
             'debit_portfolio': debit_portfolio,
-            # 'lenders_table': lenders_table,
-            # 'borrowers_table': borrowers_table,
-            'cf_fin_dynamics': self.get_cf_dynamics(receipts_fin, payments_fin),
+            'cf_fin_dynamics': self.get_cf_dynamics(receipts, payments),
+            'lenders_table': lenders_table,
+            'borrowers_table': borrowers_table,
         }
 
         return render(request, 'registers/charts_fin.html', context=context)
 
         # charts 1, 2 portfolios
-    def get_loan_portfolio(self, agents, receipts_fin, payments_fin):
+    def get_loan_portfolio(self, agents, receipts, payments):
         portfolio = []
         for agent in agents:
             if agent.credit is None:
                 agent.credit = 0
             if agent.debit is None:
                 agent.debit = 0
-            receipts = receipts_fin.filter(counterparty=agent)
+            receipts = receipts.filter(counterparty=agent)
             receipts_sum = receipts.aggregate(Sum("amount")).get('amount__sum', 0.00)
             if receipts_sum is None:
                 receipts_sum = 0
-            payments = payments_fin.filter(counterparty=agent)
+            payments = payments.filter(counterparty=agent)
             payments_sum = payments.aggregate(Sum("amount")).get('amount__sum', 0.00)
             if payments_sum is None:
                 payments_sum = 0
@@ -409,83 +417,49 @@ class ChartsFinView(View):
 
             portfolio.append([agent, int(final_balance)])
 
-        print(portfolio)
+        # print(portfolio)
         return portfolio
 
 
-    # chart 3: cf_fin_dynamics
-    @staticmethod
-    def get_balances(accounts, receipts, payments):
-        account_balances = {}
-        accounts = accounts.values_list('account', flat=True).distinct()
+    # chart 4, 5: agents_table
+    def get_tables(self, agents, receipts, payments, receipts_before, payments_before):
+        agents_table = []
 
-        for i in accounts:
-            currency = PaymentAccount.objects.filter(account=i).values_list('currency__code', flat=True)[0]
-            open_balance = PaymentAccount.objects.filter(account=i).values_list('open_balance', flat=True)[0]
-
-            receipts = Receipts.objects.filter(account__account=i)
+        for agent in agents:
+            receipts = Receipts.objects.filter(counterparty=agent)
             receipts_sum = receipts.aggregate(Sum("amount")).get('amount__sum', 0.00)
             if receipts_sum == None: receipts_sum = 0
 
-            payments = Payments.objects.filter(account__account=i)
+            receipts_before = Receipts.objects.filter(counterparty=agent)
+            receipts_before_sum = receipts_before.aggregate(Sum("amount")).get('amount__sum', 0.00)
+            if receipts_before_sum == None: receipts_before_sum = 0
+
+            payments = Payments.objects.filter(counterparty=agent)
             payments_sum = payments.aggregate(Sum("amount")).get('amount__sum', 0.00)
             if payments_sum == None: payments_sum = 0
 
-            final_balance = open_balance + receipts_sum - payments_sum
-            account_balances[i] = [int(final_balance), currency]
+            payments_before = Payments.objects.filter(counterparty=agent)
+            payments_before_sum = payments_before.aggregate(Sum("amount")).get('amount__sum', 0.00)
+            if payments_before_sum == None: payments_before_sum = 0
 
-        account_balances = [[k, *v] for k, v in account_balances.items()]
+            start_balance = agent.debit - agent.credit + receipts_before_sum - payments_before_sum
+            start_debit = abs(start_balance) if start_balance > 0 else 0
+            start_credit = abs(start_balance) if start_balance < 0 else 0
 
-        return account_balances
+            final_balance = agent.debit - agent.credit + receipts_sum - payments_sum
+            final_debit = abs(final_balance) if final_balance > 0 else 0
+            final_credit = abs(final_balance) if final_balance < 0 else 0
+
+            agents_table.append({'name': agent.counterparty, 'start_debit': int(start_debit),
+                                 'start_credit': int(start_credit), 'receipts': int(receipts_sum),
+                                 'payments': int(payments_sum), 'final debit': int(final_debit),
+                                 'final credit': int(final_credit)})
 
 
+        # print(agents_table)
+        return agents_table
 
 
-    # chart 2, 3 cf table and cf bar
-    @staticmethod
-    def get_cf_table(
-            receipts, payments, receipts_oper, payments_oper,
-            receipts_invest, payments_invest, receipts_fin, payments_fin):
-
-        cf_table = {}
-        receipts_sum = receipts.aggregate(Sum("amount")).get('amount__sum', 0.00)
-        if receipts_sum is None:
-            receipts_sum = 0
-        payments_sum = payments.aggregate(Sum("amount")).get('amount__sum', 0.00)
-        if payments_sum is None:
-            payments_sum = 0
-        receipts_oper = receipts_oper.aggregate(Sum("amount")).get('amount__sum', 0.00)
-        if receipts_oper is None:
-            receipts_oper = 0
-        payments_oper = payments_oper.aggregate(Sum("amount")).get('amount__sum', 0.00)
-        if payments_oper is None:
-            payments_oper = 0
-        receipts_invest = receipts_invest.aggregate(Sum("amount")).get('amount__sum', 0.00)
-        if receipts_invest is None:
-            receipts_invest = 0
-        payments_invest = payments_invest.aggregate(Sum("amount")).get('amount__sum', 0.00)
-        if payments_invest is None:
-            payments_invest = 0
-        receipts_fin = receipts_fin.aggregate(Sum("amount")).get('amount__sum', 0.00)
-        if receipts_fin is None:
-            receipts_fin = 0
-        payments_fin = payments_fin.aggregate(Sum("amount")).get('amount__sum', 0.00)
-        if payments_fin is None:
-            payments_fin = 0
-
-        cf = receipts_sum - payments_sum
-        cf_oper = receipts_oper - payments_oper
-        cf_invest = receipts_invest - payments_invest
-        cf_fin = receipts_fin - payments_fin
-
-        cf_table['receipts'] = [int(receipts_oper), int(receipts_invest), int(receipts_fin), int(receipts_sum)]
-        cf_table['payments'] = [int(payments_oper), int(payments_invest), int(payments_fin), int(payments_sum)]
-        cf_table['cash flow'] = [int(cf_oper), int(cf_invest), int(cf_fin), int(cf)]
-
-        cf_table = [[k, *v] for k, v in cf_table.items()]
-        cf_bar = [['Operating', cf_table[2][1]], ['Investment', cf_table[2][2]], ['Financing', cf_table[2][3]]]
-
-        return cf_table, cf_bar
 
     # function for getting full data
     @staticmethod

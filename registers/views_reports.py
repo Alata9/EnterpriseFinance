@@ -9,7 +9,7 @@ from django.http import HttpResponse
 from django.shortcuts import render
 from django.views.generic import ListView, UpdateView
 
-from directory.models import PaymentAccount
+from directory.models import PaymentAccount, Currencies, CurrenciesRates
 from payments.models import Payments
 from receipts.models import Receipts
 from registers.forms import AccountBalancesFilter, AccountSettingsSet, DashboardFilter, CFStatementFilter
@@ -30,6 +30,8 @@ class AccountSettingsView(UpdateView):
         return self.model.load()
 
 
+
+
 class AccountBalancesView(ListView):
     model = PaymentAccount
     template_name = 'registers/account_balances.html'
@@ -40,12 +42,13 @@ class AccountBalancesView(ListView):
         return ctx
 
     @staticmethod
-    def account_balances_queryset(request):
+    def account_balances_queryset(self, request):
         accounts = PaymentAccount.objects.all()
         receipts = Receipts.objects.all()
         receipts_before = Receipts.objects.all()
         payments = Payments.objects.all()
         payments_before = Payments.objects.all()
+
 
         form = AccountBalancesFilter(request.GET)
         if form.is_valid():
@@ -67,42 +70,103 @@ class AccountBalancesView(ListView):
                 receipts = receipts.filter(date__lte=form.cleaned_data['date_end'])
                 payments = payments.filter(date__lte=form.cleaned_data['date_end'])
 
-            account_balances = []
+        # account_balances = self.get_balances(self.accounts,
+        #                                   self.receipts, self.payments,
+        #                                   self.receipts_before, self.payments_before),
+        # balances_convert = self.get_balances_convert(self.accounts,
+        #                                           self.receipts_sum, self.payments_sum,
+        #                                           self.receipts_before_sum, self.payments_before_sum)
 
-            for account in accounts:
-                receipts_sum = receipts.filter(account=account).aggregate(Sum("amount")).get('amount__sum', 0.00)
-                if receipts_sum is None:
-                    receipts_sum = 0
-
-                payments_sum = payments.filter(account=account).aggregate(Sum("amount")).get('amount__sum', 0.00)
-                if payments_sum is None:
-                    payments_sum = 0
-
-                receipts_before_sum = receipts_before.filter(account=account).aggregate(Sum("amount")).get('amount__sum',
-                                                                                                     0.00)
-                if receipts_before_sum is None:
-                    receipts_before_sum = 0
-
-                payments_before_sum = payments_before.filter(account=account).aggregate(Sum("amount")).get('amount__sum',
-                                                                                                     0.00)
-                if payments_before_sum is None:
-                    payments_before_sum = 0
-
-                start_balance = account.open_balance + receipts_before_sum - payments_before_sum
-                final_balance = start_balance + receipts_sum - payments_sum
-
-                account_balances.append({'account': account.account, 'organization': account.organization.organization,
-                                         'currency': account.currency.code, 'is_cash': account.is_cash,
-                                         'start_balance': int(start_balance), 'receipts_sum': int(receipts_sum),
-                                         'payments_sum': int(payments_sum), 'final_balance': int(final_balance)})
-
-            return account_balances
 
     @staticmethod
     def htmx_list(request):
         context = {'object_list': AccountBalancesView.account_balances_queryset(request)}
 
         return render(request, 'registers/account_balances_list.html', context=context)
+
+
+
+    def get_balances(self, accounts, receipts, payments, receipts_before, payments_before):
+        account_balances = []
+        for account in accounts:
+            receipts_sum = receipts.filter(account=account).aggregate(Sum("amount")).get('amount__sum', 0.00)
+            if receipts_sum is None:
+                receipts_sum = 0
+
+            payments_sum = payments.filter(account=account).aggregate(Sum("amount")).get('amount__sum', 0.00)
+            if payments_sum is None:
+                payments_sum = 0
+
+            receipts_before_sum = receipts_before.filter(account=account).aggregate(Sum("amount")).get(
+                'amount__sum', 0.00)
+            if receipts_before_sum is None:
+                receipts_before_sum = 0
+
+            payments_before_sum = payments_before.filter(account=account).aggregate(Sum("amount")).get(
+                'amount__sum', 0.00)
+            if payments_before_sum is None:
+                payments_before_sum = 0
+
+            start_balance = account.open_balance + receipts_before_sum - payments_before_sum
+            final_balance = start_balance + receipts_sum - payments_sum
+
+            account_balances.append({'account': account.account, 'organization': account.organization.organization,
+                                     'currency': account.currency.code, 'is_cash': account.is_cash,
+                                     'start_balance': int(start_balance), 'receipts_sum': int(receipts_sum),
+                                     'payments_sum': int(payments_sum), 'final_balance': int(final_balance)})
+            print(account_balances)
+            return account_balances
+
+
+    def get_rate(self, cur):
+        main_currency = AccountSettings.load().currency()
+        rates = CurrenciesRates.objects.all()
+
+        return rates.filter(accounting_currency=main_currency, currency=cur).latest('rate')
+
+
+    def get_balances_convert(self, accounts, receipts_sum, payments_sum, receipts_before_sum, payments_before_sum):
+        main_currency = AccountSettings.load().currency()
+
+        balances_convert = []
+        open_balance_sum_convert = 0
+        receipts_before_sum_convert = 0
+        payments_before_sum_convert = 0
+        receipts_sum_convert = 0
+        payments_sum_convert = 0
+
+        for account in accounts:
+            open_balance_convert = account.open_balance * self.get_rate(account.currency) \
+                if account.currency != main_currency else account.open_balance
+            open_balance_sum_convert += open_balance_convert
+
+            receipts_convert = receipts_sum * self.get_rate(account.currency) \
+                if account.currency != main_currency else receipts_sum
+            receipts_sum_convert += receipts_convert
+
+            payments_convert = payments_sum * self.get_rate(account.currency) \
+                if account.currency != main_currency else payments_sum
+            payments_sum_convert += payments_convert
+
+            receipts_before_convert = receipts_before_sum * self.get_rate(account.currency) \
+                if account.currency != main_currency else receipts_before_sum
+            receipts_before_sum_convert += receipts_before_convert
+
+            payments_before_convert = payments_before_sum * self.get_rate(account.currency) \
+                if account.currency != main_currency else payments_before_sum
+            payments_before_sum_convert += payments_before_convert
+
+            start_balance_convert = open_balance_sum_convert + receipts_before_sum_convert - payments_before_sum_convert
+            final_balance_convert = start_balance_convert + receipts_sum_convert - payments_sum_convert
+
+            balances_convert.append({'currency': main_currency,
+                    'start_balance': int(start_balance_convert), 'receipts_sum': int(receipts_sum_convert),
+                    'payments_sum': int(payments_sum_convert), 'final_balance': int(final_balance_convert)})
+
+        print(balances_convert)
+        return balances_convert
+
+
 
 
 
@@ -170,7 +234,6 @@ class CfStatementView(ListView):
         context = {'object_list': CfStatementView.cf_statement_queryset(request)}
 
         return render(request, 'registers/cf_statement_list.html', context=context)
-
 
 
 def CfBudgetView(request):

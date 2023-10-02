@@ -49,11 +49,13 @@
 
     function BorrowersTable() {
         var data = new google.visualization.DataTable();
-        data.addColumn('string', 'Item');
-        data.addColumn('number', 'Operating');
-        data.addColumn('number', 'Investment');
-        data.addColumn('number', 'Financing');
-        data.addColumn('number', 'Total');
+        data.addColumn('string', 'Borrower');
+        data.addColumn('number', 'Start Dt');
+        data.addColumn('number', 'Start Cr');
+        data.addColumn('number', 'Receipts');
+        data.addColumn('number', 'Payments');
+        data.addColumn('number', 'Final Dt');
+        data.addColumn('number', 'Final Cr');
         data.addRows(borrowers_tableData);
 
 
@@ -65,11 +67,13 @@
 
     function LendersTable() {
         var data = new google.visualization.DataTable();
-        data.addColumn('string', 'Item');
-        data.addColumn('number', 'Operating');
-        data.addColumn('number', 'Investment');
-        data.addColumn('number', 'Financing');
-        data.addColumn('number', 'Total');
+        data.addColumn('string', 'Lenders');
+        data.addColumn('number', 'Start Dt');
+        data.addColumn('number', 'Start Cr');
+        data.addColumn('number', 'Receipts');
+        data.addColumn('number', 'Payments');
+        data.addColumn('number', 'Final Dt');
+        data.addColumn('number', 'Final Cr');
         data.addRows(lenders_tableData);
 
 
