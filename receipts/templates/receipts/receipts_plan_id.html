@@ -1,0 +1,51 @@
+{% extends 'registers/base.html' %}
+{% block title %}Receipt plan{% endblock %}
+{% load crispy_forms_tags %}
+{% load widget_tweaks %}
+{% block content %}
+
+<div class="container">
+    <form  method='POST'>
+        {% csrf_token %}
+        <div class="row text-center">
+            <div class="col-md-4 border p-2 shadow"></div>
+            <div class="col-md-4 border p-2 shadow">
+                <h1>Receipt plan</h1>
+                <div id="div_id_organization"
+                     class="form-group"
+                     hx-get="/receipts_plan/projects"
+                     hx-vals="js:{organization:document.getElementById('id_organization').value}"
+                     hx-trigger="change"
+                     hx-target="#id_project">
+                {% render_field form.organization class="select form-control" hx-get="/receipts_plan/project" hx-trigger="change" hx-target="#id_account" %}
+                </div>
+                <div class="row">
+                    <div class="col-md-6 form-group">{{ form.date|as_crispy_field }}</div>
+                    <div class="col-md-6 form-group">{{ form.amount|as_crispy_field }}</div>
+                </div>
+                <div class="row text-left">
+                    <div class="col-md-8 form-group">{% render_field form.currency class="select form-control" %}</div>
+                    <div class="col-md-4 form-group">{{ form.is_cash|as_crispy_field }}</div>
+                </div>
+                <div class="form-group">
+                    {% render_field form.counterparty class="select form-control" %}
+                </div>
+                <div class="form-group">
+                    {% render_field form.project class="select form-control" %}
+                </div>
+                <div class="form-group">
+                    {% render_field form.item class="select form-control" %}
+                </div>
+                <div  class="form-group">{% render_field form.comments class="select form-control" %}</div>
+                <div class="row">
+                    <br>
+                    <div class="col-md-12">
+                        <button class="btn btn-info" type="submit" name="btn_save">SAVE</button>
+                        <a href="/receipts_plan" class='btn btn-info'>CANCEL</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

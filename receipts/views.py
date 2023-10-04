@@ -204,13 +204,6 @@ class ReceiptsDeleteView(DeleteView):
 
 
 
-
-
-
-def ReceiptsPlanView(request):
-    return render(request, 'receipts/receipts_plan.html')
-
-
 class UploadFileView(FormView):
     form_class = UploadFile
     template_name = 'receipts/receipts_upload_file.html'
