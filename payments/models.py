@@ -58,7 +58,7 @@ class PaymentsPlan(models.Model):
     date = models.DateField(blank=True)
     amount = models.DecimalField(max_digits=15, decimal_places=2)
     currency = models.ForeignKey(Currencies, on_delete=models.PROTECT, blank=True)
-    is_cash = models.BooleanField(blank=False, null=True, default=False)
+    is_cash = models.BooleanField(blank=False, default=False)
     project = models.ForeignKey(Project, on_delete=models.PROTECT, blank=False, null=True)
     counterparty = models.ForeignKey(Counterparties, on_delete=models.PROTECT, blank=True)
     item = models.ForeignKey(ExpensesItem, on_delete=models.PROTECT, blank=True)

@@ -5,7 +5,7 @@ from io import TextIOWrapper, BytesIO, StringIO
 
 from django.db.models import ProtectedError
 from django.http import HttpResponse, FileResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import render
 from django.views.generic import UpdateView, DeleteView, ListView, FormView
 
 from directory.models import Organization, Project, Currencies, Counterparties, PaymentAccount
@@ -192,12 +192,6 @@ class PaymentsDeleteView(DeleteView):
     model = Payments
     success_url = '/payments'
     template_name = 'payments/payments_delete.html'
-
-
-
-
-def PaymentsPlanView(request):
-    return render(request, 'payments/payments_plan.html')
 
 
 class UploadFileView(FormView):

@@ -13,11 +13,11 @@
                 <h1>Payments</h1>
                 <div id="div_id_organization"
                      class="form-group"
-                     hx-get="/receipts/projects"
+                     hx-get="/payments/projects"
                      hx-vals="js:{organization:document.getElementById('id_organization').value}"
                      hx-trigger="change"
                      hx-target="#id_project">
-                {% render_field form.organization class="select form-control" hx-get="/receipts/accounts" hx-trigger="change" hx-target="#id_account" %}
+                {% render_field form.organization class="select form-control" hx-get="/payments/accounts" hx-trigger="change" hx-target="#id_account" %}
                 </div>
                 <div class="row">
                     <div class="col-md-6 form-group">{{ form.date|as_crispy_field }}</div>

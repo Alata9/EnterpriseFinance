@@ -26,8 +26,13 @@
                 {% render_field form.date_end class="select form-control" %}
                 </div>
                 <hr>
-                <div class="form-group">
-                {% render_field form.organization class="select form-control" placeholder="org" %}
+                <div id="div_id_organization"
+                     class="form-group"
+                     hx-get="/receipts/projects"
+                     hx-vals="js:{organization:document.getElementById('id_organization').value}"
+                     hx-trigger="change"
+                     hx-target="#id_project">
+                {% render_field form.organization class="select form-control" hx-get="/receipts/accounts" hx-trigger="change" hx-target="#id_account" %}
                 </div>
                 <div class="form-group">
                 {% render_field form.account class="select form-control" %}
