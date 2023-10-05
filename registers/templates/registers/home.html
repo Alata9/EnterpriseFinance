@@ -20,8 +20,8 @@
             <div class="col-md-1"></div>
             <div class="col-md-2"><img src="{% static 'registers/images/3_48x48.png' %}"/></div>
             <div class="col-md-2"><img src="{% static 'registers/images/5_48x48.png' %}"/></div>
-            <div class="col-md-2"><img src="{% static 'registers/images/1_48x48.png' %}"/></div>
             <div class="col-md-2"><img src="{% static 'registers/images/2_48x48.png' %}"/></div>
+            <div class="col-md-2"><img src="{% static 'registers/images/1_48x48.png' %}"/></div>
             <div class="col-md-2"><img src="{% static 'registers/images/6_48x48.png' %}"/></div>
         </div>
         <div class="row p-2 g-3">
@@ -49,9 +49,13 @@
                 <a class="text-decoration-none text-dark" href="{% url 'settings' %}"><h4>Accounting settings</h4></a>
             </div>
             <div class="col-md-2 text-left">
-                <h3>Budgeting</h3>
-                <a class="text-decoration-none text-dark" href="{% url 'receipts_plan' %}"><h4>Receipts plan</h4></a>
-                <a class="text-decoration-none text-dark" href="{% url 'payments_plan' %}"><h4>Payments plan</h4></a>
+                <h3>Finance plan</h3>
+                <a class="text-decoration-none text-dark" href="{% url 'receipts_plan' %}"><h4>Planned receipts</h4></a>
+                <a class="text-decoration-none text-dark" href="#"><h4>Control of planned receipts</h4></a>
+                <hr>
+                <a class="text-decoration-none text-dark" href="{% url 'payments_plan' %}"><h4>Payment requests</h4></a>
+                <a class="text-decoration-none text-dark" href="#"><h4>Control of payment requests</h4></a>
+
             </div>
             <div class="col-md-2 text-left">
                 <h3>Reports</h3>
@@ -63,7 +67,7 @@
             <div class="col-md-3 text-left">
                 <h3>Dashboards</h3>
                 <a class="text-decoration-none text-dark" href="{% url 'dashboard' %}"><h4>Main dashboard</h4></a>
-                <a class="text-decoration-none text-dark" href="{% url 'charts_oper' %}"><h4>Operating dashboard</h4></a>
+                <a class="text-decoration-none text-dark" href="{% url 'charts_oper' %}"><h4>Operating activities</h4></a>
                 <a class="text-decoration-none text-dark" href="{% url 'charts_fin' %}"><h4>Credits and loans</h4></a>
                 <a class="text-decoration-none text-dark" href="{% url 'charts_invest' %}"><h4>Investment</h4></a>
             </div>

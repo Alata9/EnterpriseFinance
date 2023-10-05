@@ -13,7 +13,7 @@
     let  cf_fin_dynamicsData = {{ cf_fin_dynamics|safe }};
 </script>
 
-<script type="text/javascript" src="{% static '/registers/js/charts_oper.js' %}"></script>
+<script type="text/javascript" src="{% static '/registers/js/charts_fin.js' %}"></script>
 <script src="https://www.gstatic.com/charts/loader.js"></script>
 
 
@@ -21,7 +21,7 @@
     <div class="row fluid">
         <div class="col-md-2 border p-3 shadow">
             <div class="text-center">
-                <h2>Main dashboard</h2>
+                <h2>Credits and loans</h2>
                 <h5>{{ today }}</h5>
             </div>
             <br>
@@ -40,11 +40,6 @@
                         {{ form.date_end.label_tag }}
                         {% render_field form.date_end class="select form-control" %}
                     </div>
-<!--                    <div class="form-group">-->
-<!--                    {{ form.conversion_currency.label_tag }}-->
-<!--                    {% render_field form.conversion_currency class="select form-control" %}-->
-<!--                    </div>-->
-
                     <br><button class="btn btn-info" type="submit" name="btn_show">SHOW</button>
                 </div>
             </form>
@@ -55,20 +50,19 @@
                 <div class="col-md-3 border p-2 shadow">
                     <b>Debit portfolio</b>
                     <hr>
-                    <div id="loan_portfolio"></div>
-                </div>
-                <div class="col-md-3 border p-2 shadow">
-                    <b>Loan portfolio</b>
-                    <hr>
                     <div id="debit_portfolio"></div>
                 </div>
                 <div class="col-md-6 border p-2 shadow">
                     <b>Dynamics of financing activities</b>
-                    <hr>
                     <div id="cf_fin_dynamics"></div>
                 </div>
+                <div class="col-md-3 border p-2 shadow">
+                    <b>Loan portfolio</b>
+                    <hr>
+                    <div id="loan_portfolio"></div>
+                </div>
             </div>
-            <br>
+            <br><br>
             <div class="row p-1 g-1">
                 <div class="col-md-6 border p-2 shadow">
                     <b>Balance sheet of borrowers</b>

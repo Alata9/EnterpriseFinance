@@ -136,6 +136,7 @@ class ReceiptsPlanAdd(DynamicFormMixin, ModelForm):
         self.fields['organization'].empty_label = 'Organization:'
         self.fields['is_cash'].label = 'is cash'
         self.fields['counterparty'].empty_label = 'Counterparty:'
+        self.fields['currency'].empty_label = 'Currency:'
         self.fields['item'].empty_label = 'Item:'
         self.fields['project'].empty_label = 'Project:'
         self.fields['project'].required = False

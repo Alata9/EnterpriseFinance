@@ -26,7 +26,7 @@
         <td width="10" align="center" style='white-space: nowrap'>
             <a href="{% url 'receipts_plan_id' i.id %}" class='btn btn-warning btn-sm'><i class="bi bi-pencil-square"></i></a>
             <a href="{% url 'receipts_plan_copy' i.id %}" class='btn btn-warning btn-sm'><i class="bi bi-files"></i></a>
-            <a href="{% url 'receipts_plan_delete' i.id %}" class='btn btn-warning btn-sm'><i class="bi bi-basket2-fill"></i></a>
+            <a href="{% url 'receipts_plan_delete' i.id %}" class='btn btn-warning btn-sm'><i class="bi bi-trash3"></i></a>
          </td>
     </tr>
     {% endfor %}

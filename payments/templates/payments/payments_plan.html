@@ -11,7 +11,7 @@
             hx-trigger="change"
             hx-target="#id_table">
         <div class="col-md-2 border p-2 shadow">
-                <h2>Payments plan</h2>
+                <h3>Payment requests</h3>
                 {% csrf_token %}
                 <div class="form-group">
                 {{ form.ordering.label_tag }}
@@ -54,7 +54,7 @@
             <div class="row d-grid gap-2 d-md-flex justify-content-md-end">
                 <div class="col-md-7"></div>
                 <div class="col-md-5">
-                    <a href="{% url 'payments_plan_add' %}" class="btn btn-warning" name="btn_add">ADD NEW</a>
+                    <a href="{% url 'payments_plan_add' %}" class="btn btn-warning" name="btn_add">ADD NEW REQUEST</a>
                     <a href="{% url 'payments_plan_upload_file' %}" class="btn btn-warning" name="btn_add">IMPORT FROM FILE</a>
                     <button  class="btn btn-warning" name="btn_to_file">SAVE TO FILE</button>
                 </div>

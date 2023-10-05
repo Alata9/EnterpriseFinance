@@ -8,8 +8,8 @@
     <form  method='POST' enctype="multipart/form-data">
         {% csrf_token %}
         {{ form|crispy }}
-        <button class="btn btn-info" type="submit" name="btn_upload">UPLOAD</button>
-        <a href="/payments_plan" class='btn btn-info'>CANCEL</a>
+        <button class="btn btn-warning" type="submit" name="btn_upload">UPLOAD</button>
+        <a href="/payments_plan" class='btn btn-warning'>CANCEL</a>
     </form>
 </div>
 {% endblock %}

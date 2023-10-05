@@ -197,7 +197,6 @@ class DashboardView(View):
 
 
 
-
 class ChartsOperView(View):
     def get(self, request):
         form = DashboardFilter(request.GET)
@@ -246,8 +245,9 @@ class ChartsOperView(View):
 
         structure = sorted(structure.items(), key=lambda x: x[1], reverse=True)
         structure = dict(structure)
+        structure = [[k, v] for k, v in structure.items()]
 
-        return [[k, v] for k, v in structure.items()]
+        return structure
 
 
 
@@ -346,9 +346,6 @@ class ChartsOperView(View):
 
 
 
-
-
-
 class ChartsFinView(View):
     def get(self, request):
         form = DashboardFilter(request.GET)
@@ -414,10 +411,11 @@ class ChartsFinView(View):
 
             open_balance = agent.credit - agent.debit
             final_balance = abs(open_balance + receipts_sum - payments_sum)
+            agent = str(agent)
 
             portfolio.append([agent, int(final_balance)])
 
-        # print(portfolio)
+
         return portfolio
 
 
@@ -450,13 +448,10 @@ class ChartsFinView(View):
             final_debit = abs(final_balance) if final_balance > 0 else 0
             final_credit = abs(final_balance) if final_balance < 0 else 0
 
-            agents_table.append({'name': agent.counterparty, 'start_debit': int(start_debit),
-                                 'start_credit': int(start_credit), 'receipts': int(receipts_sum),
-                                 'payments': int(payments_sum), 'final debit': int(final_debit),
-                                 'final credit': int(final_credit)})
+            agents_table.append([agent.counterparty, int(start_debit), int(start_credit), int(receipts_sum),
+                                 int(payments_sum), int(final_debit), int(final_credit)])
 
 
-        # print(agents_table)
         return agents_table
 
 
@@ -494,7 +489,7 @@ class ChartsFinView(View):
         cf_dynamics = []
         for k, v in total_cf.items():
             cf_dynamics.append([k, *v, v[0] - v[1]])
-
+        print(cf_dynamics)
         return cf_dynamics
 
 

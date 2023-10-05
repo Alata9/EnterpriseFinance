@@ -9,7 +9,7 @@ from django.views.generic import DeleteView, FormView, ListView, UpdateView
 
 from directory.models import Organization, Project, Currencies, Counterparties, PaymentAccount
 from payments.forms import UploadFile, PaymentsPlanFilter, PaymentsPlanAdd
-from payments.models import PaymentsPlan, ExpensesItem
+from payments.models import PaymentsPlan, ExpensesItem, Payments
 from registers.models import AccountSettings
 
 
@@ -97,6 +97,11 @@ class PaymentsPlanIdView(UpdateView):
 
         if 'from_pk' in self.kwargs:
             obj = self.model.objects.get(pk=self.kwargs['from_pk'])
+            obj.id = None
+            return obj
+
+        if 'pk_fact' in self.kwargs:
+            obj = Payments.object.get(pk=self.kwargs['pk_fact'])
             obj.id = None
             return obj
 

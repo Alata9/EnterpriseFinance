@@ -52,11 +52,11 @@ class Counterparties(models.Model):
     debit = models.DecimalField(max_digits=15, decimal_places=2, blank=True, null=True)
     credit = models.DecimalField(max_digits=15, decimal_places=2, blank=True, null=True)
     comments = models.CharField(max_length=100, blank=True, null=True)
-    suppliers = models.BooleanField(blank=False)
-    customer = models.BooleanField(blank=False)
-    employee = models.BooleanField(blank=False)
-    lender = models.BooleanField(blank=False)
-    borrower = models.BooleanField(blank=False)
+    suppliers = models.BooleanField(blank=True, default=False)
+    customer = models.BooleanField(blank=True, default=False)
+    employee = models.BooleanField(blank=True, default=False)
+    lender = models.BooleanField(blank=True, default=False)
+    borrower = models.BooleanField(blank=True, default=False)
 
 
     def __str__(self):

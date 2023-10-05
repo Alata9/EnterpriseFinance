@@ -1,15 +1,15 @@
 //sticky head in table
 
-  th {
-      background: #F5F5F5;
-      position: sticky;
-      padding: 20px;
-      top: 0;
-  }
+th {
+  background: #F5F5F5;
+  position: sticky;
+  padding: 20px;
+  top: 0;
+}
 
-  td {
-      padding: 13px;
-      font-size: 13px;
-  }
+td {
+  padding: 13px;
+  font-size: 13px;
+}
 
 

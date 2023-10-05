@@ -36,6 +36,7 @@ urlpatterns = [
     path('payments_plan/<int:pk>', PaymentsPlanIdView.as_view(), name='payments_plan_id'),
     path('payments_plan/add/', PaymentsPlanIdView.as_view(), name='payments_plan_add'),
     path('payments_plan/copy/<int:from_pk>', PaymentsPlanIdView.as_view(), name='payments_plan_copy'),
+    path('payments_plan/to_fact/<int:pk_fact>', PaymentsPlanIdView.as_view(), name='payments_plan_to_fact'),
     path('<int:pk>/payments_plan_delete', PaymentsPlanDeleteView.as_view(), name='payments_plan_delete'),
     path('payments_plan/upload_file', PaymentsPlanUploadFileView.as_view(), name='payments_plan_upload_file'),
     path('payments_plan/projects', PaymentsPlanIdView.htmx_projects, name='payments_plan_projects'),

@@ -66,7 +66,7 @@
               <li><a href="{% url 'income_items' %}">Income items</a></li>
               <li class="divider"></li>
               <li><a href="{% url 'receipts' %}">Receipts</a></li>
-              <li><a href="{% url 'receipts_plan' %}">Receipts in plan</a></li>
+<!--              <li><a href="{% url 'receipts_plan' %}">Receipts in plan</a></li>-->
             </ul>
           </li>
 
@@ -77,7 +77,18 @@
               <li><a href="{% url 'expenses_items' %}">Expense items</a></li>
               <li class="divider"></li>
               <li><a href="{% url 'payments' %}">Payments</a></li>
-              <li><a href="{% url 'payments_plan' %}">Payments in plan</a></li>
+<!--              <li><a href="{% url 'payments_plan' %}">Payments in plan</a></li>-->
+            </ul>
+          </li>
+
+          <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Finance plan <b class="caret"></b></a>
+            <ul class="dropdown-menu">
+              <li><a href="{% url 'receipts_plan' %}">Planned receipts</a></li>
+              <li><a href="#">Control of planned receipts</a></li>
+              <li class="divider"></li>
+              <li><a href="{% url 'payments_plan' %}">Payment requests</a></li>
+              <li><a href="#">Control of payment requests</a></li>
             </ul>
           </li>
 
@@ -97,9 +108,9 @@
             <a href="#" class="dropdown-toggle" data-toggle="dropdown">Dashboards<b class="caret"></b></a>
             <ul class="dropdown-menu">
               <li><a href="{% url 'dashboard' %}">Main dashboard</a></li>
-              <li><a href="{% url 'charts_oper' %}">Operating dashboard</a></li>
+              <li><a href="{% url 'charts_oper' %}">Operating activities</a></li>
               <li><a href="{% url 'charts_fin' %}">Credits and loans</a></li>
-              <li><a href="{% url 'charts_invest' %}">Investment dashboard</a></li>
+              <li><a href="{% url 'charts_invest' %}">Investment</a></li>
             </ul>
           </li>
 

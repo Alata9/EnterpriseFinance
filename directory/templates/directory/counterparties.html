@@ -44,7 +44,7 @@
                     <td width="10" align="center">{% if i.employee %}<i class="bi bi-check2-square"></i>{% endif %}</td>
                     <td width="80" align="center">
                         <a href="{% url 'counterparty_id' i.id %}" class='btn btn-info btn-sm'><i class="bi bi-pencil-square"></i></a>
-                        <a href="{% url 'counterparty_del' i.id %}" class='btn btn-info btn-sm'><i class="bi bi-basket2-fill"></i></a>
+                        <a href="{% url 'counterparty_del' i.id %}" class='btn btn-info btn-sm'><i class="bi bi-trash3"></i></a>
                     </td>
                 </tr>
                 {% endfor %}

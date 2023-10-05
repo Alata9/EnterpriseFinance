@@ -38,7 +38,7 @@
     var options = {
        'width':350,
        'height':200,
-       colors: ['#008B8B', '#20B2AA', '#00CED1', '#40E0D0', '#AFEEEE'],
+       colors: ['#FF4500', '#FF8C00', '#FFA500', '#FFD700', '#FFFF00'],
        'legend': 'right'
        };
 
@@ -50,12 +50,12 @@
     function BorrowersTable() {
         var data = new google.visualization.DataTable();
         data.addColumn('string', 'Borrower');
-        data.addColumn('number', 'Start Dt');
-        data.addColumn('number', 'Start Cr');
+        data.addColumn('number', 'Debit');
+        data.addColumn('number', 'Credit');
         data.addColumn('number', 'Receipts');
         data.addColumn('number', 'Payments');
-        data.addColumn('number', 'Final Dt');
-        data.addColumn('number', 'Final Cr');
+        data.addColumn('number', 'Debit');
+        data.addColumn('number', 'Credit');
         data.addRows(borrowers_tableData);
 
 
@@ -68,12 +68,12 @@
     function LendersTable() {
         var data = new google.visualization.DataTable();
         data.addColumn('string', 'Lenders');
-        data.addColumn('number', 'Start Dt');
-        data.addColumn('number', 'Start Cr');
+        data.addColumn('number', 'Debit');
+        data.addColumn('number', 'Credit');
         data.addColumn('number', 'Receipts');
         data.addColumn('number', 'Payments');
-        data.addColumn('number', 'Final Dt');
-        data.addColumn('number', 'Final Cr');
+        data.addColumn('number', 'Debit');
+        data.addColumn('number', 'Credit');
         data.addRows(lenders_tableData);
 
 
@@ -94,8 +94,8 @@
 
         var options = {
           height:280,
-          vAxis: {title: 'Amount'},
-          hAxis: {title: 'Period'},
+//          vAxis: {title: 'Amount'},
+//          hAxis: {title: 'Period'},
           colors: ['#00CED1', '#FF4500', '2F4F4F'],
           seriesType: 'bars',
           series: {2: {type: 'line'}},

@@ -9,6 +9,7 @@
         <th align="center">counterparty</th>
         <th align="center">item</th>
         <th align="center">project</th>
+        <th align="center">by request</th>
         <th align="center">comments</th>
         <th align="center">edit | copy  |  del</th>
     </tr>
@@ -22,11 +23,12 @@
         <td width="200">{{i.counterparty}}</td>
         <td width="200">{{i.item}}</td>
         <td width="100">{% if i.project != None %}{{ i.project }}{% endif %}</td>
+        <td width="100">{% if i.by_request != None %}{{ i.by_request }}{% endif %}</td>
         <td width="200">{% if i.comments != None %}{{ i.comments }}{% endif %}</td>
         <td width="10" align="center" style='white-space: nowrap'>
             <a href="{% url 'payments_id' i.id %}" class='btn btn-info btn-sm'><i class="bi bi-pencil-square"></i></a>
             <a href="{% url 'payments_copy' i.id %}" class='btn btn-info btn-sm'><i class="bi bi-files"></i></a>
-            <a href="{% url 'payments_delete' i.id %}" class='btn btn-info btn-sm'><i class="bi bi-basket2-fill"></i></a>
+            <a href="{% url 'payments_delete' i.id %}" class='btn btn-info btn-sm'><i class="bi bi-trash3"></i></a>
          </td>
     </tr>
     {% endfor %}

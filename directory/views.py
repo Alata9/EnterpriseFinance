@@ -6,7 +6,7 @@ import lxml
 from bs4 import BeautifulSoup as bs
 
 from django.db.models import ProtectedError
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.views.generic import DeleteView, UpdateView, ListView
 
@@ -344,25 +344,34 @@ class RatesParsingView(UpdateView):
         return self.model(accounting_currency=cur, date=datetime.datetime.today())
 
 
-    def get_rates_queryset(self, request):
-        form = RatesParser(request.GET)
-        cur_1 = ''
-        cur_2 = ''
+    def form_valid(self, form):
+        if not form.cleaned_data['accounting_currency'] or not form.cleaned_data['currency']:
+            return HttpResponse(status=400, reason="Both currencies should be specified")
 
-        if form.is_valid():
-            if form.cleaned_data['currency']:
-                cur_1 = Currencies.objects.get(code=form.cleaned_data['currency'])
-                cur_1 = cur_1.lower()
-            if form.cleaned_data['currency']:
-                cur_2 = Currencies.objects.get(code=form.cleaned_data['currency'])
-                cur_2 = cur_2.lower()
+        cur_1 = Currencies.objects.get(code=form.cleaned_data['accounting_currency'])
+        cur_2 = Currencies.objects.get(code=form.cleaned_data['currency'])
 
-        url = f'https://www.currency.me.uk/convert/{cur_1}/{cur_2}'
+        url = f'https://www.currency.me.uk/convert/{cur_1.code.lower()}/{cur_2.code.lower()}'
 
         r = requests.get(url)
         soup = bs(r.text, 'lxml')
         rate = soup.find('span', {'class': 'mini ccyrate'}).text
-        rate = float(rate[8:13])
+        parts = [x.strip() for x in rate.split('=')]
+        parts1 = [x.strip() for x in parts[1].split()]
+        cur_rate = float(parts1[0])
 
-        return rate
+        cur = self.model.objects.filter(accounting_currency=cur_1, currency=cur_2, date=datetime.datetime.today())[:1]
+        if not cur:
+            cur = [
+                self.model(
+                    accounting_currency=cur_1,
+                    currency=cur_2,
+                    date=datetime.datetime.today(),
+                )
+            ]
+
+        cur[0].rate = cur_rate
+        cur[0].save()
+
+        return HttpResponseRedirect(self.get_success_url())
 
