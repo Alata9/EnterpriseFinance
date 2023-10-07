@@ -50,12 +50,12 @@
     function BorrowersTable() {
         var data = new google.visualization.DataTable();
         data.addColumn('string', 'Borrower');
-        data.addColumn('number', 'Debit');
-        data.addColumn('number', 'Credit');
+        data.addColumn('number', 'DR');
+        data.addColumn('number', 'CR');
         data.addColumn('number', 'Receipts');
         data.addColumn('number', 'Payments');
-        data.addColumn('number', 'Debit');
-        data.addColumn('number', 'Credit');
+        data.addColumn('number', 'DR');
+        data.addColumn('number', 'CR');
         data.addRows(borrowers_tableData);
 
 
@@ -68,12 +68,12 @@
     function LendersTable() {
         var data = new google.visualization.DataTable();
         data.addColumn('string', 'Lenders');
-        data.addColumn('number', 'Debit');
-        data.addColumn('number', 'Credit');
+        data.addColumn('number', 'DR');
+        data.addColumn('number', 'CR');
         data.addColumn('number', 'Receipts');
         data.addColumn('number', 'Payments');
-        data.addColumn('number', 'Debit');
-        data.addColumn('number', 'Credit');
+        data.addColumn('number', 'DR');
+        data.addColumn('number', 'CR');
         data.addRows(lenders_tableData);
 
 

@@ -1,6 +1,7 @@
 from django.contrib import admin
 
-from directory.models import Organization, PaymentAccount, Project, Currencies, Counterparties, CurrenciesRates, TypeCF
+from directory.models import Organization, PaymentAccount, Project, Currencies, Counterparties, CurrenciesRates, TypeCF, \
+    InitialDebts
 
 
 class OrganizationAdmin(admin.ModelAdmin):
@@ -34,11 +35,14 @@ class CurrenciesRatesAdmin(admin.ModelAdmin):
 
 
 class CounterpartiesAdmin(admin.ModelAdmin):
-    list_display = ['id', 'counterparty', 'debit', 'credit', 'comments', 'suppliers', 'customer', 'employee', 'lender',
-                    'borrower']
-    list_display_links = ['id', 'counterparty', 'debit', 'credit', 'comments', 'suppliers', 'customer', 'employee',
-                          'lender', 'borrower']
+    list_display = ['id', 'counterparty', 'comments', 'suppliers', 'customer', 'employee', 'other']
+    list_display_links = ['id', 'counterparty', 'comments', 'suppliers', 'customer', 'employee', 'other']
     search_fields = ['counterparty']
+
+class InitialDebtsAdmin(admin.ModelAdmin):
+    list_display = ['id', 'counterparty', 'comments', 'organization', 'type_debt', 'debit', 'credit', 'currency']
+    list_display_links = ['id', 'counterparty', 'comments', 'organization', 'type_debt', 'debit', 'credit', 'currency']
+    search_fields = ['counterparty', 'organization', 'type_debt']
 
 
 class TypeCFAdmin(admin.ModelAdmin):
@@ -53,4 +57,5 @@ admin.site.register(Project, ProjectAdmin)
 admin.site.register(Currencies, CurrenciesAdmin)
 admin.site.register(CurrenciesRates, CurrenciesRatesAdmin)
 admin.site.register(Counterparties, CounterpartiesAdmin)
+admin.site.register(InitialDebts, InitialDebtsAdmin)
 admin.site.register(TypeCF, TypeCFAdmin)

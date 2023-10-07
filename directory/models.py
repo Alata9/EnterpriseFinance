@@ -49,15 +49,11 @@ class Project(models.Model):
 
 class Counterparties(models.Model):
     counterparty = models.CharField(max_length=100, unique=True)
-    debit = models.DecimalField(max_digits=15, decimal_places=2, blank=True, null=True)
-    credit = models.DecimalField(max_digits=15, decimal_places=2, blank=True, null=True)
     comments = models.CharField(max_length=100, blank=True, null=True)
     suppliers = models.BooleanField(blank=True, default=False)
     customer = models.BooleanField(blank=True, default=False)
     employee = models.BooleanField(blank=True, default=False)
-    lender = models.BooleanField(blank=True, default=False)
-    borrower = models.BooleanField(blank=True, default=False)
-
+    other = models.BooleanField(blank=True, default=False)
 
     def __str__(self):
         return self.counterparty
@@ -66,7 +62,6 @@ class Counterparties(models.Model):
         ordering = ['counterparty']
         verbose_name = 'Counterparty'
         verbose_name_plural = 'Counterparties'
-
 
 class Currencies(models.Model):
     currency = models.CharField(max_length=10, unique=True)
@@ -79,6 +74,31 @@ class Currencies(models.Model):
         ordering = ['currency']
         verbose_name = 'Currency'
         verbose_name_plural = 'Currencies'
+
+
+class InitialDebts(models.Model):
+    TypeDebts = (
+        ('', ''),
+        ('Lender', 'Lender'),
+        ('Borrower', 'Borrower'),
+        ('Other', 'Other'),
+    )
+
+    counterparty = models.ForeignKey(Counterparties, on_delete=models.PROTECT, blank=False)
+    organization = models.ForeignKey(Organization, on_delete=models.PROTECT, blank=False)
+    debit = models.DecimalField(max_digits=15, decimal_places=2, blank=True, null=True)
+    credit = models.DecimalField(max_digits=15, decimal_places=2, blank=True, null=True)
+    comments = models.CharField(max_length=250, blank=True, null=True)
+    currency = models.ForeignKey(Currencies, on_delete=models.PROTECT, blank=False)
+    type_debt = models.CharField(max_length=10, choices=TypeDebts, blank=False)
+
+    def __str__(self):
+        return f'{self.counterparty}, {self.organization}, {self.type_debt}, DR: {self.debit}, CR: {self.credit}, {self.currency}'
+
+    class Meta:
+        ordering = ['counterparty', 'organization']
+        verbose_name = 'Counterparty initial debts'
+        verbose_name_plural = 'Counterparties initial debts'
 
 
 class CurrenciesRates(models.Model):

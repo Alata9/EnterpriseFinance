@@ -7,7 +7,7 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 from django.views.generic import UpdateView, ListView, View
 
-from directory.models import PaymentAccount, CurrenciesRates, TypeCF, Counterparties
+from directory.models import PaymentAccount, CurrenciesRates, TypeCF, Counterparties, InitialDebts
 from payments.models import Payments
 from receipts.models import Receipts, IncomeItem
 from registers.forms import AccountSettingsSet, AccountBalancesFilter, DashboardFilter
@@ -350,8 +350,8 @@ class ChartsFinView(View):
     def get(self, request):
         form = DashboardFilter(request.GET)
 
-        lenders = Counterparties.objects.filter(lender=True)
-        borrowers = Counterparties.objects.filter(borrower=True)
+        lenders = InitialDebts.objects.filter(type_debt='Lender')
+        borrowers = InitialDebts.objects.filter(type_debt='Borrower')
 
         receipts = Receipts.objects.filter(item__income_group__type_cf=3)
         payments = Payments.objects.filter(item__expense_group__type_cf=3)
@@ -362,6 +362,8 @@ class ChartsFinView(View):
             if form.cleaned_data['organization']:
                 receipts = receipts.filter(organization=form.cleaned_data['organization'])
                 payments = payments.filter(organization=form.cleaned_data['organization'])
+                lenders = lenders.filter(organization=form.cleaned_data['organization'])
+                borrowers = borrowers.filter(organization=form.cleaned_data['organization'])
 
             if form.cleaned_data['date_start']:
                 receipts = receipts.filter(date__gte=form.cleaned_data['date_start'])
@@ -400,22 +402,22 @@ class ChartsFinView(View):
                 agent.credit = 0
             if agent.debit is None:
                 agent.debit = 0
-            receipts = receipts.filter(counterparty=agent)
+            receipts = receipts.filter(counterparty=agent.counterparty)
             receipts_sum = receipts.aggregate(Sum("amount")).get('amount__sum', 0.00)
             if receipts_sum is None:
                 receipts_sum = 0
-            payments = payments.filter(counterparty=agent)
+            payments = payments.filter(counterparty=agent.counterparty)
             payments_sum = payments.aggregate(Sum("amount")).get('amount__sum', 0.00)
             if payments_sum is None:
                 payments_sum = 0
 
             open_balance = agent.credit - agent.debit
             final_balance = abs(open_balance + receipts_sum - payments_sum)
-            agent = str(agent)
+            agent = str(agent.counterparty)
 
             portfolio.append([agent, int(final_balance)])
-
-
+        print(agents)
+        print(portfolio)
         return portfolio
 
 
@@ -424,19 +426,19 @@ class ChartsFinView(View):
         agents_table = []
 
         for agent in agents:
-            receipts = Receipts.objects.filter(counterparty=agent)
+            receipts = receipts.filter(counterparty=agent.counterparty)
             receipts_sum = receipts.aggregate(Sum("amount")).get('amount__sum', 0.00)
             if receipts_sum == None: receipts_sum = 0
 
-            receipts_before = Receipts.objects.filter(counterparty=agent)
+            receipts_before = receipts_before.filter(counterparty=agent.counterparty)
             receipts_before_sum = receipts_before.aggregate(Sum("amount")).get('amount__sum', 0.00)
             if receipts_before_sum == None: receipts_before_sum = 0
 
-            payments = Payments.objects.filter(counterparty=agent)
+            payments = payments.filter(counterparty=agent.counterparty)
             payments_sum = payments.aggregate(Sum("amount")).get('amount__sum', 0.00)
             if payments_sum == None: payments_sum = 0
 
-            payments_before = Payments.objects.filter(counterparty=agent)
+            payments_before = payments_before.filter(counterparty=agent.counterparty)
             payments_before_sum = payments_before.aggregate(Sum("amount")).get('amount__sum', 0.00)
             if payments_before_sum == None: payments_before_sum = 0
 
@@ -444,14 +446,15 @@ class ChartsFinView(View):
             start_debit = abs(start_balance) if start_balance > 0 else 0
             start_credit = abs(start_balance) if start_balance < 0 else 0
 
-            final_balance = agent.debit - agent.credit + receipts_sum - payments_sum
+            final_balance = agent.debit - agent.credit - receipts_sum + payments_sum
             final_debit = abs(final_balance) if final_balance > 0 else 0
             final_credit = abs(final_balance) if final_balance < 0 else 0
+            agent = str(agent.counterparty)
 
-            agents_table.append([agent.counterparty, int(start_debit), int(start_credit), int(receipts_sum),
+            agents_table.append([agent, int(start_debit), int(start_credit), int(receipts_sum),
                                  int(payments_sum), int(final_debit), int(final_credit)])
 
-
+        print(agents_table)
         return agents_table
 
 
@@ -489,7 +492,8 @@ class ChartsFinView(View):
         cf_dynamics = []
         for k, v in total_cf.items():
             cf_dynamics.append([k, *v, v[0] - v[1]])
-        print(cf_dynamics)
+
+
         return cf_dynamics
 
 

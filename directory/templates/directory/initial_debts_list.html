@@ -1,0 +1,28 @@
+
+<table class="table table-sm table-scroll table-striped table-bordered" >
+    <tr>
+        <th align="center">Organization</th>
+        <th align="center">Counterparty</th>
+        <th align="center">Type of debt</th>
+        <th align="center">Initial debit</th>
+        <th align="center">Initial credit</th>
+        <th align="center">Currency</th>
+        <th align="center">Comments</th>
+        <th align="center">Edit  |  Del</th>
+    </tr>
+    {% for i in object_list %}
+    <tr>
+        <td width="100">{{i.organization}}</td>
+        <td width="100">{{ i.counterparty }}</td>
+        <td width="50">{{ i.type_debt }}</td>
+        <td width="50" align="right">{% if i.debit is not None %}{{ i.debit }}{% endif %}</td>
+        <td width="50" align="right">{% if i.credit is not None %}{{ i.credit }}{% endif %}</td>
+        <td width="50">{{ i.currency }}</td>
+        <td width="100">{% if i.comments is not None %}{{i.comments}}{% endif %}</td>
+        <td width="80" align="center">
+            <a href="{% url 'initial_debt_id' i.id %}" class='btn btn-info btn-sm'><i class="bi bi-pencil-square"></i></a>
+            <a href="{% url 'initial_debt_del' i.id %}" class='btn btn-info btn-sm'><i class="bi bi-trash3"></i></a>
+        </td>
+    </tr>
+    {% endfor %}
+</table>

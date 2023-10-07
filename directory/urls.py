@@ -6,7 +6,8 @@ from directory.views import (
     ProjectsView, ProjectsIdView, ProjectDeleteView,
     PaymentAccountsView, PaymentAccountIdView, PaymentAccountDeleteView,
     CurrenciesView, CurrenciesIdView, CurrencyDeleteView,
-    RatesView, RatesIdView, RatesDeleteView, RatesParsingView
+    RatesView, RatesIdView, RatesDeleteView, RatesParsingView, InitialDebtsView, InitialDebtIdView,
+    InitialDebtDeleteView
 )
 
 urlpatterns = [
@@ -14,6 +15,12 @@ urlpatterns = [
     path('counterparty/<int:pk>/', CounterpartyIdView.as_view(), name='counterparty_id'),
     path('counterparty/add/', CounterpartyIdView.as_view(), name='counterparty_add'),
     path('<int:pk>/counterparty/delete/', CounterpartyDeleteView.as_view(), name='counterparty_del'),
+
+    path('initial_debts/', InitialDebtsView.as_view(), name='initial_debts'),
+    path('initial_debt/<int:pk>/', InitialDebtIdView.as_view(), name='initial_debt_id'),
+    path('initial_debt/add/', InitialDebtIdView.as_view(), name='initial_debt_add'),
+    path('initial_debts/list', InitialDebtsView.htmx_list, name='initial_debts_list'),
+    path('<int:pk>/initial_debt/delete/', InitialDebtDeleteView.as_view(), name='initial_debt_del'),
 
     path('organizations/', OrganizationsView, name='organizations'),
     path('organization/<int:pk>', OrganizationIdView, name='organization_id'),

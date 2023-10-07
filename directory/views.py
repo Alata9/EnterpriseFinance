@@ -1,6 +1,4 @@
 import datetime
-
-import request
 import requests
 import lxml
 from bs4 import BeautifulSoup as bs
@@ -12,10 +10,11 @@ from django.views.generic import DeleteView, UpdateView, ListView
 
 from directory.forms import (
     CounterpartyAdd, OrganizationAdd, ProjectAdd, PaymentAccountAdd,
-    CurrencyAdd, CurrenciesRatesAdd, RatesFilter, RatesParser
+    CurrencyAdd, CurrenciesRatesAdd, RatesFilter, RatesParser, InitialDebtsAdd, InitialDebtsFilter
 )
-from directory.models import Counterparties, Organization, Project, PaymentAccount, Currencies, CurrenciesRates
-
+from directory.models import (
+    Counterparties, Organization, Project, PaymentAccount, Currencies, CurrenciesRates, InitialDebts
+)
 
 # Counterparties-------------------
 from registers.models import AccountSettings
@@ -25,6 +24,7 @@ def CounterpartiesView(request):
     counterparties = Counterparties.objects.all()
     context = {'counterparties': counterparties}
     return render(request, 'directory/counterparties.html', context=context)
+
 
 class CounterpartyIdView(UpdateView):
     model = Counterparties
@@ -39,9 +39,77 @@ class CounterpartyIdView(UpdateView):
 
 class CounterpartyDeleteView(DeleteView):
     error = ''
-    model = Counterparties
+    model = InitialDebts
     success_url = '/counterparties'
     template_name = 'directory/counterparty_delete.html'
+
+    def post(self, request, *args, **kwargs):
+        try:
+            return super().delete(request, *args, **kwargs)
+        except ProtectedError as error:
+            self.object = self.get_object()
+            context = self.get_context_data(
+                object=self.object,
+                error=f'Error: {error.protected_objects}'
+            )
+            return self.render_to_response(context)
+
+
+# InitialDebts-------------------
+class InitialDebtsView(ListView):
+    model = InitialDebts
+    template_name = 'directory/initial_debts.html'
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        ctx = super().get_context_data(object_list=None, **kwargs)
+        ctx['form'] = InitialDebtsFilter()
+        return ctx
+
+    @staticmethod
+    def debts_queryset(request):
+        debts = InitialDebts.objects.all()
+
+        form = InitialDebtsFilter(request.GET)
+        if form.is_valid():
+            if form.cleaned_data['organization']:
+                debts = debts.filter(organization=form.cleaned_data['organization'])
+            if form.cleaned_data['counterparty']:
+                debts = debts.filter(counterparty=form.cleaned_data['counterparty'])
+            if form.cleaned_data['type_debt']:
+                debts = debts.filter(type_debt=form.cleaned_data['type_debt'])
+
+        return debts
+
+    @staticmethod
+    def htmx_list(request):
+        context = {'object_list': InitialDebtsView.debts_queryset(request)}
+
+        return render(request, 'directory/initial_debts_list.html', context=context)
+
+
+class InitialDebtIdView(UpdateView):
+    model = InitialDebts
+    template_name = 'directory/initial_debt_id.html'
+    form_class = InitialDebtsAdd
+    success_url = '/initial_debts'
+
+    def get_object(self, queryset=None):
+        if 'pk' in self.kwargs:
+            return super().get_object(queryset)
+
+    def form_valid(self, form):
+        try:
+            form.save()
+            return redirect('initial_debts')
+        except:
+            form.add_error(None, 'Data save error')
+
+
+class InitialDebtDeleteView(DeleteView):
+    error = ''
+    model = InitialDebts
+    success_url = '/initial_debts.html'
+    template_name = 'directory/initial_debt_del.html'
 
     def post(self, request, *args, **kwargs):
         try:

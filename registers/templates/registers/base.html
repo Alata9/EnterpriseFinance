@@ -53,6 +53,7 @@
               <li><a href="{% url 'projects' %}">Projects</a></li>
               <li class="divider"></li>
               <li><a href="{% url 'counterparties' %}">Counterparties</a></li>
+              <li><a href="{% url 'initial_debts' %}">Initial debts</a></li>
               <li class="divider"></li>
               <li><a href="{% url 'currencies' %}">Currencies</a></li>
               <li><a href="{% url 'rates' %}">Currencies rates</a></li>
@@ -66,7 +67,7 @@
               <li><a href="{% url 'income_items' %}">Income items</a></li>
               <li class="divider"></li>
               <li><a href="{% url 'receipts' %}">Receipts</a></li>
-<!--              <li><a href="{% url 'receipts_plan' %}">Receipts in plan</a></li>-->
+
             </ul>
           </li>
 
@@ -77,7 +78,7 @@
               <li><a href="{% url 'expenses_items' %}">Expense items</a></li>
               <li class="divider"></li>
               <li><a href="{% url 'payments' %}">Payments</a></li>
-<!--              <li><a href="{% url 'payments_plan' %}">Payments in plan</a></li>-->
+
             </ul>
           </li>
 
@@ -109,7 +110,7 @@
             <ul class="dropdown-menu">
               <li><a href="{% url 'dashboard' %}">Main dashboard</a></li>
               <li><a href="{% url 'charts_oper' %}">Operating activities</a></li>
-              <li><a href="{% url 'charts_fin' %}">Credits and loans</a></li>
+              <li><a href="{% url 'charts_fin' %}">Loans dashboard</a></li>
               <li><a href="{% url 'charts_invest' %}">Investment</a></li>
             </ul>
           </li>
