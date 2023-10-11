@@ -39,7 +39,7 @@ class CounterpartyIdView(UpdateView):
 
 class CounterpartyDeleteView(DeleteView):
     error = ''
-    model = InitialDebts
+    model = Counterparties
     success_url = '/counterparties'
     template_name = 'directory/counterparty_delete.html'
 
@@ -50,7 +50,10 @@ class CounterpartyDeleteView(DeleteView):
             self.object = self.get_object()
             context = self.get_context_data(
                 object=self.object,
-                error=f'Error: {error.protected_objects}'
+                error=f'Error! The object cannot be deleted, it is included in the following entries:'
+                      f'{error.protected_objects}'
+
+
             )
             return self.render_to_response(context)
 
@@ -108,8 +111,8 @@ class InitialDebtIdView(UpdateView):
 class InitialDebtDeleteView(DeleteView):
     error = ''
     model = InitialDebts
-    success_url = '/initial_debts.html'
-    template_name = 'directory/initial_debt_del.html'
+    success_url = '/initial_debts'
+    template_name = 'directory/initial_debt_delete.html'
 
     def post(self, request, *args, **kwargs):
         try:
@@ -156,7 +159,7 @@ def OrganizationIdView(request):
         if form_org.is_valid():
             try:
                 form_org.save()
-                return redirect('organizations')
+                return redirect('/organizations')
             except:
                 form_org.add_error(None, 'Data save error')
     else:
@@ -164,7 +167,7 @@ def OrganizationIdView(request):
 
     context = {'form_org': form_org}
 
-    return render(request, 'directory/organization_id.html', context=context)
+    return render(request, 'directory/organizations.html', context=context)
 
 
 class OrganizationDeleteView(DeleteView):

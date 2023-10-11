@@ -5,6 +5,7 @@ from receipts.views import (
     IncomeGroupView, IncomeGroupIdView, IncomeGroupDeleteView,
     IncomeItemView, IncomeItemIdView, IncomeItemDeleteView,
     ReceiptsView, ReceiptsIdView, ReceiptsDeleteView,
+    ChangePayAccountDeleteView, ChangePayAccountView, ChangePayAccountIdView,
     UploadFileView,
 )
 
@@ -28,6 +29,13 @@ urlpatterns = [
     path('receipts/projects', ReceiptsIdView.htmx_projects, name='receipts_projects'),
     path('receipts/list', ReceiptsView.htmx_list, name='receipts_list'),
     path('receipts/upload_file', UploadFileView.as_view(), name='upload_file'),
+
+    path('change_payaccount/<int:pk>', ChangePayAccountIdView.as_view(), name='change_payaccount_id'),
+    path('change_payaccount/add/', ChangePayAccountIdView.as_view(), name='change_payaccount_add'),
+    path('change_payaccount/copy/<int:from_pk>', ChangePayAccountIdView.as_view(), name='change_payaccount_copy'),
+    path('change_payaccounts/', ChangePayAccountView.as_view(), name='change_payaccounts'),
+    path('change_payaccount/list', ChangePayAccountView.htmx_list, name='change_payaccount_list'),
+    path('<int:pk>/change_payaccount_delete', ChangePayAccountDeleteView.as_view(), name='change_payaccount_delete'),
 
     path('receipts_plan/', ReceiptsPlanView.as_view(), name='receipts_plan'),
     path('receipts_plan/<int:pk>', ReceiptsPlanIdView.as_view(), name='receipts_plan_id'),

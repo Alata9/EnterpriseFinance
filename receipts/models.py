@@ -80,3 +80,21 @@ class ReceiptsPlan(models.Model):
 
     def get_absolute_url(self):
         return '/receipts_plan'
+
+class ChangePayAccount(models.Model):
+    pay_account_from = models.ForeignKey(PaymentAccount, related_name='account1', on_delete=models.PROTECT, blank=False)
+    pay_account_to = models.ForeignKey(PaymentAccount, related_name='account2', on_delete=models.PROTECT, blank=False)
+    date = models.DateField(blank=False)
+    amount = models.DecimalField(max_digits=15, decimal_places=2, blank=False)
+    currency = models.ForeignKey(Currencies, on_delete=models.PROTECT, blank=False)
+
+    def __str__(self):
+        return f'{self.date}, {self.pay_account_from}, {self.pay_account_to}, {self.amount}, {self.currency}'
+
+    class Meta:
+        ordering = ['date', 'pay_account_from', 'pay_account_to']
+        verbose_name = 'Change payment account'
+        verbose_name_plural = 'Changes payment account'
+
+    def get_absolute_url(self):
+        return '/change_payaccounts'

@@ -8,7 +8,7 @@ from django.shortcuts import render
 from django.views.generic import DeleteView, FormView, ListView, UpdateView
 
 from directory.models import Organization, Project, Currencies, Counterparties, PaymentAccount
-from payments.forms import UploadFile, PaymentsPlanFilter, PaymentsPlanAdd
+from payments.forms import UploadFile, PaymentsPlanFilter, PaymentsPlanAdd, PaymentsPlanSeriesAdd, PaymentsAdd
 from payments.models import PaymentsPlan, ExpensesItem, Payments
 from registers.models import AccountSettings
 
@@ -100,18 +100,65 @@ class PaymentsPlanIdView(UpdateView):
             obj.id = None
             return obj
 
-        if 'pk_fact' in self.kwargs:
-            obj = Payments.object.get(pk=self.kwargs['pk_fact'])
-            obj.id = None
-            return obj
-
         org = AccountSettings.load().organization()
         return self.model(organization=org)
+
+
 
     @staticmethod
     def htmx_projects(request):
         form = PaymentsPlanAdd(request.GET)
         return HttpResponse(form["project"])
+
+
+class PaymentsPlanSeriesView(ListView):
+    model = PaymentsPlan
+    template_name = 'payments/payments_plan_series.html'
+    form_class = PaymentsPlanSeriesAdd
+    success_url = '/payments_plan'
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        ctx = super().get_context_data(object_list=None, **kwargs)
+        ctx['form'] = PaymentsPlanSeriesAdd()
+        return ctx
+
+    @staticmethod
+    def htmx_projects(request):
+        form = PaymentsPlanSeriesAdd(request.GET)
+        return HttpResponse(form["project"])
+
+    def series_queryset(request):
+        payments_pl = PaymentsPlan.objects.all()
+        form = PaymentsPlanSeriesAdd(request.POST)
+        frequency_list = {'annually': 365, 'monthly': 30, 'weekly': 7, 'daily': 1}
+        if form.is_valid():
+            quentety = form.cleaned_data['quentety']
+            frequency = form.cleaned_data['frequency']
+
+            for i in range(quentety):
+                date = form.cleaned_data['date']
+                i = PaymentsPlan(
+                    organization=form.cleaned_data['organization'],
+                    counterparty=form.cleaned_data['counterparty'],
+                    item=form.cleaned_data['item'],
+                    project=form.cleaned_data['project'],
+                    amount=form.cleaned_data['amount'],
+                    currency=form.cleaned_data['currency'],
+                    is_cash=form.cleaned_data['is_cash'],
+                    date=date,
+                )
+                i.save()
+                date += frequency_list.get(frequency)
+
+            return super().form_valid(form)
+
+        return payments_pl
+
+    @staticmethod
+    def htmx_list(request):
+        context = {'object_list': PaymentsPlanSeriesView.series_queryset(request)}
+
+        return render(request, 'payments/series_list.html', context=context)
 
 
 class PaymentsPlanDeleteView(DeleteView):

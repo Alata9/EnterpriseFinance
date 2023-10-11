@@ -54,7 +54,16 @@
             <div class="row d-grid gap-2 d-md-flex justify-content-md-end">
                 <div class="col-md-7"></div>
                 <div class="col-md-5">
-                    <a href="{% url 'payments_plan_add' %}" class="btn btn-warning" name="btn_add">ADD NEW REQUEST</a>
+                    <div class="btn-group">
+                      <button type="button" class="btn btn-warning dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                        ADD >>
+                      </button>
+                      <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{% url 'payments_plan_add' %}">New payment request</a></li>
+                        <li><a class="dropdown-item" href="{% url 'payments_plan_series' %}">New constant flow series</a></li>
+                        <li><a class="dropdown-item" href="#">New credit flow series</a></li>
+                      </ul>
+                    </div>
                     <a href="{% url 'payments_plan_upload_file' %}" class="btn btn-warning" name="btn_add">IMPORT FROM FILE</a>
                     <button  class="btn btn-warning" name="btn_to_file">SAVE TO FILE</button>
                 </div>

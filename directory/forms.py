@@ -12,7 +12,7 @@ class OrganizationAdd(ModelForm):
     class Meta:
         model = Organization
         fields = ('organization', 'comments')
-        widgets = {'comments': Textarea(attrs={'cols': 60, 'rows': 6})}
+        widgets = {'comments': Textarea(attrs={'cols': 60, 'rows': 3})}
 
 
 class ProjectAdd(ModelForm):

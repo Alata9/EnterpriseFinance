@@ -5,7 +5,7 @@ from django.forms import ModelForm, DateInput, Textarea, HiddenInput, DateField,
 from dynamic_forms import DynamicField, DynamicFormMixin
 
 from directory.models import PaymentAccount, Project
-from receipts.models import IncomeGroup, IncomeItem, Receipts, ReceiptsPlan
+from receipts.models import IncomeGroup, IncomeItem, Receipts, ReceiptsPlan, ChangePayAccount
 
 
 class IncomeGroupAdd(ModelForm):
@@ -183,6 +183,45 @@ class ReceiptsPlanFilter(ModelForm):
         self.fields['item'].queryset = self.fields['item'].queryset.order_by('income_item')
         self.fields['project'].queryset = self.fields['project'].queryset.order_by('project')
 
+
+class ChangePayAccountAdd(ModelForm):
+    class Meta:
+        model = ChangePayAccount
+        fields = ('pay_account_from', 'pay_account_to', 'date', 'amount', 'currency')
+        widgets = {'date': DateInput(attrs={'type': 'Date'})}
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['pay_account_from'].empty_label = ''
+        self.fields['pay_account_from'].label = 'From'
+        self.fields['pay_account_to'].empty_label = ''
+        self.fields['pay_account_to'].label = 'To'
+        self.fields['currency'].empty_label = ''
+
+
+class ChangePayAccountFilter(ModelForm):
+    class Meta:
+        model = ChangePayAccount
+        fields = ['pay_account_from', 'pay_account_to', 'amount', 'currency', 'date']
+        widgets = {
+            'date': DateInput(attrs={'type': 'Date'}),
+            'date_end': DateInput(attrs={'type': 'Date'}),
+        }
+    date_end = DateField(label="To", widget=DateInput(attrs={'type': 'date'}), required=False)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['pay_account_from'].label = 'Account from:'
+        self.fields['pay_account_from'].empty_label = ''
+        self.fields['pay_account_from'].required = False
+        self.fields['pay_account_to'].label = 'Account to:'
+        self.fields['pay_account_to'].empty_label = ''
+        self.fields['pay_account_to'].required = False
+        self.fields['date'].label = 'From'
+        self.fields['date'].required = False
+        self.fields['date_end'].required = False
+        self.fields['currency'].empty_label = ''
+        self.fields['currency'].required = False
 
 
 class UploadFile(Form):

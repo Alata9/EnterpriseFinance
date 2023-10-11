@@ -9,8 +9,9 @@ from django.views import View
 from django.views.generic import UpdateView, DeleteView, ListView, FormView
 
 from directory.models import Organization, PaymentAccount, Currencies, Counterparties, Project
-from receipts.forms import IncomeGroupAdd, IncomeItemAdd, ReceiptsFilter, ReceiptsAdd, UploadFile
-from receipts.models import IncomeGroup, IncomeItem, Receipts
+from receipts.forms import IncomeGroupAdd, IncomeItemAdd, ReceiptsFilter, ReceiptsAdd, UploadFile, \
+    ChangePayAccountFilter, ChangePayAccountAdd
+from receipts.models import IncomeGroup, IncomeItem, Receipts, ChangePayAccount
 from registers.models import AccountSettings
 
 import csv
@@ -202,6 +203,61 @@ class ReceiptsDeleteView(DeleteView):
     success_url = '/receipts'
     template_name = 'receipts/receipts_delete.html'
 
+
+class ChangePayAccountView(ListView):
+    model = ChangePayAccount
+    template_name = 'receipts/change_payaccounts.html'
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        ctx = super().get_context_data(object_list=None, **kwargs)
+        ctx['form'] = ChangePayAccountFilter()
+        return ctx
+
+    @staticmethod
+    def changes_queryset(request):
+        changes = ChangePayAccount.objects.all()
+
+        form = ChangePayAccountFilter(request.GET)
+        if form.is_valid():
+            if form.cleaned_data['date']:
+                changes = changes.filter(date__gte=form.cleaned_data['date'])
+            if form.cleaned_data['date_end']:
+                changes = changes.filter(date__lte=form.cleaned_data['date_end'])
+            if form.cleaned_data['pay_account_from']:
+                changes = changes.filter(pay_account_from=form.cleaned_data['pay_account_from'])
+            if form.cleaned_data['pay_account_to']:
+                changes = changes.filter(pay_account_to=form.cleaned_data['pay_account_to'])
+
+        return changes
+
+    @staticmethod
+    def htmx_list(request):
+        context = {'object_list': ChangePayAccountView.changes_queryset(request)}
+
+        return render(request, 'receipts/change_payaccount_list.html', context=context)
+
+
+class ChangePayAccountIdView(UpdateView):  # доработка
+    model = ChangePayAccount
+    template_name = 'receipts/change_payaccount_id.html'
+    form_class = ChangePayAccountAdd
+    success_url = '/change_payaccounts'
+
+    def get_object(self, queryset=None):
+        if 'pk' in self.kwargs:
+            return super().get_object(queryset)
+
+        if 'from_pk' in self.kwargs:
+            obj = self.model.objects.get(pk=self.kwargs['from_pk'])
+            obj.id = None
+            return obj
+
+
+class ChangePayAccountDeleteView(DeleteView):
+    error = ''
+    model = ChangePayAccount
+    success_url = '/change_payaccounts'
+    template_name = 'receipts/change_payaccount_delete.html'
 
 
 class UploadFileView(FormView):
