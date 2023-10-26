@@ -10,23 +10,28 @@
         <th align="center">currency</th>
         <th align="center">is_cash</th>
         <th align="center">comments</th>
-        <th align="center">edit | copy  |  del</th>
+        <th align="center">edit | copy  |  to fact  |  del</th>
     </tr>
     {% for i in object_list %}
     <tr>
         <td width="50">{{i.organization}}</td>
         <td width="100">{% if i.project != None %}{{ i.project }}{% endif %}</td>
-        <td width="200">{{i.item}}</td>
-        <td width="200">{{i.counterparty}}</td>
+        <td width="100">{{i.item}}</td>
+        <td width="100">{{i.counterparty}}</td>
         <td width="50">{{i.date|date:"d.m.Y"}}</td>
         <td width="50" align="right">{{i.amount}}</td>
         <td width="50">{{i.currency}}</td>
         <td width="100">{% if i.is_cash %}<i class="bi bi-check2-square"></i>{% endif %}</td>
-        <td width="200">{% if i.comments != None %}{{ i.comments }}{% endif %}</td>
-        <td width="10" align="center" style='white-space: nowrap'>
-            <a href="{% url 'receipts_plan_id' i.id %}" class='btn btn-warning btn-sm'><i class="bi bi-pencil-square"></i></a>
-            <a href="{% url 'receipts_plan_copy' i.id %}" class='btn btn-warning btn-sm'><i class="bi bi-files"></i></a>
-            <a href="{% url 'receipts_plan_delete' i.id %}" class='btn btn-warning btn-sm'><i class="bi bi-trash3"></i></a>
+        <td width="100">{% if i.comments != None %}{{ i.comments }}{% endif %}</td>
+        <td width="50" align="center" style='white-space: nowrap'>
+            <a href="{% url 'receipts_plan_id' i.id %}" class='btn btn-warning btn-sm' data-bs-toggle="tooltip"
+               data-bs-placement="top" title="Edit"><i class="bi bi-pencil-square"></i></a>
+            <a href="{% url 'receipts_plan_copy' i.id %}" class='btn btn-warning btn-sm' data-bs-toggle="tooltip"
+               data-bs-placement="top" title="Copy"><i class="bi bi-files"></i></a>
+            <a href="{% url 'receipts_add_plan' i.id %}" class='btn btn-warning btn-sm' data-bs-toggle="tooltip"
+               data-bs-placement="top" title="to fact"><i class="bi bi-file-earmark-arrow-up"></i></a>
+            <a href="{% url 'receipts_plan_delete' i.id %}" class='btn btn-warning btn-sm' data-bs-toggle="tooltip"
+               data-bs-placement="top" title="Delete"><i class="bi bi-trash3"></i></a>
          </td>
     </tr>
     {% endfor %}

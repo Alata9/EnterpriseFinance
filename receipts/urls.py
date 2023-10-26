@@ -22,6 +22,7 @@ urlpatterns = [
 
     path('receipts/<int:pk>', ReceiptsIdView.as_view(), name='receipts_id'),
     path('receipts/add/', ReceiptsIdView.as_view(), name='receipts_add'),
+    path('receipts/add/<int:plan_id>', ReceiptsIdView.as_view(), name='receipts_add_plan'),
     path('receipts/copy/<int:from_pk>', ReceiptsIdView.as_view(), name='receipts_copy'),
     path('receipts/', ReceiptsView.as_view(), name='receipts'),
     path('<int:pk>/receipts_delete', ReceiptsDeleteView.as_view(), name='receipts_delete'),

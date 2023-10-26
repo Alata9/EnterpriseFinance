@@ -182,6 +182,9 @@ class ReceiptsIdView(UpdateView):
             obj.id = None
             return obj
 
+        if 'plan_id' in self.kwargs:
+            return self.model.from_plan(self.kwargs['plan_id'])
+
         org = AccountSettings.load().organization()
         return self.model(organization=org)
 

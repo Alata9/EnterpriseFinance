@@ -50,6 +50,20 @@ class Receipts(models.Model):
     def __str__(self):
         return f'{self.date}, {self.counterparty}, {self.item}, {self.amount} {self.currency}'
 
+    @classmethod
+    def from_plan(cls, plan_id):
+        obj = ReceiptsPlan.objects.get(pk=plan_id)
+        return cls(
+            organization=obj.organization,
+            date=obj.date,
+            amount=obj.amount,
+            currency=obj.currency,
+            project=obj.project,
+            counterparty=obj.counterparty,
+            item=obj.item,
+            comments=obj.comments
+        )
+
     class Meta:
         ordering = ['organization', 'date', 'item']
         verbose_name = 'Receipt'

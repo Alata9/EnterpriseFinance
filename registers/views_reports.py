@@ -1,8 +1,8 @@
 import datetime
+import decimal
 
 import numpy as np
 import pandas as pd
-import pretty_html_table
 
 from django.db.models import Sum
 from django.http import HttpResponse
@@ -30,25 +30,23 @@ class AccountSettingsView(UpdateView):
         return self.model.load()
 
 
-
-
 class AccountBalancesView(ListView):
     model = PaymentAccount
     template_name = 'registers/account_balances.html'
 
     def get_context_data(self, *, object_list=None, **kwargs):
-        ctx = {'object_list': AccountBalancesView.account_balances_queryset(self.request),
-               'form': AccountBalancesFilter()}
+        ctx = {
+            'object_list': self.account_balances_queryset(self.request),
+            'form': AccountBalancesFilter()}
         return ctx
 
     @staticmethod
-    def account_balances_queryset(self, request):
+    def account_balances_queryset(request):
         accounts = PaymentAccount.objects.all()
         receipts = Receipts.objects.all()
         receipts_before = Receipts.objects.all()
         payments = Payments.objects.all()
         payments_before = Payments.objects.all()
-
 
         form = AccountBalancesFilter(request.GET)
         if form.is_valid():
@@ -57,7 +55,7 @@ class AccountBalancesView(ListView):
             if form.cleaned_data['currency']:
                 accounts = accounts.filter(currency=form.cleaned_data['currency'])
             if form.cleaned_data['is_cash']:
-                accounts = accounts.filter(is_cash=form.cleaned_data['is_cash'])
+                accounts = accounts.filter(is_cash=True)
             if form.cleaned_data['date_start']:
                 receipts = receipts.filter(date__gte=form.cleaned_data['date_start'])
                 payments = payments.filter(date__gte=form.cleaned_data['date_start'])
@@ -70,12 +68,12 @@ class AccountBalancesView(ListView):
                 receipts = receipts.filter(date__lte=form.cleaned_data['date_end'])
                 payments = payments.filter(date__lte=form.cleaned_data['date_end'])
 
-        # account_balances = self.get_balances(self.accounts,
-        #                                   self.receipts, self.payments,
-        #                                   self.receipts_before, self.payments_before),
-        # balances_convert = self.get_balances_convert(self.accounts,
-        #                                           self.receipts_sum, self.payments_sum,
-        #                                           self.receipts_before_sum, self.payments_before_sum)
+        account_balances, balances_convert = AccountBalancesView.get_balances(
+            accounts, receipts, payments, receipts_before, payments_before)
+        return {
+            "account_balances": account_balances,
+            "balances_convert": balances_convert,
+        }
 
 
     @staticmethod
@@ -84,11 +82,21 @@ class AccountBalancesView(ListView):
 
         return render(request, 'registers/account_balances_list.html', context=context)
 
-
-
-    def get_balances(self, accounts, receipts, payments, receipts_before, payments_before):
+    @staticmethod
+    def get_balances(accounts, receipts, payments, receipts_before, payments_before):
+        main_currency = AccountSettings.load().currency()
         account_balances = []
+        balances_convert = []
+        open_balance_sum_convert = 0
+        receipts_before_sum_convert = 0
+        payments_before_sum_convert = 0
+        receipts_sum_convert = 0
+        payments_sum_convert = 0
+
         for account in accounts:
+            rate = AccountBalancesView.get_rate(account.currency, main_currency)
+            print(rate)
+
             receipts_sum = receipts.filter(account=account).aggregate(Sum("amount")).get('amount__sum', 0.00)
             if receipts_sum is None:
                 receipts_sum = 0
@@ -114,58 +122,36 @@ class AccountBalancesView(ListView):
                                      'currency': account.currency.code, 'is_cash': account.is_cash,
                                      'start_balance': int(start_balance), 'receipts_sum': int(receipts_sum),
                                      'payments_sum': int(payments_sum), 'final_balance': int(final_balance)})
-            print(account_balances)
-            return account_balances
+
+            open_balance_sum_convert += account.open_balance / rate
+            receipts_sum_convert += receipts_sum / rate
+            payments_sum_convert += payments_sum / rate
+            receipts_before_sum_convert += receipts_before_sum / rate
+            payments_before_sum_convert += payments_before_sum / rate
+
+        start_balance_convert = open_balance_sum_convert + receipts_before_sum_convert - payments_before_sum_convert
+        final_balance_convert = start_balance_convert + receipts_sum_convert - payments_sum_convert
+
+        balances_convert.append({'currency': main_currency,
+                                 'start_balance': int(start_balance_convert),
+                                 'receipts_sum': int(receipts_sum_convert),
+                                 'payments_sum': int(payments_sum_convert),
+                                 'final_balance': int(final_balance_convert)})
 
 
-    def get_rate(self, cur):
-        main_currency = AccountSettings.load().currency()
-        rates = CurrenciesRates.objects.all()
+        return account_balances, balances_convert
 
-        return rates.filter(accounting_currency=main_currency, currency=cur).latest('rate')
+    @staticmethod                                               #add a condition for the absence of a pair of currencies
+    def get_rate(cur, main_currency):
+        if cur == main_currency:
+            return decimal.Decimal(1)
+        try:
+            rate = CurrenciesRates.objects.filter(accounting_currency=main_currency, currency=cur,
+                                                  date__lte=datetime.datetime.now()).order_by('-date')[:1].first().rate
+        except:
+            rate = decimal.Decimal(1)
 
-
-    def get_balances_convert(self, accounts, receipts_sum, payments_sum, receipts_before_sum, payments_before_sum):
-        main_currency = AccountSettings.load().currency()
-
-        balances_convert = []
-        open_balance_sum_convert = 0
-        receipts_before_sum_convert = 0
-        payments_before_sum_convert = 0
-        receipts_sum_convert = 0
-        payments_sum_convert = 0
-
-        for account in accounts:
-            open_balance_convert = account.open_balance * self.get_rate(account.currency) \
-                if account.currency != main_currency else account.open_balance
-            open_balance_sum_convert += open_balance_convert
-
-            receipts_convert = receipts_sum * self.get_rate(account.currency) \
-                if account.currency != main_currency else receipts_sum
-            receipts_sum_convert += receipts_convert
-
-            payments_convert = payments_sum * self.get_rate(account.currency) \
-                if account.currency != main_currency else payments_sum
-            payments_sum_convert += payments_convert
-
-            receipts_before_convert = receipts_before_sum * self.get_rate(account.currency) \
-                if account.currency != main_currency else receipts_before_sum
-            receipts_before_sum_convert += receipts_before_convert
-
-            payments_before_convert = payments_before_sum * self.get_rate(account.currency) \
-                if account.currency != main_currency else payments_before_sum
-            payments_before_sum_convert += payments_before_convert
-
-            start_balance_convert = open_balance_sum_convert + receipts_before_sum_convert - payments_before_sum_convert
-            final_balance_convert = start_balance_convert + receipts_sum_convert - payments_sum_convert
-
-            balances_convert.append({'currency': main_currency,
-                    'start_balance': int(start_balance_convert), 'receipts_sum': int(receipts_sum_convert),
-                    'payments_sum': int(payments_sum_convert), 'final_balance': int(final_balance_convert)})
-
-        print(balances_convert)
-        return balances_convert
-
+        return rate
 
 
 

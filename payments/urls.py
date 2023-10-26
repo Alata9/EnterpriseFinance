@@ -25,6 +25,7 @@ urlpatterns = [
     path('payments/list', PaymentsView.htmx_list, name='payments_list'),
     path('payments/<int:pk>', PaymentsIdView.as_view(), name='payments_id'),
     path('payments/add/', PaymentsIdView.as_view(), name='payments_add'),
+    path('payments/add/<int:plan_id>', PaymentsIdView.as_view(), name='payments_add_plan'),
     path('payments/copy/<int:from_pk>', PaymentsIdView.as_view(), name='payments_copy'),
     path('<int:pk>/payments_delete', PaymentsDeleteView.as_view(), name='payments_delete'),
     path('payments/upload_file', UploadFileView.as_view(), name='upload_file'),

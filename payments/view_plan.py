@@ -70,7 +70,7 @@ class PaymentsPlanView(ListView):
             if form.cleaned_data['project']:
                 payments_pl = payments_pl.filter(project=form.cleaned_data['project'])
             if form.cleaned_data['is_cash']:
-                payments_pl = payments_pl.filter(account=form.cleaned_data['is_cash'])
+                payments_pl = payments_pl.filter(is_cash=True)
             if form.cleaned_data['currency']:
                 payments_pl = payments_pl.filter(currency=form.cleaned_data['currency'])
             if form.cleaned_data['ordering']:
@@ -115,7 +115,7 @@ class PaymentsPlanSeriesView(ListView):
     model = PaymentsPlan
     template_name = 'payments/payments_plan_series.html'
     form_class = PaymentsPlanSeriesAdd
-    success_url = '/payments_plan'
+    success_url = '/payments_plan_series'
 
     def get_context_data(self, *, object_list=None, **kwargs):
         ctx = super().get_context_data(object_list=None, **kwargs)
@@ -130,14 +130,14 @@ class PaymentsPlanSeriesView(ListView):
     def series_queryset(request):
         payments_pl = PaymentsPlan.objects.all()
         form = PaymentsPlanSeriesAdd(request.POST)
-        frequency_list = {'annually': 365, 'monthly': 30, 'weekly': 7, 'daily': 1}
+        # frequency_list = {'annually': 365, 'monthly': 30, 'weekly': 7, 'daily': 1}
         if form.is_valid():
-            quentety = form.cleaned_data['quentety']
-            frequency = form.cleaned_data['frequency']
+            # quantety = form.cleaned_data['quantety']
+            # frequency = form.cleaned_data['frequency']
 
-            for i in range(quentety):
-                date = form.cleaned_data['date']
-                i = PaymentsPlan(
+            series = []
+            for i in range(10):
+                plan = PaymentsPlan(
                     organization=form.cleaned_data['organization'],
                     counterparty=form.cleaned_data['counterparty'],
                     item=form.cleaned_data['item'],
@@ -145,12 +145,13 @@ class PaymentsPlanSeriesView(ListView):
                     amount=form.cleaned_data['amount'],
                     currency=form.cleaned_data['currency'],
                     is_cash=form.cleaned_data['is_cash'],
-                    date=date,
+                    name_series=form.cleaned_data['name_series'],
+                    date=form.cleaned_data['date'],
                 )
-                i.save()
-                date += frequency_list.get(frequency)
+                series.append(plan)
+            PaymentsPlan.objects.bulk_create(series)
 
-            return super().form_valid(form)
+            # return super().form_valid(form)
 
         return payments_pl
 

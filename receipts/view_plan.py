@@ -70,7 +70,7 @@ class ReceiptsPlanView(ListView):
             if form.cleaned_data['project']:
                 receipts_pl = receipts_pl.filter(project=form.cleaned_data['project'])
             if form.cleaned_data['is_cash']:
-                receipts_pl = receipts_pl.filter(account=form.cleaned_data['is_cash'])
+                receipts_pl = receipts_pl.filter(is_cash=True)
             if form.cleaned_data['currency']:
                 receipts_pl = receipts_pl.filter(currency=form.cleaned_data['currency'])
             if form.cleaned_data['ordering']:

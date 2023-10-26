@@ -38,6 +38,7 @@ class PaymentsPlan(models.Model):
     project = models.ForeignKey(Project, on_delete=models.PROTECT, blank=False, null=True)
     counterparty = models.ForeignKey(Counterparties, on_delete=models.PROTECT, blank=True)
     item = models.ForeignKey(ExpensesItem, on_delete=models.PROTECT, blank=True)
+    name_series = models.CharField(max_length=100, unique=True, blank=True, null=True)
     comments = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
@@ -67,6 +68,21 @@ class Payments(models.Model):
     def __str__(self):
         return f'{self.date}, {self.counterparty}, {self.item}, {self.amount}, {self.currency}'
 
+    @classmethod
+    def from_plan(cls, plan_id):
+        obj = PaymentsPlan.objects.get(pk=plan_id)
+        return cls(
+            organization=obj.organization,
+            date=obj.date,
+            amount=obj.amount,
+            currency=obj.currency,
+            project=obj.project,
+            counterparty=obj.counterparty,
+            item=obj.item,
+            comments=obj.comments
+        )
+
+
     class Meta:
         ordering = ['organization', 'date', 'item']
         verbose_name = 'Payment'
@@ -74,5 +90,31 @@ class Payments(models.Model):
 
     def get_absolute_url(self):
         return '/payments'
+
+
+class Calculations(models.Model):
+    TypeCalculation = (
+        ('constant', 'Constant payments'),
+        ('annuity', 'Credit: annuity'),
+        ('differential', 'Credit: differentiated'),
+    )
+
+    Frequency = (
+        ('annually', 'annually'),
+        ('monthly', 'monthly'),
+        ('weekly', 'weekly'),
+        ('daily', 'daily'),
+    )
+    type_calc = models.CharField(max_length=200, choices=TypeCalculation, blank=False)
+    name = models.CharField(max_length=100, blank=True, unique=True)
+    organization = models.ForeignKey(Organization, on_delete=models.PROTECT, blank=False)
+    counterparty = models.ForeignKey(Counterparties, on_delete=models.PROTECT, blank=False)
+    project = models.ForeignKey(Project, on_delete=models.PROTECT, blank=True, null=True)
+    is_cash = models.BooleanField(blank=False, default=False)
+    currency = models.ForeignKey(Currencies, on_delete=models.PROTECT, blank=False)
+    comments = models.CharField(max_length=250, blank=True, null=True)
+    amount = models.DecimalField(max_digits=15, decimal_places=2, blank=False)
+    item = models.ForeignKey(ExpensesItem, on_delete=models.PROTECT, blank=False)
+
 
 

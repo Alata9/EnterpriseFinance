@@ -12,7 +12,7 @@
         </tr>
     </thead>
     <tbody>
-    {% for i in account_balances %}
+    {% for i in object_list.account_balances %}
         <tr>
             <td width="100">{{i.organization}}</td>
             <td width="200">{{i.account}}</td>
@@ -26,15 +26,15 @@
     {% endfor %}
     </tbody>
     <tfoot>
-    {% for i in balances_convert %}
-        <tr>
+    {% for i in object_list.balances_convert %}
+        <tr style="font-weight: bold">
             <td colspan="2">Total in main accounting currency</td>
             <td width="100">{{i.currency}}</td>
             <td width="100"></td>
-            <td width="10" align="right">{{i.start_balance_convert}}</td>
-            <td width="10" align="right">{{i.receipts_sum_convert}}</td>
-            <td width="10" align="right">{{i.payments_sum_convert}}</td>
-            <td width="10" align="right">{{i.final_balance_convert}}</td>
+            <td width="10" align="right">{{i.start_balance}}</td>
+            <td width="10" align="right">{{i.receipts_sum}}</td>
+            <td width="10" align="right">{{i.payments_sum}}</td>
+            <td width="10" align="right">{{i.final_balance}}</td>
         </tr>
     {% endfor %}
     </tfoot>
