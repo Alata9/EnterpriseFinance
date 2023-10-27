@@ -29,6 +29,39 @@ class ExpensesItem(models.Model):
         verbose_name = 'Expense item'
         verbose_name_plural = 'Expense items'
 
+
+class Calculations(models.Model):
+    TypeCalculation = (
+        ('', ''),
+        ('constant', 'Constant payments'),
+        ('annuity', 'Credit: annuity'),
+        ('differential', 'Credit: differentiated'),
+    )
+
+    Frequency = (
+        ('', ''),
+        ('annually', 'annually'),
+        ('monthly', 'monthly'),
+        ('weekly', 'weekly'),
+        ('daily', 'daily'),
+    )
+    type_calc = models.CharField(max_length=200, choices=TypeCalculation, blank=True)
+    name = models.CharField(max_length=100, blank=True, unique=True)
+    organization = models.ForeignKey(Organization, on_delete=models.PROTECT, blank=True)
+    counterparty = models.ForeignKey(Counterparties, on_delete=models.PROTECT, blank=True)
+    project = models.ForeignKey(Project, on_delete=models.PROTECT, blank=False, null=False)
+    is_cash = models.BooleanField(blank=True, default=False)
+    currency = models.ForeignKey(Currencies, on_delete=models.PROTECT, blank=True)
+    comments = models.CharField(max_length=250, blank=True, null=True)
+    item = models.ForeignKey(ExpensesItem, on_delete=models.PROTECT, blank=True)
+    date_first = models.DateField(blank=True)
+    amount = models.DecimalField(max_digits=15, decimal_places=2, blank=True)
+    term = models.IntegerField(blank=True, null=True)
+    frequency = models.CharField(max_length=200, choices=Frequency, blank=True, null=True)
+    loan_rate = models.DecimalField(max_digits=15, decimal_places=2, blank=True, null=True)
+
+
+
 class PaymentsPlan(models.Model):
     organization = models.ForeignKey(Organization, on_delete=models.PROTECT, blank=True, null=True)
     date = models.DateField(blank=True)
@@ -38,7 +71,7 @@ class PaymentsPlan(models.Model):
     project = models.ForeignKey(Project, on_delete=models.PROTECT, blank=False, null=True)
     counterparty = models.ForeignKey(Counterparties, on_delete=models.PROTECT, blank=True)
     item = models.ForeignKey(ExpensesItem, on_delete=models.PROTECT, blank=True)
-    name_series = models.CharField(max_length=100, unique=True, blank=True, null=True)
+    calculation = models.ForeignKey(Calculations, on_delete=models.PROTECT, blank=True, null=True)
     comments = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
@@ -92,29 +125,7 @@ class Payments(models.Model):
         return '/payments'
 
 
-class Calculations(models.Model):
-    TypeCalculation = (
-        ('constant', 'Constant payments'),
-        ('annuity', 'Credit: annuity'),
-        ('differential', 'Credit: differentiated'),
-    )
 
-    Frequency = (
-        ('annually', 'annually'),
-        ('monthly', 'monthly'),
-        ('weekly', 'weekly'),
-        ('daily', 'daily'),
-    )
-    type_calc = models.CharField(max_length=200, choices=TypeCalculation, blank=False)
-    name = models.CharField(max_length=100, blank=True, unique=True)
-    organization = models.ForeignKey(Organization, on_delete=models.PROTECT, blank=False)
-    counterparty = models.ForeignKey(Counterparties, on_delete=models.PROTECT, blank=False)
-    project = models.ForeignKey(Project, on_delete=models.PROTECT, blank=True, null=True)
-    is_cash = models.BooleanField(blank=False, default=False)
-    currency = models.ForeignKey(Currencies, on_delete=models.PROTECT, blank=False)
-    comments = models.CharField(max_length=250, blank=True, null=True)
-    amount = models.DecimalField(max_digits=15, decimal_places=2, blank=False)
-    item = models.ForeignKey(ExpensesItem, on_delete=models.PROTECT, blank=False)
 
 
 

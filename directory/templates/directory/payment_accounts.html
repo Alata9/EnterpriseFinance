@@ -39,8 +39,8 @@
                     <td width="60" align="right">{{i.open_balance}}</td>
                     <td width="100">{% if i.comments != None %}{{i.comments}}{% endif %}</td>
                     <td width="60" align="center">
-                        <a href="{% url 'payment_account_id' i.id %}" class='btn btn-info btn-sm'><i class="bi bi-pencil-square"></i></a>
-                        <a href="{% url 'payment_account_del' i.id %}" class='btn btn-info btn-sm'><i class="bi bi-trash3"></i></a>
+                        <a href="{% url 'payment_account_id' i.id %}" class='btn btn-info btn-xs'><i class="bi bi-pencil-square"></i></a>
+                        <a href="{% url 'payment_account_del' i.id %}" class='btn btn-info btn-xs'><i class="bi bi-trash3"></i></a>
                     </td>
                 </tr>
                 {% endfor %}

@@ -7,12 +7,16 @@
 <div class="container-fluid px-10">
     <form  method='POST'>
         {% csrf_token %}
-        <div class="row">
+        <div class="row text-center">
+            <h2>New series of constant payments</h2>
+            <br>
+            <div class="col-md-3 border p-2 shadow"></div>
             <div class="col-md-3 border p-2 shadow">
-                <h3>Source data for the series</h3>
                 <div class="form-group">
-<!--                    <div class="col-md-12 form-group">{{ form.name_series|as_crispy_field }}</div>-->
-                     {% render_field form.name_series class="select form-control" %}
+                    {% render_field form.name class="select form-control" %}
+                </div>
+                <div class="form-group">
+                    {% render_field form.type_calc class="select form-control" %}
                 </div>
                 <div id="div_id_organization"
                      class="form-group"
@@ -21,18 +25,6 @@
                      hx-trigger="change"
                      hx-target="#id_project">
                 {% render_field form.organization class="select form-control" hx-get="/payments_plan/series/project" hx-trigger="change" hx-target="#id_account" %}
-                </div>
-                <div class="row">
-                    <div class="col-md-6 form-group">{{ form.date|as_crispy_field }}</div>
-                    <div class="col-md-6 form-group">{{ form.amount|as_crispy_field }}</div>
-                </div>
-                <div class="row">
-                    <div class="col-md-6 form-group">{{ form.frequency|as_crispy_field }}</div>
-                    <div class="col-md-6 form-group">{{ form.term|as_crispy_field }}</div>
-                </div>
-                <div class="row text-left">
-                    <div class="col-md-8 form-group">{% render_field form.currency class="select form-control" %}</div>
-                    <div class="col-md-4 form-group">{{ form.is_cash|as_crispy_field }}</div>
                 </div>
                 <div class="form-group">
                     {% render_field form.counterparty class="select form-control" %}
@@ -43,20 +35,28 @@
                 <div class="form-group">
                     {% render_field form.item class="select form-control" %}
                 </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="row">
+                    <div class="col-md-6 form-group">{{ form.date_first|as_crispy_field }}</div>
+                    <div class="col-md-6 form-group">{{ form.amount|as_crispy_field }}</div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 form-group">{{ form.frequency|as_crispy_field }}</div>
+                    <div class="col-md-6 form-group">{{ form.term|as_crispy_field }}</div>
+                </div>
+                <div class="row text-left">
+                    <div class="col-md-8 form-group">{% render_field form.currency class="select form-control" %}</div>
+                    <div class="col-md-4 form-group">{{ form.is_cash|as_crispy_field }}</div>
+                </div>
                 <div  class="form-group">{% render_field form.comments class="select form-control" %}</div>
                 <div class="row">
                     <div class="col-md-12">
-<!--                        <button class="btn btn-warning" type="submit" name="btn_show">SHOW REQUEST</button>-->
                         <button class="btn btn-warning" type="submit" name="btn_save">SAVE ALL</button>
                         <a href="/payments_plan" class='btn btn-warning'>CANCEL</a>
                     </div>
                 </div>
-            </div>
-            <div class="col-md-9">
-                <h3>Series of payment requests</h3>
-                <div class="table-responsive" style="height: 550px">
-                {% include "payments/series_list.html" %}
-            </div>
             </div>
         </div>
     </form>

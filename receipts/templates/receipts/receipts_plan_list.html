@@ -1,5 +1,5 @@
 
-<table class="table table-sm table-scroll table-striped" id="id_table" >
+<table class="table table-condensed table-scroll table-striped" id="id_table" >
     <tr>
         <th align="center">organization</th>
         <th align="center">project</th>
@@ -10,7 +10,7 @@
         <th align="center">currency</th>
         <th align="center">is_cash</th>
         <th align="center">comments</th>
-        <th align="center">edit | copy  |  to fact  |  del</th>
+        <th align="center"></th>
     </tr>
     {% for i in object_list %}
     <tr>
@@ -24,13 +24,13 @@
         <td width="100">{% if i.is_cash %}<i class="bi bi-check2-square"></i>{% endif %}</td>
         <td width="100">{% if i.comments != None %}{{ i.comments }}{% endif %}</td>
         <td width="50" align="center" style='white-space: nowrap'>
-            <a href="{% url 'receipts_plan_id' i.id %}" class='btn btn-warning btn-sm' data-bs-toggle="tooltip"
+            <a href="{% url 'receipts_plan_id' i.id %}" class='btn btn-warning btn-xs' data-bs-toggle="tooltip"
                data-bs-placement="top" title="Edit"><i class="bi bi-pencil-square"></i></a>
-            <a href="{% url 'receipts_plan_copy' i.id %}" class='btn btn-warning btn-sm' data-bs-toggle="tooltip"
+            <a href="{% url 'receipts_plan_copy' i.id %}" class='btn btn-warning btn-xs' data-bs-toggle="tooltip"
                data-bs-placement="top" title="Copy"><i class="bi bi-files"></i></a>
-            <a href="{% url 'receipts_add_plan' i.id %}" class='btn btn-warning btn-sm' data-bs-toggle="tooltip"
+            <a href="{% url 'receipts_add_plan' i.id %}" class='btn btn-warning btn-xs' data-bs-toggle="tooltip"
                data-bs-placement="top" title="to fact"><i class="bi bi-file-earmark-arrow-up"></i></a>
-            <a href="{% url 'receipts_plan_delete' i.id %}" class='btn btn-warning btn-sm' data-bs-toggle="tooltip"
+            <a href="{% url 'receipts_plan_delete' i.id %}" class='btn btn-warning btn-xs' data-bs-toggle="tooltip"
                data-bs-placement="top" title="Delete"><i class="bi bi-trash3"></i></a>
          </td>
     </tr>

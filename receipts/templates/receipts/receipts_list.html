@@ -1,6 +1,6 @@
 
 
-<table class='table table-fixed table-sm table-scroll table-striped' id="id_table">
+<table class='table table-fixed table-condensed table-scroll table-striped' id="id_table">
     <thead>
         <tr>
             <th align="center">organization</th>
@@ -12,7 +12,7 @@
             <th align="center">item</th>
             <th align="center">project</th>
             <th align="center">comments</th>
-            <th align="center">edit | copy  |  del</th>
+            <th align="center"></th>
         </tr>
     </thead>
     <tbody class="cart">
@@ -28,9 +28,9 @@
             <td data-type="string" width="100">{% if i.project != None %}{{ i.project }}{% endif %}</td>
             <td data-type="string" width="200">{% if i.comments != None %}{{ i.comments }}{% endif %}</td>
              <td width="10" align="center" style='white-space: nowrap'>
-                <a href="{% url 'receipts_id' i.id %}" class='btn btn-info btn-sm'><i class="bi bi-pencil-square"></i></a>
-                <a href="{% url 'receipts_copy' i.id %}" class='btn btn-info btn-sm'><i class="bi bi-files"></i></a>
-                <a href="{% url 'receipts_delete' i.id %}" class='btn btn-info btn-sm'><i class="bi bi-trash3"></i></a>
+                <a href="{% url 'receipts_id' i.id %}" class='btn btn-info btn-xs'><i class="bi bi-pencil-square"></i></a>
+                <a href="{% url 'receipts_copy' i.id %}" class='btn btn-info btn-xs'><i class="bi bi-files"></i></a>
+                <a href="{% url 'receipts_delete' i.id %}" class='btn btn-info btn-xs'><i class="bi bi-trash3"></i></a>
              </td>
         </tr>
         {% endfor %}

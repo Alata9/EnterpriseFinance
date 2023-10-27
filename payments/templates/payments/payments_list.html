@@ -1,5 +1,5 @@
 
-<table class="table table-sm table-scroll table-striped" id="id_table" >
+<table class="table table-condensed table-scroll table-striped" id="id_table" >
     <tr>
         <th align="center">organization</th>
         <th align="center">account</th>
@@ -11,7 +11,7 @@
         <th align="center">project</th>
         <th align="center">by request</th>
         <th align="center">comments</th>
-        <th align="center">edit | copy  |  del</th>
+        <th align="center"></th>
     </tr>
     {% for i in object_list %}
     <tr>
@@ -26,9 +26,9 @@
         <td width="100">{% if i.by_request != None %}{{ i.by_request }}{% endif %}</td>
         <td width="200">{% if i.comments != None %}{{ i.comments }}{% endif %}</td>
         <td width="10" align="center" style='white-space: nowrap'>
-            <a href="{% url 'payments_id' i.id %}" class='btn btn-info btn-sm'><i class="bi bi-pencil-square"></i></a>
-            <a href="{% url 'payments_copy' i.id %}" class='btn btn-info btn-sm'><i class="bi bi-files"></i></a>
-            <a href="{% url 'payments_delete' i.id %}" class='btn btn-info btn-sm'><i class="bi bi-trash3"></i></a>
+            <a href="{% url 'payments_id' i.id %}" class='btn btn-info btn-xs'><i class="bi bi-pencil-square"></i></a>
+            <a href="{% url 'payments_copy' i.id %}" class='btn btn-info btn-xs'><i class="bi bi-files"></i></a>
+            <a href="{% url 'payments_delete' i.id %}" class='btn btn-info btn-xs'><i class="bi bi-trash3"></i></a>
          </td>
     </tr>
     {% endfor %}

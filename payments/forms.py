@@ -5,7 +5,7 @@ from django.forms import ModelForm, DateInput, Textarea, HiddenInput, ModelChoic
 from dynamic_forms import DynamicFormMixin, DynamicField
 
 from directory.models import PaymentAccount, Project
-from payments.models import ExpenseGroup, ExpensesItem, Payments, PaymentsPlan
+from payments.models import ExpenseGroup, ExpensesItem, Payments, PaymentsPlan, Calculations
 
 
 class ExpenseGroupAdd(ModelForm):
@@ -27,8 +27,6 @@ class ExpenseItemAdd(ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['expense_group'].empty_label = ''
-
-
 
 
 class PaymentsAdd(DynamicFormMixin, ModelForm):
@@ -125,7 +123,6 @@ class PaymentsPlanAdd(DynamicFormMixin, ModelForm):
                    'comments': Textarea(attrs={'cols': 60, 'rows': 3}),
                    }
 
-
     project = DynamicField(
         ModelChoiceField,
         queryset=lambda form: Project.objects.filter(organization=form['organization'].value()),
@@ -145,23 +142,14 @@ class PaymentsPlanAdd(DynamicFormMixin, ModelForm):
         self.fields['project'].queryset = self.fields['project'].queryset.order_by('project')
 
 
-class PaymentsPlanSeriesAdd(DynamicFormMixin, ModelForm):
-    term = IntegerField(required=True)
-    cal_amount = DecimalField(max_digits=15, decimal_places=2)
-    frequency = ChoiceField(label='Frequency', required=True,
-                           choices=[
-                               ['annually', 'annually'],
-                               ['monthly', 'monthly'],
-                               ['weekly', 'weekly'],
-                               ['daily', 'daily'],
-                           ])
+class CalculationAdd(DynamicFormMixin, ModelForm):
     class Meta:
-        model = PaymentsPlan
-        fields = (
-            'organization', 'is_cash', 'date', 'amount', 'currency', 'counterparty', 'item', 'project', 'name_series', 'comments')
-        widgets = {'date': DateInput(attrs={'type': 'Date'}),
+        model = Calculations
+        fields = ('type_calc', 'name', 'organization', 'counterparty', 'item', 'project', 'date_first',
+                  'amount', 'currency', 'is_cash', 'frequency', 'loan_rate', 'term', 'comments')
+        widgets = {'date_first': DateInput(attrs={'type': 'Date'}),
                    'comments': Textarea(attrs={'cols': 60, 'rows': 1, 'placeholder': 'Comments:'}),
-                   'name_series': DateInput(attrs={'placeholder': 'Series name:'}),
+                   'name': DateInput(attrs={'placeholder': "Calculation's name:"}),
                    }
 
     project = DynamicField(
@@ -176,11 +164,12 @@ class PaymentsPlanSeriesAdd(DynamicFormMixin, ModelForm):
         self.fields['counterparty'].empty_label = 'Counterparty:'
         self.fields['item'].empty_label = 'Item:'
         self.fields['project'].empty_label = 'Project:'
-        self.fields['name_series'].required = True
+        self.fields['type_calc'].empty_label = 'Type of calculation:'
+        self.fields['frequency'].empty_label = ''
         self.fields['project'].required = False
         self.fields['is_cash'].label = 'is cash'
-        self.fields['date'].label = 'First payment day'
-        self.fields['date'].required = True
+        self.fields['date_first'].label = 'First payment day'
+        self.fields['date_first'].required = True
         self.fields['term'].label = 'Quantity of payments'
         self.fields['amount'].label = 'Regular amount'
         self.fields['counterparty'].queryset = self.fields['counterparty'].queryset.order_by('counterparty')

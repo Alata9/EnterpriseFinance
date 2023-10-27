@@ -1,7 +1,6 @@
 from django.contrib import admin
 
-from payments.models import ExpenseGroup, ExpensesItem, Payments, PaymentsPlan
-
+from payments.models import ExpenseGroup, ExpensesItem, Payments, PaymentsPlan, Calculations
 
 
 class ExpensesGroupAdmin(admin.ModelAdmin):
@@ -32,7 +31,16 @@ class PaymentsPlanAdmin(admin.ModelAdmin):
     search_fields = ['organization', 'date', 'counterparty', 'currency', 'item', 'project']
 
 
+class CalculationsAdmin(admin.ModelAdmin):
+    list_display = ['id', 'name', 'type_calc', 'organization', 'date_first', 'amount', 'currency', 'is_cash',
+                    'frequency', 'loan_rate', 'term', 'counterparty', 'item', 'project', 'comments']
+    list_display_links = ['id', 'name', 'type_calc', 'organization', 'date_first', 'amount', 'currency', 'is_cash',
+                          'frequency', 'loan_rate', 'term', 'counterparty', 'item', 'project', 'comments']
+    search_fields = ['name', 'type_calc', 'organization', 'counterparty', 'item', 'project']
+
+
 admin.site.register(ExpenseGroup, ExpensesGroupAdmin)
 admin.site.register(ExpensesItem, ExpensesItemAdmin)
 admin.site.register(Payments, PaymentsAdmin)
 admin.site.register(PaymentsPlan, PaymentsPlanAdmin)
+admin.site.register(Calculations, CalculationsAdmin)

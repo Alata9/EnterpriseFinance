@@ -8,7 +8,7 @@ from django.shortcuts import render
 from django.views.generic import DeleteView, FormView, ListView, UpdateView
 
 from directory.models import Organization, Project, Currencies, Counterparties, PaymentAccount
-from payments.forms import UploadFile, PaymentsPlanFilter, PaymentsPlanAdd, PaymentsPlanSeriesAdd, PaymentsAdd
+from payments.forms import UploadFile, PaymentsPlanFilter, PaymentsPlanAdd, CalculationAdd, PaymentsAdd
 from payments.models import PaymentsPlan, ExpensesItem, Payments
 from registers.models import AccountSettings
 
@@ -114,22 +114,22 @@ class PaymentsPlanIdView(UpdateView):
 class PaymentsPlanSeriesView(ListView):
     model = PaymentsPlan
     template_name = 'payments/payments_plan_series.html'
-    form_class = PaymentsPlanSeriesAdd
+    form_class = CalculationAdd
     success_url = '/payments_plan_series'
 
     def get_context_data(self, *, object_list=None, **kwargs):
         ctx = super().get_context_data(object_list=None, **kwargs)
-        ctx['form'] = PaymentsPlanSeriesAdd()
+        ctx['form'] = CalculationAdd()
         return ctx
 
     @staticmethod
     def htmx_projects(request):
-        form = PaymentsPlanSeriesAdd(request.GET)
+        form = CalculationAdd(request.GET)
         return HttpResponse(form["project"])
 
     def series_queryset(request):
         payments_pl = PaymentsPlan.objects.all()
-        form = PaymentsPlanSeriesAdd(request.POST)
+        form = CalculationAdd(request.POST)
         # frequency_list = {'annually': 365, 'monthly': 30, 'weekly': 7, 'daily': 1}
         if form.is_valid():
             # quantety = form.cleaned_data['quantety']

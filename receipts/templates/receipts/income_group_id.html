@@ -14,7 +14,9 @@
                         {{ form|crispy }}
                         <div class="col-md-12">
                             <button class="btn btn-info" type="submit" name="btn_add">SAVE</button>
-                            <a href="/income_groups" class='btn btn-info'>CANCEL</a>
+<!--                            <a href="/income_groups" class='btn btn-info'>CANCEL</a>-->
+                            <input action="action" onclick="window.history.go(-1); return false;"
+                                   class='btn btn-info' type="submit" value="CANCEL"/>
                         </div>
                     </div>
                 </div>
