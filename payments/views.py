@@ -22,6 +22,7 @@ def ExpensesGroupView(request):
 
     return render(request, 'payments/expenses_groups.html', context=context)
 
+
 class ExpensesGroupIdView(UpdateView):
     model = ExpenseGroup
     template_name = 'payments/expenses_group_id.html'
@@ -87,7 +88,6 @@ class ExpensesItemDeleteView(DeleteView):
                 error=f'Error: {error.protected_objects}'
             )
             return self.render_to_response(context)
-
 
 # Payments-----------------------------------
 

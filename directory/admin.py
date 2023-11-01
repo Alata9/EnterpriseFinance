@@ -11,7 +11,7 @@ class OrganizationAdmin(admin.ModelAdmin):
 
 
 class PaymentAccountAdmin(admin.ModelAdmin):
-    list_display = ['id', 'account', 'organization', 'is_cash', 'currency', 'comments', 'open_date', 'open_balance']
+    list_display = ['id', 'account', 'organization', 'is_cash', 'currency', 'comments']
     list_display_links = ['id', 'account', 'organization', 'currency', 'comments']
     search_fields = ['account', 'organization', 'is_cash']
 

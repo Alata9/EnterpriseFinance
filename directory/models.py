@@ -19,8 +19,6 @@ class PaymentAccount(models.Model):
     organization = models.ForeignKey(Organization, on_delete=models.PROTECT, blank=False, null=False)
     is_cash = models.BooleanField(blank=False)
     currency = models.ForeignKey('Currencies', on_delete=models.PROTECT, blank=False, null=False)
-    open_date = models.DateField(blank=False)
-    open_balance = models.DecimalField(max_digits=15, decimal_places=2, blank=False, default=0.00)
     comments = models.CharField(max_length=100, blank=True, null=True)
 
     def __str__(self):

@@ -18,12 +18,12 @@
     <br>
     <div class="row p-1 g-1">
         <div class="table-responsive" style="height: 500px">
-            <table class="table table-sm table-scroll table-striped table-bordered" >
+            <table class="table table-condensed table-scroll table-striped" >
                 <tr>
                     <th align="center">Organizations</th>
                     <th align="center">Project</th>
                     <th align="center">Comments</th>
-                    <th align="center">Edit  |  Del</th>
+                    <th align="center"></th>
                 </tr>
                 {% for i in projects %}
                 <tr>
@@ -31,8 +31,10 @@
                     <td width="200">{{i.project}}</td>
                     <td width="200">{% if i.comments != None %}{{i.comments}}{% endif %}</td>
                     <td width="10" align="center">
-                        <a href="{% url 'project_id' i.id %}" class='btn btn-info btn-xs'><i class="bi bi-pencil-square"></i></a>
-                        <a href="{% url 'project_del' i.id %}" class='btn btn-info btn-xs'><i class="bi bi-trash3"></i></a>
+                        <a href="{% url 'project_id' i.id %}" class='btn btn-info btn-xs' data-bs-toggle="tooltip"
+               data-bs-placement="top" title="edit"><i class="bi bi-pencil-square"></i></a>
+                        <a href="{% url 'project_del' i.id %}" class='btn btn-info btn-xs' data-bs-toggle="tooltip"
+               data-bs-placement="top" title="delete"><i class="bi bi-trash3"></i></a>
                     </td>
                 </tr>
                 {% endfor %}

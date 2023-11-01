@@ -49,7 +49,7 @@ class Calculations(models.Model):
     name = models.CharField(max_length=100, blank=True, unique=True)
     organization = models.ForeignKey(Organization, on_delete=models.PROTECT, blank=True)
     counterparty = models.ForeignKey(Counterparties, on_delete=models.PROTECT, blank=True)
-    project = models.ForeignKey(Project, on_delete=models.PROTECT, blank=False, null=False)
+    project = models.ForeignKey(Project, on_delete=models.PROTECT, blank=True, null=True)
     is_cash = models.BooleanField(blank=True, default=False)
     currency = models.ForeignKey(Currencies, on_delete=models.PROTECT, blank=True)
     comments = models.CharField(max_length=250, blank=True, null=True)

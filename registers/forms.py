@@ -18,7 +18,7 @@ class AccountSettingsSet(ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['organization_default'].empty_label = ''
         self.fields['accounting_currency'].empty_label = ''
-
+        self.fields['accounting_currency'].label = 'Main accounting currency'
 
 class AccountBalancesFilter(DynamicFormMixin, ModelForm):
     date_start = DateField(label="From", widget=DateInput(attrs={'type': 'date'}), required=False)

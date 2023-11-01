@@ -18,7 +18,7 @@
     <br>
     <div class="row p-1 g-1">
         <div class="table-responsive" style="height: 500px">
-            <table class="table table-sm table-scroll table-striped table-bordered" >
+            <table class="table table-condensed table-scroll table-striped" >
                 <tr>
                     <th align="center">Expense groups</th>
                     <th align="center">Expense items</th>
@@ -29,8 +29,10 @@
                     <td width="300">{{i.expense_group}}</td>
                     <td width="300">{{i.expense_item}}</td>
                     <td width="10" align="center">
-                        <a href="{% url 'expenses_item_id' i.id %}" class='btn btn-info btn-xs'><i class="bi bi-pencil-square"></i></a>
-                        <a href="{% url 'expenses_item_delete' i.id %}" class='btn btn-info btn-xs'><i class="bi bi-trash3"></i></a>
+                        <a href="{% url 'expenses_item_id' i.id %}" class='btn btn-info btn-xs' data-bs-toggle="tooltip"
+               data-bs-placement="top" title="edit"><i class="bi bi-pencil-square"></i></a>
+                        <a href="{% url 'expenses_item_delete' i.id %}" class='btn btn-info btn-xs' data-bs-toggle="tooltip"
+               data-bs-placement="top" title="delete"><i class="bi bi-trash3"></i></a>
                     </td>
                 </tr>
                 {% endfor %}

@@ -18,12 +18,11 @@
                     {% render_field form.organization class="select form-control" %}
                 </div>
                 <div class="form-group">
-                    {{ form.is_cash.label_tag }}
-                    {% render_field form.is_cash class="select form-control" %}
-                </div>
-                <div class="form-group">
                     {{ form.currency.label_tag }}
                     {% render_field form.currency class="select form-control" %}
+                </div>
+                <div class="form-group">
+                    {{ form.is_cash|as_crispy_field }}
                 </div>
                 <div class="form-group">
                     {{ form.date_start.label_tag }}

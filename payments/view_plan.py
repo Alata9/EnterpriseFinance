@@ -9,9 +9,11 @@ from django.views.generic import DeleteView, FormView, ListView, UpdateView
 
 from directory.models import Organization, Project, Currencies, Counterparties, PaymentAccount
 from payments.forms import UploadFile, PaymentsPlanFilter, PaymentsPlanAdd, CalculationAdd, PaymentsAdd
-from payments.models import PaymentsPlan, ExpensesItem, Payments
+from payments.models import PaymentsPlan, ExpensesItem, Payments, Calculations
 from registers.models import AccountSettings
 
+
+# Payments plan -------------------------------
 
 class PaymentsPlanView(ListView):
     model = PaymentsPlan
@@ -111,57 +113,6 @@ class PaymentsPlanIdView(UpdateView):
         return HttpResponse(form["project"])
 
 
-class PaymentsPlanSeriesView(ListView):
-    model = PaymentsPlan
-    template_name = 'payments/payments_plan_series.html'
-    form_class = CalculationAdd
-    success_url = '/payments_plan_series'
-
-    def get_context_data(self, *, object_list=None, **kwargs):
-        ctx = super().get_context_data(object_list=None, **kwargs)
-        ctx['form'] = CalculationAdd()
-        return ctx
-
-    @staticmethod
-    def htmx_projects(request):
-        form = CalculationAdd(request.GET)
-        return HttpResponse(form["project"])
-
-    def series_queryset(request):
-        payments_pl = PaymentsPlan.objects.all()
-        form = CalculationAdd(request.POST)
-        # frequency_list = {'annually': 365, 'monthly': 30, 'weekly': 7, 'daily': 1}
-        if form.is_valid():
-            # quantety = form.cleaned_data['quantety']
-            # frequency = form.cleaned_data['frequency']
-
-            series = []
-            for i in range(10):
-                plan = PaymentsPlan(
-                    organization=form.cleaned_data['organization'],
-                    counterparty=form.cleaned_data['counterparty'],
-                    item=form.cleaned_data['item'],
-                    project=form.cleaned_data['project'],
-                    amount=form.cleaned_data['amount'],
-                    currency=form.cleaned_data['currency'],
-                    is_cash=form.cleaned_data['is_cash'],
-                    name_series=form.cleaned_data['name_series'],
-                    date=form.cleaned_data['date'],
-                )
-                series.append(plan)
-            PaymentsPlan.objects.bulk_create(series)
-
-            # return super().form_valid(form)
-
-        return payments_pl
-
-    @staticmethod
-    def htmx_list(request):
-        context = {'object_list': PaymentsPlanSeriesView.series_queryset(request)}
-
-        return render(request, 'payments/series_list.html', context=context)
-
-
 class PaymentsPlanDeleteView(DeleteView):
     error = ''
     model = PaymentsPlan
@@ -196,3 +147,75 @@ class PaymentsPlanUploadFileView(FormView):
                 print(e)
 
         return super().form_valid(form)
+
+# Regular plan payments --------------------------------
+
+class RegularPlanView(ListView):
+    model = Calculations
+    template_name = 'payments/regular_plans.html'
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        ctx = super().get_context_data(object_list=None, **kwargs)
+        ctx['form'] = PaymentsPlanFilter()
+        return ctx
+
+
+    def regular_queryset(request):
+        payments_pl = Calculations.objects.all()
+        form = PaymentsPlanFilter(request.POST)
+        if form.is_valid():
+            if form.cleaned_data['date']:
+                payments_pl = payments_pl.filter(date__gte=form.cleaned_data['date'])
+            if form.cleaned_data['date_end']:
+                payments_pl = payments_pl.filter(date__lte=form.cleaned_data['date_end'])
+            if form.cleaned_data['counterparty']:
+                payments_pl = payments_pl.filter(counterparty=form.cleaned_data['counterparty'])
+            if form.cleaned_data['item']:
+                payments_pl = payments_pl.filter(item=form.cleaned_data['item'])
+            if form.cleaned_data['is_cash']:
+                payments_pl = payments_pl.filter(item=form.cleaned_data['is_cash'])
+            if form.cleaned_data['organization']:
+                payments_pl = payments_pl.filter(organization=form.cleaned_data['organization'])
+            if form.cleaned_data['project']:
+                payments_pl = payments_pl.filter(account=form.cleaned_data['account'])
+            if form.cleaned_data['ordering']:
+                payments_pl = payments_pl.order_by(form.cleaned_data['ordering'])
+
+        return payments_pl
+
+    @staticmethod
+    def htmx_list(request):
+        context = {'object_list': RegularPlanView.regular_queryset(request)}
+
+        return render(request, 'payments/regular_plan_list.html', context=context)
+
+
+class RegularPlanIdView(UpdateView):
+    model = Calculations
+    template_name = 'payments/regular_plan_id.html'
+    form_class = CalculationAdd
+    success_url = '/regular_plans'
+
+    def get_object(self, queryset=None):
+        if 'pk' in self.kwargs:
+            return super().get_object(queryset)
+
+        if 'from_pk' in self.kwargs:
+            obj = self.model.objects.get(pk=self.kwargs['from_pk'])
+            obj.id = None
+            return obj
+
+        org = AccountSettings.load().organization()
+        return self.model(organization=org)
+
+    @staticmethod
+    def htmx_projects(request):
+        form = CalculationAdd(request.GET)
+        return HttpResponse(form["project"])
+
+
+class RegularPlanDeleteView(DeleteView):
+    error = ''
+    model = Calculations
+    success_url = '/regular_plans'
+    template_name = 'payments/regular_plan_delete.html'

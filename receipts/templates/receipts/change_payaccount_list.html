@@ -1,6 +1,6 @@
 
 
-<table class='table table-fixed table-sm table-scroll table-striped' id="id_table">
+<table class='table table-fixed table-condensed table-scroll table-striped' id="id_table">
     <thead>
         <tr>
             <th align="center">date</th>
@@ -8,7 +8,7 @@
             <th align="center">to</th>
             <th align="center">amount</th>
             <th align="center">currency</th>
-            <th align="center">edit | copy  |  del</th>
+            <th align="center"></th>
         </tr>
     </thead>
     <tbody class="cart">
@@ -20,9 +20,12 @@
             <td data-type="number" width="100" align="right">{{i.amount}}</td>
             <td data-type="string" width="100">{{i.currency}}</td>
              <td width="10" align="center" style='white-space: nowrap'>
-                <a href="{% url 'change_payaccount_id' i.id %}" class='btn btn-info btn-xs'><i class="bi bi-pencil-square"></i></a>
-                <a href="{% url 'change_payaccount_copy' i.id %}" class='btn btn-info btn-xs'><i class="bi bi-files"></i></a>
-                <a href="{% url 'change_payaccount_delete' i.id %}" class='btn btn-info btn-xs'><i class="bi bi-trash3"></i></a>
+                <a href="{% url 'change_payaccount_id' i.id %}" class='btn btn-info btn-xs' data-bs-toggle="tooltip"
+               data-bs-placement="top" title="edit"><i class="bi bi-pencil-square"></i></a>
+                <a href="{% url 'change_payaccount_copy' i.id %}" class='btn btn-info btn-xs' data-bs-toggle="tooltip"
+               data-bs-placement="top" title="copy"><i class="bi bi-files"></i></a>
+                <a href="{% url 'change_payaccount_delete' i.id %}" class='btn btn-info btn-xs' data-bs-toggle="tooltip"
+               data-bs-placement="top" title="delete"><i class="bi bi-trash3"></i></a>
              </td>
         </tr>
         {% endfor %}

@@ -87,7 +87,6 @@ class AccountBalancesView(ListView):
         main_currency = AccountSettings.load().currency()
         account_balances = []
         balances_convert = []
-        open_balance_sum_convert = 0
         receipts_before_sum_convert = 0
         payments_before_sum_convert = 0
         receipts_sum_convert = 0
@@ -95,7 +94,6 @@ class AccountBalancesView(ListView):
 
         for account in accounts:
             rate = AccountBalancesView.get_rate(account.currency, main_currency)
-            print(rate)
 
             receipts_sum = receipts.filter(account=account).aggregate(Sum("amount")).get('amount__sum', 0.00)
             if receipts_sum is None:
@@ -115,7 +113,7 @@ class AccountBalancesView(ListView):
             if payments_before_sum is None:
                 payments_before_sum = 0
 
-            start_balance = account.open_balance + receipts_before_sum - payments_before_sum
+            start_balance = receipts_before_sum - payments_before_sum
             final_balance = start_balance + receipts_sum - payments_sum
 
             account_balances.append({'account': account.account, 'organization': account.organization.organization,
@@ -123,13 +121,12 @@ class AccountBalancesView(ListView):
                                      'start_balance': int(start_balance), 'receipts_sum': int(receipts_sum),
                                      'payments_sum': int(payments_sum), 'final_balance': int(final_balance)})
 
-            open_balance_sum_convert += account.open_balance / rate
             receipts_sum_convert += receipts_sum / rate
             payments_sum_convert += payments_sum / rate
             receipts_before_sum_convert += receipts_before_sum / rate
             payments_before_sum_convert += payments_before_sum / rate
 
-        start_balance_convert = open_balance_sum_convert + receipts_before_sum_convert - payments_before_sum_convert
+        start_balance_convert = receipts_before_sum_convert - payments_before_sum_convert
         final_balance_convert = start_balance_convert + receipts_sum_convert - payments_sum_convert
 
         balances_convert.append({'currency': main_currency,
@@ -152,8 +149,6 @@ class AccountBalancesView(ListView):
             rate = decimal.Decimal(1)
 
         return rate
-
-
 
 
 class CfStatementView(ListView):

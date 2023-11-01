@@ -148,7 +148,7 @@ class CalculationAdd(DynamicFormMixin, ModelForm):
         fields = ('type_calc', 'name', 'organization', 'counterparty', 'item', 'project', 'date_first',
                   'amount', 'currency', 'is_cash', 'frequency', 'loan_rate', 'term', 'comments')
         widgets = {'date_first': DateInput(attrs={'type': 'Date'}),
-                   'comments': Textarea(attrs={'cols': 60, 'rows': 1, 'placeholder': 'Comments:'}),
+                   'comments': Textarea(attrs={'cols': 60, 'rows': 2, 'placeholder': 'Comments:'}),
                    'name': DateInput(attrs={'placeholder': "Calculation's name:"}),
                    }
 
@@ -162,19 +162,21 @@ class CalculationAdd(DynamicFormMixin, ModelForm):
         self.fields['organization'].empty_label = 'Organization:'
         self.fields['currency'].empty_label = 'Currency:'
         self.fields['counterparty'].empty_label = 'Counterparty:'
+        self.fields['counterparty'].queryset = self.fields['counterparty'].queryset.order_by('counterparty')
         self.fields['item'].empty_label = 'Item:'
+        self.fields['item'].queryset = self.fields['item'].queryset.order_by('expense_item')
         self.fields['project'].empty_label = 'Project:'
+        self.fields['project'].required = False
+        self.fields['project'].queryset = self.fields['project'].queryset.order_by('project')
         self.fields['type_calc'].empty_label = 'Type of calculation:'
         self.fields['frequency'].empty_label = ''
-        self.fields['project'].required = False
         self.fields['is_cash'].label = 'is cash'
         self.fields['date_first'].label = 'First payment day'
         self.fields['date_first'].required = True
         self.fields['term'].label = 'Quantity of payments'
         self.fields['amount'].label = 'Regular amount'
-        self.fields['counterparty'].queryset = self.fields['counterparty'].queryset.order_by('counterparty')
-        self.fields['item'].queryset = self.fields['item'].queryset.order_by('expense_item')
-        self.fields['project'].queryset = self.fields['project'].queryset.order_by('project')
+        self.fields['project'].required = False
+
 
 
 class PaymentsPlanFilter(ModelForm):

@@ -6,36 +6,41 @@
 <link rel="stylesheet" href="{% static 'registers/css/style.css' %}">
 
 <div class="container">
-    <div class="row d-grid gap-2 d-md-flex justify-content-md-end">
+    <div class="row d-grid gap-2 d-md-flex justify-content-md-end text-center">
         <div class="col-md-12"></div>
-        <div class="col-md-10">
+        <div class="col-md-7">
             <H1>Organizations</H1>
         </div>
-        <div class="col-md-2">
+        <div class="col-md-4">
             <a href="{% url 'organization_add' %}" class="btn btn-info" name="btn_add">ADD NEW</a>
         </div>
     </div>
     <br>
     <div class="row p-1 g-1">
-        <div class="table-responsive" style="height: 500px">
-            <table class="table table-sm table-scroll table-striped table-bordered" >
-                <tr>
-                    <th align="center">Details</th>
-                    <th align="center">Organizations</th>
-                    <th align="center">Comments</th>
-                    <th align="center">Del</th>
-                </tr>
-                {% for i in organizations %}
-                <tr>
-                    <td width="5" align="center"><a href="{% url 'organization_id' i.id %}" class='btn btn-info btn-xs'>
-                        <i class="bi bi-book"></i></a></td>
-                    <td width="400">{{i.organization}}</td>
-                    <td width="400">{% if i.comments != None %}{{i.comments}}{% endif %}</td>
-                    <td width="5" align="center"><a href="{% url 'organization_del' i.id %}" class='btn btn-info btn-xs'>
-                        <i class="bi bi-trash3"></i></a></td>
-                </tr>
-                {% endfor %}
-            </table>
+        <div class="col-md-2"></div>
+        <div class="col-md-8">
+            <div class="table-responsive" style="height: 500px">
+                <table class="table table-condensed table-scroll table-striped" >
+                    <tr>
+                        <th align="center">Details</th>
+                        <th align="center">Organizations</th>
+                        <th align="center">Comments</th>
+                        <th align="center">Del</th>
+                    </tr>
+                    {% for i in organizations %}
+                    <tr>
+                        <td width="5" align="center">
+                            <a href="{% url 'organization_id' i.id %}" class='btn btn-info btn-xs' data-bs-toggle="tooltip"
+                                data-bs-placement="top" title="edit"><i class="bi bi-book"></i></a></td>
+                        <td width="400">{{i.organization}}</td>
+                        <td width="400">{% if i.comments != None %}{{i.comments}}{% endif %}</td>
+                        <td width="5" align="center">
+                            <a href="{% url 'organization_del' i.id %}" class='btn btn-info btn-xs' data-bs-toggle="tooltip"
+                                data-bs-placement="top" title="delete"><i class="bi bi-trash3"></i></a></td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
         </div>
     </div>
 </div>
