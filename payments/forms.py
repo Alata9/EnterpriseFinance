@@ -168,14 +168,19 @@ class CalculationAdd(DynamicFormMixin, ModelForm):
         self.fields['project'].empty_label = 'Project:'
         self.fields['project'].required = False
         self.fields['project'].queryset = self.fields['project'].queryset.order_by('project')
+        self.fields['comments'].required = False
         self.fields['type_calc'].empty_label = 'Type of calculation:'
         self.fields['frequency'].empty_label = ''
         self.fields['is_cash'].label = 'is cash'
         self.fields['date_first'].label = 'First payment day'
+        self.fields['name'].label = "Calculation's name (must be unique):"
+        self.fields['name'].unique = True
         self.fields['date_first'].required = True
         self.fields['term'].label = 'Quantity of payments'
         self.fields['amount'].label = 'Regular amount'
-        self.fields['project'].required = False
+        self.fields['amount'].required = True
+        self.fields['currency'].required = True
+        self.fields['item'].required = True
 
 
 
@@ -183,7 +188,7 @@ class PaymentsPlanFilter(ModelForm):
     date_end = DateField(label="To", widget=DateInput(attrs={'type': 'date'}), required=False)
     ordering = ChoiceField(label='Ordering', required=False,
                            choices=[
-                               ['date', 'by date'],
+                               ['date_first', 'by date'],
                                ['amount', 'by amount'],
                                ['counterparty', 'by counterparty'],
                                ['item', 'by item'],

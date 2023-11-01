@@ -46,7 +46,7 @@ urlpatterns = [
     path('payments_plan/projects', PaymentsPlanIdView.htmx_projects, name='payments_plan_projects'),
 
     path('regular_plans/', RegularPlanView.as_view(), name='regular_plans'),
-    path('regular_plan/list', RegularPlanView.as_view(), name='regular_plan_list'),
+    path('regular_plan/list', RegularPlanView.htmx_list, name='regular_plan_list'),
     path('regular_plan/projects', RegularPlanIdView.htmx_projects, name='regular_plan_projects'),
     path('regular_plan/add', RegularPlanIdView.as_view(), name='regular_plan_add'),
     path('regular_plan/<int:pk>', RegularPlanIdView.as_view(), name='regular_plan_id'),

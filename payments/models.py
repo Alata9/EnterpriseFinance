@@ -60,6 +60,8 @@ class Calculations(models.Model):
     frequency = models.CharField(max_length=200, choices=Frequency, blank=True, null=True)
     loan_rate = models.DecimalField(max_digits=15, decimal_places=2, blank=True, null=True)
 
+    def __str__(self):
+        return self.name
 
 
 class PaymentsPlan(models.Model):

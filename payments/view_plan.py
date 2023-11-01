@@ -162,18 +162,18 @@ class RegularPlanView(ListView):
 
     def regular_queryset(request):
         payments_pl = Calculations.objects.all()
-        form = PaymentsPlanFilter(request.POST)
+        form = PaymentsPlanFilter(request.GET)
         if form.is_valid():
             if form.cleaned_data['date']:
-                payments_pl = payments_pl.filter(date__gte=form.cleaned_data['date'])
+                payments_pl = payments_pl.filter(date_first__gte=form.cleaned_data['date'])
             if form.cleaned_data['date_end']:
-                payments_pl = payments_pl.filter(date__lte=form.cleaned_data['date_end'])
+                payments_pl = payments_pl.filter(date_first__lte=form.cleaned_data['date_end'])
             if form.cleaned_data['counterparty']:
                 payments_pl = payments_pl.filter(counterparty=form.cleaned_data['counterparty'])
             if form.cleaned_data['item']:
                 payments_pl = payments_pl.filter(item=form.cleaned_data['item'])
             if form.cleaned_data['is_cash']:
-                payments_pl = payments_pl.filter(item=form.cleaned_data['is_cash'])
+                payments_pl = payments_pl.filter(is_cash=True)
             if form.cleaned_data['organization']:
                 payments_pl = payments_pl.filter(organization=form.cleaned_data['organization'])
             if form.cleaned_data['project']:
@@ -198,6 +198,7 @@ class RegularPlanIdView(UpdateView):
 
     def get_object(self, queryset=None):
         if 'pk' in self.kwargs:
+            self.object.type_calc = 'Constant payments'
             return super().get_object(queryset)
 
         if 'from_pk' in self.kwargs:

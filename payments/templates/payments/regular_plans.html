@@ -1,5 +1,5 @@
 {% extends 'registers/base.html' %}
-{% block title %}Regular plan payments{% endblock %}
+{% block title %}Calculations for plan{% endblock %}
 {% load crispy_forms_tags %}
 {% load widget_tweaks %}
 {% block content %}
@@ -11,7 +11,7 @@
             hx-trigger="change"
             hx-target="#id_table">
         <div class="col-md-2 border p-2 shadow">
-                <h1>Regular plan payments</h1>
+                <h1>Calculations for plan</h1>
                 {% csrf_token %}
                 <div class="form-group">
                 {{ form.ordering.label_tag }}
@@ -25,7 +25,6 @@
                 {{ form.date_end.label_tag }}
                 {% render_field form.date_end class="select form-control" %}
                 </div>
-                <hr>
                 <div id="div_id_organization"
                      class="form-group"
                      hx-get="/regular_plan/projects"
@@ -57,7 +56,7 @@
             </div>
             <br>
             <div class="table-responsive" style="height: 550px">
-                {% include "payments/payments_list.html" %}
+                {% include "payments/regular_plan_list.html" %}
             </div>
         </div>
         </form>
