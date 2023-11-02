@@ -2,8 +2,7 @@ from django.urls import path
 
 from payments.view_plan import (
     PaymentsPlanView, PaymentsPlanIdView, PaymentsPlanDeleteView, PaymentsPlanUploadFileView,
-    RegularPlanView, RegularPlanIdView, RegularPlanDeleteView,
-    # CreditPlanView, CreditPlanIdView, CreditPlanDeleteView,
+    CalculationDeleteView, CalculationView, CalculationIdView,
 )
 
 from payments.views import (
@@ -45,13 +44,13 @@ urlpatterns = [
     path('payments_plan/upload_file', PaymentsPlanUploadFileView.as_view(), name='payments_plan_upload_file'),
     path('payments_plan/projects', PaymentsPlanIdView.htmx_projects, name='payments_plan_projects'),
 
-    path('regular_plans/', RegularPlanView.as_view(), name='regular_plans'),
-    path('regular_plan/list', RegularPlanView.htmx_list, name='regular_plan_list'),
-    path('regular_plan/projects', RegularPlanIdView.htmx_projects, name='regular_plan_projects'),
-    path('regular_plan/add', RegularPlanIdView.as_view(), name='regular_plan_add'),
-    path('regular_plan/<int:pk>', RegularPlanIdView.as_view(), name='regular_plan_id'),
-    path('regular_plan/copy/<int:from_pk>', RegularPlanIdView.as_view(), name='regular_plan_copy'),
-    path('<int:pk>/regular_plan_delete', RegularPlanDeleteView.as_view(), name='regular_plan_delete'),
+    path('calculations/', CalculationView.as_view(), name='calculations'),
+    path('calculations/list', CalculationView.htmx_list, name='calculations_list'),
+    path('calculations/projects', CalculationIdView.htmx_projects, name='calculations_projects'),
+    path('calculation/add', CalculationIdView.as_view(), name='calculation_add'),
+    path('calculation/<int:pk>', CalculationIdView.as_view(), name='calculation_id'),
+    path('calculation/copy/<int:from_pk>', CalculationIdView.as_view(), name='calculation_copy'),
+    path('<int:pk>/calculation_delete', CalculationDeleteView.as_view(), name='calculation_delete'),
 
 
     # path('credit_plan/', CreditPlanView.as_view(), name='credit_plan'),

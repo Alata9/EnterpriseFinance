@@ -145,11 +145,11 @@ class PaymentsPlanAdd(DynamicFormMixin, ModelForm):
 class CalculationAdd(DynamicFormMixin, ModelForm):
     class Meta:
         model = Calculations
-        fields = ('type_calc', 'name', 'organization', 'counterparty', 'item', 'project', 'date_first',
+        fields = ('type_calc', 'name', 'flow', 'organization', 'counterparty', 'item', 'project', 'date_first',
                   'amount', 'currency', 'is_cash', 'frequency', 'loan_rate', 'term', 'comments')
         widgets = {'date_first': DateInput(attrs={'type': 'Date'}),
-                   'comments': Textarea(attrs={'cols': 60, 'rows': 2, 'placeholder': 'Comments:'}),
-                   'name': DateInput(attrs={'placeholder': "Calculation's name:"}),
+                   'comments': Textarea(attrs={'cols': 60, 'rows': 4, 'placeholder': 'Comments:'}),
+
                    }
 
     project = DynamicField(
@@ -169,19 +169,20 @@ class CalculationAdd(DynamicFormMixin, ModelForm):
         self.fields['project'].required = False
         self.fields['project'].queryset = self.fields['project'].queryset.order_by('project')
         self.fields['comments'].required = False
-        self.fields['type_calc'].empty_label = 'Type of calculation:'
+        self.fields['type_calc'].label = 'Type of calculation*'
         self.fields['frequency'].empty_label = ''
         self.fields['is_cash'].label = 'is cash'
         self.fields['date_first'].label = 'First payment day'
-        self.fields['name'].label = "Calculation's name (must be unique):"
+        self.fields['name'].label = "Calculation's name (unique)*"
         self.fields['name'].unique = True
+        self.fields['flow'].label = "Flow direction*"
         self.fields['date_first'].required = True
-        self.fields['term'].label = 'Quantity of payments'
-        self.fields['amount'].label = 'Regular amount'
+        self.fields['term'].label = 'Quantity*'
+        self.fields['amount'].label = 'Amount'
+        self.fields['loan_rate'].label = 'Annual loan rate, %*'
         self.fields['amount'].required = True
         self.fields['currency'].required = True
         self.fields['item'].required = True
-
 
 
 class PaymentsPlanFilter(ModelForm):
@@ -221,6 +222,37 @@ class PaymentsPlanFilter(ModelForm):
         self.fields['item'].queryset = self.fields['item'].queryset.order_by('expense_item')
         self.fields['project'].queryset = self.fields['project'].queryset.order_by('project')
 
+
+class CalculationsFilter(ModelForm):
+    ordering = ChoiceField(label='Ordering', required=False,
+                           choices=[
+                               ['date_first', 'by date'],
+                               ['type_calc', 'by type'],
+                               ['flow', 'by flow'],
+                               ['amount', 'by amount'],
+                               ['counterparty', 'by counterparty'],
+                               ['item', 'by item'],
+                               ['project', 'by project']
+                           ])
+    class Meta:
+        model = Calculations
+        fields = ['organization', 'project', 'counterparty', 'item', 'type_calc', 'flow']
+
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['organization'].empty_label = 'Organization:'
+        self.fields['organization'].required = False
+        self.fields['project'].empty_label = 'Project:'
+        self.fields['project'].required = False
+        self.fields['counterparty'].empty_label = 'Counterparty:'
+        self.fields['counterparty'].required = False
+        self.fields['item'].empty_label = 'Item:'
+        self.fields['item'].required = False
+        self.fields['type_calc'].default = False
+        self.fields['counterparty'].queryset = self.fields['counterparty'].queryset.order_by('counterparty')
+        self.fields['item'].queryset = self.fields['item'].queryset.order_by('expense_item')
+        self.fields['project'].queryset = self.fields['project'].queryset.order_by('project')
 
 
 class UploadFile(Form):

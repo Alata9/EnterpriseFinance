@@ -7,6 +7,7 @@
         <th align="center">item</th>
         <th align="center">counterparty</th>
         <th align="center">type</th>
+        <th align="center">flow</th>
         <th align="center">amount</th>
         <th align="center">currency</th>
         <th align="center">is_cash</th>
@@ -25,20 +26,21 @@
         <td width="100">{{i.item}}</td>
         <td width="100">{{i.counterparty}}</td>
         <td width="50">{{i.type_calc}}</td>
+        <td width="50">{{i.flow}}</td>
         <td width="50" align="right">{{i.amount}}</td>
         <td width="50">{{i.currency}}</td>
-        <td width="100">{% if i.is_cash %}<i class="bi bi-check2-square"></i>{% endif %}</td>
-        <td width="50">{% if i.loan_rate != None %}{{ i.loan_rate }}{% endif %}</td>
-        <td width="50">{{i.term}}</td>
-        <td width="50" align="right">{% if i.frequency != None %}{{ i.frequency }}{% endif %}</td>
+        <td width="100" align="center">{% if i.is_cash %}<i class="bi bi-check2-square"></i>{% endif %}</td>
+        <td width="50" align="right">{% if i.loan_rate != None %}{{ i.loan_rate }}{% endif %}</td>
+        <td width="50" align="right">{{i.term}}</td>
+        <td width="50" align="left">{% if i.frequency != None %}{{ i.frequency }}{% endif %}</td>
         <td width="50">{{i.date_first|date:"d.m.Y"}}</td>
         <td width="100">{% if i.comments != None %}{{ i.comments }}{% endif %}</td>
         <td width="10" align="center" style='white-space: nowrap'>
-            <a href="{% url 'regular_plan_id' i.id %}" class='btn btn-warning btn-xs' data-bs-toggle="tooltip"
+            <a href="{% url 'calculation_id' i.id %}" class='btn btn-warning btn-xs' data-bs-toggle="tooltip"
                data-bs-placement="top" title="edit"><i class="bi bi-pencil-square"></i></a>
-            <a href="{% url 'regular_plan_copy' i.id %}" class='btn btn-warning btn-xs' data-bs-toggle="tooltip"
+            <a href="{% url 'calculation_copy' i.id %}" class='btn btn-warning btn-xs' data-bs-toggle="tooltip"
                data-bs-placement="top" title="copy"><i class="bi bi-files"></i></a>
-            <a href="{% url 'regular_plan_delete' i.id %}" class='btn btn-warning btn-xs' data-bs-toggle="tooltip"
+            <a href="{% url 'calculation_delete' i.id %}" class='btn btn-warning btn-xs' data-bs-toggle="tooltip"
                data-bs-placement="top" title="delete"><i class="bi bi-trash3"></i></a>
          </td>
     </tr>

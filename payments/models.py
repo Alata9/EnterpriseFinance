@@ -31,21 +31,25 @@ class ExpensesItem(models.Model):
 
 
 class Calculations(models.Model):
+    FlowDirection = (
+        ('receipts', 'Receipts'),
+        ('payments', 'Payments'),
+    )
+
     TypeCalculation = (
-        ('', ''),
         ('constant', 'Constant payments'),
         ('annuity', 'Credit: annuity'),
         ('differential', 'Credit: differentiated'),
     )
 
     Frequency = (
-        ('', ''),
         ('annually', 'annually'),
         ('monthly', 'monthly'),
         ('weekly', 'weekly'),
         ('daily', 'daily'),
     )
-    type_calc = models.CharField(max_length=200, choices=TypeCalculation, blank=True)
+    type_calc = models.CharField(max_length=200, choices=TypeCalculation, default='constant', blank=True)
+    flow = models.CharField(max_length=10, choices=FlowDirection, blank=True, default='payments')
     name = models.CharField(max_length=100, blank=True, unique=True)
     organization = models.ForeignKey(Organization, on_delete=models.PROTECT, blank=True)
     counterparty = models.ForeignKey(Counterparties, on_delete=models.PROTECT, blank=True)
@@ -57,8 +61,8 @@ class Calculations(models.Model):
     date_first = models.DateField(blank=True)
     amount = models.DecimalField(max_digits=15, decimal_places=2, blank=True)
     term = models.IntegerField(blank=True, null=True)
-    frequency = models.CharField(max_length=200, choices=Frequency, blank=True, null=True)
-    loan_rate = models.DecimalField(max_digits=15, decimal_places=2, blank=True, null=True)
+    frequency = models.CharField(max_length=200, choices=Frequency, blank=True, default='monthly', null=True)
+    loan_rate = models.DecimalField(max_digits=15, decimal_places=2, default=0.00, blank=True, null=True)
 
     def __str__(self):
         return self.name

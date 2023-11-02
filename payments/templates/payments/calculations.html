@@ -17,13 +17,12 @@
                 {{ form.ordering.label_tag }}
                 {% render_field form.ordering class="select form-control" %}
                 </div>
+                <hr>
                 <div class="form-group">
-                {{ form.date.label_tag }}
-                {% render_field form.date class="select form-control" %}
+                {% render_field form.flow class="select form-control" %}
                 </div>
                 <div class="form-group">
-                {{ form.date_end.label_tag }}
-                {% render_field form.date_end class="select form-control" %}
+                {% render_field form.type_calc class="select form-control" %}
                 </div>
                 <div id="div_id_organization"
                      class="form-group"
@@ -31,7 +30,7 @@
                      hx-vals="js:{organization:document.getElementById('id_organization').value}"
                      hx-trigger="change"
                      hx-target="#id_project">
-                {% render_field form.organization class="select form-control" hx-get="/regular_plan/accounts" hx-trigger="change" hx-target="#id_account" %}
+                {% render_field form.organization class="select form-control" %}
                 </div>
                 <div class="form-group">
                 {% render_field form.counterparty class="select form-control" %}
@@ -51,12 +50,12 @@
             <div class="row d-grid gap-2 d-md-flex justify-content-md-end">
                 <div class="col-md-10"></div>
                 <div class="col-md-2">
-                    <a href="{% url 'regular_plan_add' %}" class="btn btn-warning" name="btn_add">ADD NEW</a>
+                    <a href="{% url 'calculation_add' %}" class="btn btn-warning" name="btn_add">ADD NEW</a>
                 </div>
             </div>
             <br>
             <div class="table-responsive" style="height: 550px">
-                {% include "payments/regular_plan_list.html" %}
+                {% include "payments/calculations_list.html" %}
             </div>
         </div>
         </form>

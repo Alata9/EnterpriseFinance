@@ -8,7 +8,8 @@ from django.shortcuts import render
 from django.views.generic import DeleteView, FormView, ListView, UpdateView
 
 from directory.models import Organization, Project, Currencies, Counterparties, PaymentAccount
-from payments.forms import UploadFile, PaymentsPlanFilter, PaymentsPlanAdd, CalculationAdd, PaymentsAdd
+from payments.forms import UploadFile, PaymentsPlanFilter, PaymentsPlanAdd, CalculationAdd, PaymentsAdd, \
+    CalculationsFilter
 from payments.models import PaymentsPlan, ExpensesItem, Payments, Calculations
 from registers.models import AccountSettings
 
@@ -150,24 +151,24 @@ class PaymentsPlanUploadFileView(FormView):
 
 # Regular plan payments --------------------------------
 
-class RegularPlanView(ListView):
+class CalculationView(ListView):
     model = Calculations
-    template_name = 'payments/regular_plans.html'
+    template_name = 'payments/calculations.html'
 
     def get_context_data(self, *, object_list=None, **kwargs):
         ctx = super().get_context_data(object_list=None, **kwargs)
-        ctx['form'] = PaymentsPlanFilter()
+        ctx['form'] = CalculationsFilter()
         return ctx
 
 
     def regular_queryset(request):
         payments_pl = Calculations.objects.all()
-        form = PaymentsPlanFilter(request.GET)
+        form = CalculationsFilter(request.GET)
         if form.is_valid():
-            if form.cleaned_data['date']:
-                payments_pl = payments_pl.filter(date_first__gte=form.cleaned_data['date'])
-            if form.cleaned_data['date_end']:
-                payments_pl = payments_pl.filter(date_first__lte=form.cleaned_data['date_end'])
+            if form.cleaned_data['type_calc']:
+                payments_pl = payments_pl.filter(type_calc=form.cleaned_data['type_calc'])
+            if form.cleaned_data['flow']:
+                payments_pl = payments_pl.filter(flow=form.cleaned_data['flow'])
             if form.cleaned_data['counterparty']:
                 payments_pl = payments_pl.filter(counterparty=form.cleaned_data['counterparty'])
             if form.cleaned_data['item']:
@@ -177,7 +178,7 @@ class RegularPlanView(ListView):
             if form.cleaned_data['organization']:
                 payments_pl = payments_pl.filter(organization=form.cleaned_data['organization'])
             if form.cleaned_data['project']:
-                payments_pl = payments_pl.filter(account=form.cleaned_data['account'])
+                payments_pl = payments_pl.filter(account=form.cleaned_data['project'])
             if form.cleaned_data['ordering']:
                 payments_pl = payments_pl.order_by(form.cleaned_data['ordering'])
 
@@ -185,20 +186,19 @@ class RegularPlanView(ListView):
 
     @staticmethod
     def htmx_list(request):
-        context = {'object_list': RegularPlanView.regular_queryset(request)}
+        context = {'object_list': CalculationView.regular_queryset(request)}
 
-        return render(request, 'payments/regular_plan_list.html', context=context)
+        return render(request, 'payments/calculations_list.html', context=context)
 
 
-class RegularPlanIdView(UpdateView):
+class CalculationIdView(UpdateView):
     model = Calculations
-    template_name = 'payments/regular_plan_id.html'
+    template_name = 'payments/calculation_id.html'
     form_class = CalculationAdd
-    success_url = '/regular_plans'
+    success_url = '/calculations'
 
     def get_object(self, queryset=None):
         if 'pk' in self.kwargs:
-            self.object.type_calc = 'Constant payments'
             return super().get_object(queryset)
 
         if 'from_pk' in self.kwargs:
@@ -215,8 +215,8 @@ class RegularPlanIdView(UpdateView):
         return HttpResponse(form["project"])
 
 
-class RegularPlanDeleteView(DeleteView):
+class CalculationDeleteView(DeleteView):
     error = ''
     model = Calculations
-    success_url = '/regular_plans'
-    template_name = 'payments/regular_plan_delete.html'
+    success_url = '/calculations'
+    template_name = 'payments/calculation_delete.html'

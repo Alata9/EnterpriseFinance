@@ -32,9 +32,9 @@ class PaymentsPlanAdmin(admin.ModelAdmin):
 
 
 class CalculationsAdmin(admin.ModelAdmin):
-    list_display = ['id', 'name', 'type_calc', 'organization', 'date_first', 'amount', 'currency', 'is_cash',
+    list_display = ['id', 'name', 'type_calc', 'flow', 'organization', 'date_first', 'amount', 'currency', 'is_cash',
                     'frequency', 'loan_rate', 'term', 'counterparty', 'item', 'project', 'comments']
-    list_display_links = ['id', 'name', 'type_calc', 'organization', 'date_first', 'amount', 'currency', 'is_cash',
+    list_display_links = ['id', 'name', 'type_calc', 'flow', 'organization', 'date_first', 'amount', 'currency', 'is_cash',
                           'frequency', 'loan_rate', 'term', 'counterparty', 'item', 'project', 'comments']
     search_fields = ['name', 'type_calc', 'organization', 'counterparty', 'item', 'project']
 
