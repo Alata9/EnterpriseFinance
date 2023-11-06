@@ -1,3 +1,5 @@
+import datetime
+
 from django.db import models
 
 from directory.models import Organization, PaymentAccount, Project, Counterparties, Currencies, TypeCF
@@ -82,6 +84,32 @@ class PaymentsPlan(models.Model):
 
     def __str__(self):
         return f'{self.date}, {self.counterparty}, {self.item}, {self.amount}'
+
+    @classmethod
+    def from_calc(cls, calc_id):
+        obj = Calculations.objects.get(pk=calc_id)
+
+        # doc_list = []
+        # date_num = int(str(obj.date_first.date())[-2:])
+        # date_cur = obj.date_first.date()
+        #
+        # for i in range(obj.term):
+        #     doc_list.append([date_cur, obj.counterparty, obj.item, obj.project, obj.amount, obj.currency, obj.name, obj.comments])
+        #     date_cur = (date_cur + datetime.timedelta(days=30)).replace(day=date_num)
+        #
+        # for i in doc_list:
+        return cls(
+            organization=obj.organization,
+            date=obj.date_first,
+            amount=obj.amount,
+            currency=obj.currency,
+            is_cash=obj.is_cash,
+            project=obj.project,
+            counterparty=obj.counterparty,
+            item=obj.item,
+            calculation=obj.name,
+            comments=obj.comments
+        )
 
     class Meta:
         ordering = ['date', 'item']

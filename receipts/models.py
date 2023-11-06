@@ -64,6 +64,19 @@ class Receipts(models.Model):
             comments=obj.comments
         )
 
+    @classmethod
+    def from_change(cls, change_id):
+        obj = ChangePayAccount.objects.get(pk=change_id)
+        return cls(
+            organization=obj.organization,
+            date=obj.date,
+            account=obj.pay_account_to,
+            amount=obj.amount,
+            currency=obj.currency,
+
+            comments='Change payment account'
+        )
+
     class Meta:
         ordering = ['organization', 'date', 'item']
         verbose_name = 'Receipt'
@@ -94,6 +107,7 @@ class ReceiptsPlan(models.Model):
 
     def get_absolute_url(self):
         return '/receipts_plan'
+
 
 class ChangePayAccount(models.Model):
     pay_account_from = models.ForeignKey(PaymentAccount, related_name='account1', on_delete=models.PROTECT, blank=False)

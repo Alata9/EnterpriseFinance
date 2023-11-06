@@ -118,7 +118,7 @@ class PaymentsPlanAdd(DynamicFormMixin, ModelForm):
     class Meta:
         model = PaymentsPlan
         fields = (
-            'organization', 'is_cash', 'date', 'amount', 'currency', 'counterparty', 'item', 'project', 'comments')
+            'organization', 'is_cash', 'date', 'amount', 'currency', 'counterparty', 'item', 'project', 'comments', 'calculation')
         widgets = {'date': DateInput(attrs={'type': 'Date'}),
                    'comments': Textarea(attrs={'cols': 60, 'rows': 3}),
                    }

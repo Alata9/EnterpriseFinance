@@ -103,10 +103,11 @@ class PaymentsPlanIdView(UpdateView):
             obj.id = None
             return obj
 
+        if 'calc_id' in self.kwargs:
+            return self.model.from_calc(self.kwargs['calc_id'])
+
         org = AccountSettings.load().organization()
         return self.model(organization=org)
-
-
 
     @staticmethod
     def htmx_projects(request):
@@ -213,6 +214,21 @@ class CalculationIdView(UpdateView):
     def htmx_projects(request):
         form = CalculationAdd(request.GET)
         return HttpResponse(form["project"])
+
+    def calculation_queryset(request):
+        payments_pl = Calculations.objects.all()
+        form = CalculationAdd(request.GET)
+        if form.is_valid():
+            if form.cleaned_data['name']:
+                payments_pl = payments_pl.filter(name=form.cleaned_data['name'])
+
+        return payments_pl
+
+    @staticmethod
+    def htmx_list(request):
+        context = {'object_list': CalculationIdView.calculation_queryset(request)}
+
+        return render(request, 'payments/payments_plan_list.html', context=context)
 
 
 class CalculationDeleteView(DeleteView):
