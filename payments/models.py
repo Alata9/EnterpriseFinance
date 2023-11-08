@@ -3,6 +3,7 @@ import datetime
 from django.db import models
 
 from directory.models import Organization, PaymentAccount, Project, Counterparties, Currencies, TypeCF
+from receipts.models import ReceiptsPlan
 
 
 class ExpenseGroup(models.Model):
@@ -69,6 +70,51 @@ class Calculations(models.Model):
     def __str__(self):
         return self.name
 
+    @classmethod
+    def create_plan_payments(cls, create_plan):
+        obj = Calculations.objects.get(pk=create_plan)
+        flow = obj.flow
+        type_calc = obj.type_calc
+        frequency = obj.frequency
+        existing_plan = PaymentsPlan.objects.filter(calculation=obj).order_by('date').all()
+
+        date_cur = obj.date_first
+        date_num = obj.date_first.day
+
+        frequency_days = {'annually': 365, 'monthly': 30, 'weekly': 7, 'daily': 1}
+        days = frequency_days.get(frequency)
+
+        if flow == 'payments':
+            document = PaymentsPlan
+        else:
+            document = ReceiptsPlan
+
+        for i in range(obj.term):
+            plan = document(
+                calculation=obj,
+                organization=obj.organization,
+                date=date_cur,
+                amount=obj.amount,
+                currency=obj.currency,
+                is_cash=obj.is_cash,
+                project=obj.project,
+                counterparty=obj.counterparty,
+                item=obj.item,
+                comments=obj.comments
+            )
+
+            if frequency in ['weekly', 'daily']:
+                date_cur = (date_cur + datetime.timedelta(days=days))
+            else:
+                date_cur = (date_cur + datetime.timedelta(days=days)).replace(day=date_num)
+
+            if len(existing_plan) > i:
+                plan.id = existing_plan[i].id
+
+            plan.save()
+
+        PaymentsPlan.objects.filter(calculation=obj, date__gte=date_cur).delete()
+
 
 class PaymentsPlan(models.Model):
     organization = models.ForeignKey(Organization, on_delete=models.PROTECT, blank=True, null=True)
@@ -84,32 +130,6 @@ class PaymentsPlan(models.Model):
 
     def __str__(self):
         return f'{self.date}, {self.counterparty}, {self.item}, {self.amount}'
-
-    @classmethod
-    def from_calc(cls, calc_id):
-        obj = Calculations.objects.get(pk=calc_id)
-
-        # doc_list = []
-        # date_num = int(str(obj.date_first.date())[-2:])
-        # date_cur = obj.date_first.date()
-        #
-        # for i in range(obj.term):
-        #     doc_list.append([date_cur, obj.counterparty, obj.item, obj.project, obj.amount, obj.currency, obj.name, obj.comments])
-        #     date_cur = (date_cur + datetime.timedelta(days=30)).replace(day=date_num)
-        #
-        # for i in doc_list:
-        return cls(
-            organization=obj.organization,
-            date=obj.date_first,
-            amount=obj.amount,
-            currency=obj.currency,
-            is_cash=obj.is_cash,
-            project=obj.project,
-            counterparty=obj.counterparty,
-            item=obj.item,
-            calculation=obj.name,
-            comments=obj.comments
-        )
 
     class Meta:
         ordering = ['date', 'item']

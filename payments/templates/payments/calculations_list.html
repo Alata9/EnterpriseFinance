@@ -2,12 +2,12 @@
 <table class="table table-condensed table-scroll table-striped" id="id_table" >
     <tr>
         <th align="center">calculation's name</th>
+        <th align="center">type</th>
+        <th align="center">flow</th>
         <th align="center">organization</th>
         <th align="center">project</th>
         <th align="center">item</th>
         <th align="center">counterparty</th>
-        <th align="center">type</th>
-        <th align="center">flow</th>
         <th align="center">amount</th>
         <th align="center">currency</th>
         <th align="center">is_cash</th>
@@ -20,13 +20,13 @@
     </tr>
     {% for i in object_list %}
     <tr>
-        <td width="50">{{i.name}}</td>
+        <td width="50" align="left">{{i.name}}</td>
+        <td width="50">{{i.type_calc}}</td>
+        <td width="50">{{i.flow}}</td>
         <td width="50">{{i.organization}}</td>
         <td width="100">{% if i.project != None %}{{ i.project }}{% endif %}</td>
         <td width="100">{{i.item}}</td>
         <td width="100">{{i.counterparty}}</td>
-        <td width="50">{{i.type_calc}}</td>
-        <td width="50">{{i.flow}}</td>
         <td width="50" align="right">{{i.amount}}</td>
         <td width="50">{{i.currency}}</td>
         <td width="100" align="center">{% if i.is_cash %}<i class="bi bi-check2-square"></i>{% endif %}</td>

@@ -4,7 +4,7 @@ from decimal import Decimal
 from io import TextIOWrapper, StringIO, BytesIO
 
 from django.http import FileResponse, HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views.generic import DeleteView, FormView, ListView, UpdateView
 
 from directory.models import Organization, Project, Currencies, Counterparties, PaymentAccount
@@ -76,6 +76,8 @@ class PaymentsPlanView(ListView):
                 payments_pl = payments_pl.filter(is_cash=True)
             if form.cleaned_data['currency']:
                 payments_pl = payments_pl.filter(currency=form.cleaned_data['currency'])
+            if form.cleaned_data['calculation']:
+                payments_pl = payments_pl.filter(calculation=form.cleaned_data['calculation'])
             if form.cleaned_data['ordering']:
                 payments_pl = payments_pl.order_by(form.cleaned_data['ordering'])
 
@@ -102,9 +104,6 @@ class PaymentsPlanIdView(UpdateView):
             obj = self.model.objects.get(pk=self.kwargs['from_pk'])
             obj.id = None
             return obj
-
-        if 'calc_id' in self.kwargs:
-            return self.model.from_calc(self.kwargs['calc_id'])
 
         org = AccountSettings.load().organization()
         return self.model(organization=org)
@@ -207,6 +206,9 @@ class CalculationIdView(UpdateView):
             obj.id = None
             return obj
 
+        if 'create_plan' in self.kwargs:
+            return self.model.create_plan_payments(self.kwargs['create_plan'])
+
         org = AccountSettings.load().organization()
         return self.model(organization=org)
 
@@ -216,7 +218,7 @@ class CalculationIdView(UpdateView):
         return HttpResponse(form["project"])
 
     def calculation_queryset(request):
-        payments_pl = Calculations.objects.all()
+        payments_pl = PaymentsPlan.objects.all()
         form = CalculationAdd(request.GET)
         if form.is_valid():
             if form.cleaned_data['name']:

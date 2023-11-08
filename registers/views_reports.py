@@ -47,39 +47,30 @@ class AccountBalancesView(ListView):
         receipts_before = Receipts.objects.all()
         payments = Payments.objects.all()
         payments_before = Payments.objects.all()
-        change_account = ChangePayAccount.objects.all()
-        change_account_before = ChangePayAccount.objects.all()
+
 
         form = AccountBalancesFilter(request.GET)
         if form.is_valid():
             if form.cleaned_data['organization']:
                 accounts = accounts.filter(organization=form.cleaned_data['organization'])
-                change_account = change_account.filter(organization=form.cleaned_data['organization'])
             if form.cleaned_data['currency']:
                 accounts = accounts.filter(currency=form.cleaned_data['currency'])
-                change_account = change_account.filter(currency=form.cleaned_data['currency'])
             if form.cleaned_data['is_cash']:
                 accounts = accounts.filter(is_cash=True)
-                change_account = change_account.filter(is_cash=True)
             if form.cleaned_data['date_start']:
                 receipts = receipts.filter(date__gte=form.cleaned_data['date_start'])
                 payments = payments.filter(date__gte=form.cleaned_data['date_start'])
-                change_account = change_account.filter(date__gte=form.cleaned_data['date_start'])
                 receipts_before = receipts_before.filter(date__lte=form.cleaned_data['date_start'])
                 payments_before = payments_before.filter(date__lte=form.cleaned_data['date_start'])
-                change_account_before = change_account_before.filter(date__lte=form.cleaned_data['date_start'])
             else:
                 receipts_before = Receipts.objects.none()
                 payments_before = Payments.objects.none()
-                change_account_before = Payments.objects.none()
-
             if form.cleaned_data['date_end']:
                 receipts = receipts.filter(date__lte=form.cleaned_data['date_end'])
                 payments = payments.filter(date__lte=form.cleaned_data['date_end'])
-                change_account = change_account.filter(date__lte=form.cleaned_data['date_end'])
 
         account_balances, balances_convert = AccountBalancesView.get_balances(
-            accounts, receipts, payments, receipts_before, payments_before, change_account, change_account_before)
+            accounts, receipts, payments, receipts_before, payments_before)
         return {
             "account_balances": account_balances,
             "balances_convert": balances_convert,
@@ -92,8 +83,7 @@ class AccountBalancesView(ListView):
         return render(request, 'registers/account_balances_list.html', context=context)
 
     @staticmethod
-    def get_balances(accounts, receipts, payments, receipts_before, payments_before, change_account,
-                     change_account_before):
+    def get_balances(accounts, receipts, payments, receipts_before, payments_before):
 
         main_currency = AccountSettings.load().currency()
         account_balances = []
@@ -124,28 +114,8 @@ class AccountBalancesView(ListView):
             if payments_before_sum is None:
                 payments_before_sum = 0
 
-            change_pay_sum = change_account.filter(pay_account_from=account).aggregate(Sum("amount")).get(
-                'amount__sum', 0.00)
-            if change_pay_sum is None:
-                change_pay_sum = 0
-
-            change_rec_sum = change_account.filter(pay_account_to=account).aggregate(Sum("amount")).get(
-                'amount__sum', 0.00)
-            if change_rec_sum is None:
-                change_rec_sum = 0
-
-            change_pay_before_sum = change_account_before.filter(pay_account_from=account).aggregate(
-                Sum("amount")).get('amount__sum', 0.00)
-            if change_pay_before_sum is None:
-                change_pay_before_sum = 0
-
-            change_rec_before_sum = change_account_before.filter(pay_account_to=account).aggregate(
-                Sum("amount")).get('amount__sum', 0.00)
-            if change_rec_before_sum is None:
-                change_rec_before_sum = 0
-
-            start_balance = receipts_before_sum + change_rec_before_sum - payments_before_sum - change_pay_before_sum
-            final_balance = start_balance + receipts_sum + change_rec_sum - payments_sum - change_pay_sum
+            start_balance = receipts_before_sum - payments_before_sum
+            final_balance = start_balance + receipts_sum - payments_sum
 
             account_balances.append({'account': account.account, 'organization': account.organization.organization,
                                      'currency': account.currency.code, 'is_cash': account.is_cash,

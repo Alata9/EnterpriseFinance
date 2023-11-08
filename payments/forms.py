@@ -189,15 +189,16 @@ class PaymentsPlanFilter(ModelForm):
     date_end = DateField(label="To", widget=DateInput(attrs={'type': 'date'}), required=False)
     ordering = ChoiceField(label='Ordering', required=False,
                            choices=[
-                               ['date_first', 'by date'],
+                               ['date', 'by date'],
                                ['amount', 'by amount'],
                                ['counterparty', 'by counterparty'],
                                ['item', 'by item'],
-                               ['project', 'by project']
+                               ['project', 'by project'],
+                               ['calculation', 'by calculation']
                            ])
     class Meta:
         model = PaymentsPlan
-        fields = ['organization', 'currency', 'is_cash', 'project', 'counterparty', 'item', 'date']
+        fields = ['organization', 'currency', 'is_cash', 'project', 'counterparty', 'item', 'date', 'calculation']
         widgets = {
             'date': DateInput(attrs={'type': 'Date'}),
             'date_end': DateInput(attrs={'type': 'Date'}),
@@ -213,6 +214,8 @@ class PaymentsPlanFilter(ModelForm):
         self.fields['project'].required = False
         self.fields['counterparty'].empty_label = 'Counterparty:'
         self.fields['counterparty'].required = False
+        self.fields['calculation'].empty_label = "Calculation's name:"
+        self.fields['calculation'].required = False
         self.fields['item'].empty_label = 'Item:'
         self.fields['item'].required = False
         self.fields['date'].label = 'From:'

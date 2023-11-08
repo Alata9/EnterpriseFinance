@@ -1,5 +1,5 @@
 {% extends 'registers/base.html' %}
-{% block title %}Regular plan payment{% endblock %}
+{% block title %}New calculation{% endblock %}
 {% load crispy_forms_tags %}
 {% load widget_tweaks %}
 {% block content %}
@@ -7,7 +7,10 @@
 <div class="container-fluid px-10">
     <form  method='POST'>
         {% csrf_token %}
-        <div class="row text-center"><h2>New calculation for plan</h2></div>
+        <div class="row text-center">
+            <div class="col-md-4 border p-2 shadow"><h1>New calculation</h1></div>
+            <div class="col-md-8 border p-2 shadow"><H3>List of payment request</H3></div>
+        </div>
         <div class="row">
             <div class="col-md-2 border p-2 shadow">
                 <div class="form-group">
@@ -53,7 +56,7 @@
             <div class="row text-center">
                 <div class="col-md-4">
                     <button class="btn btn-warning" type="submit" name="btn_save">SAVE</button>
-                    <a href="{% url 'payments_plan_add_calc' i.id %}" class='btn btn-warning'>CREATE A GROUP OF PAYMENTS</a>
+                    <a href="{% url 'calculation_create_plan' object.id %}" class='btn btn-warning'>CREATE A GROUP OF PLAN PAYMENTS</a>
                     <input action="action" onclick="window.history.go(-1); return false;"
                            class='btn btn-warning' type="submit" value="CANCEL"/>
                 </div>

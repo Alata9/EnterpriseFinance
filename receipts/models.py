@@ -3,6 +3,7 @@ from django.db import models
 from directory.models import Organization, PaymentAccount, Currencies, Project, Counterparties, TypeCF
 
 
+
 class IncomeGroup(models.Model):
     income_group = models.CharField(max_length=50)
     comments = models.CharField(max_length=255, blank=True, null=True)

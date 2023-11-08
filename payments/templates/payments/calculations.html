@@ -1,5 +1,5 @@
 {% extends 'registers/base.html' %}
-{% block title %}Calculations for plan{% endblock %}
+{% block title %}Calculations{% endblock %}
 {% load crispy_forms_tags %}
 {% load widget_tweaks %}
 {% block content %}
@@ -11,7 +11,7 @@
             hx-trigger="change"
             hx-target="#id_table">
         <div class="col-md-2 border p-2 shadow">
-                <h1>Calculations for plan</h1>
+                <h1>Calculations</h1>
                 {% csrf_token %}
                 <div class="form-group">
                 {{ form.ordering.label_tag }}
