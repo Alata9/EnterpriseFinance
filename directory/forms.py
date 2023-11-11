@@ -1,10 +1,10 @@
-from django import forms
 from django.core.exceptions import ValidationError
-from django.db.models import DateField
 from django.forms import ModelForm, Textarea, DateInput, DateField
 
 from directory.models import (
-    Organization, Project, PaymentAccount, Counterparties, Currencies, CurrenciesRates, InitialDebts
+    Organization, Project, PaymentAccount, Counterparties, InitialDebts,
+    Currencies, CurrenciesRates,
+    ExpenseGroup, ExpensesItem, IncomeGroup, IncomeItem
 )
 
 
@@ -132,4 +132,46 @@ class RatesParser(ModelForm):
         self.fields['accounting_currency'].required = True
         self.fields['currency'].empty_label = ''
         self.fields['currency'].required = True
+
+
+class ExpenseGroupAdd(ModelForm):
+    class Meta:
+        model = ExpenseGroup
+        fields = ('expense_group', 'type_cf', 'comments')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['type_cf'].empty_label = ''
+        self.fields['type_cf'].label = 'Activities'
+
+
+class ExpenseItemAdd(ModelForm):
+    class Meta:
+        model = ExpensesItem
+        fields = ('expense_item', 'expense_group')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['expense_group'].empty_label = ''
+
+
+class IncomeGroupAdd(ModelForm):
+    class Meta:
+        model = IncomeGroup
+        fields = ('income_group', 'type_cf', 'comments')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['type_cf'].empty_label = ''
+        self.fields['type_cf'].label = 'Activities'
+
+
+class IncomeItemAdd(ModelForm):
+    class Meta:
+        model = IncomeItem
+        fields = ('income_item', 'income_group')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['income_group'].empty_label = ''
 

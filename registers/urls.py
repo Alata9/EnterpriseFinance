@@ -1,6 +1,5 @@
 from django.urls import path
 
-
 from registers.views_charts import (
     DashboardView, ChartsOperView, ChartsInvestView, ChartsFinView, htmx_projects
 )
@@ -29,9 +28,6 @@ urlpatterns = [
 
     path('cf_budget/', CfBudgetView, name='cf_budget'),
     path('plan_fact_analysis/', PlanFactAnalysisView, name='plan_fact_analysis'),
-
-
-
 
 ]
 

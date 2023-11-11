@@ -1,10 +1,8 @@
-from django import forms
-from django.forms import ModelForm, DateInput, DateField, ModelChoiceField, ChoiceField
+from django.forms import ModelForm, DateInput, DateField, ModelChoiceField
 from dynamic_forms import DynamicField, DynamicFormMixin
 
-from directory.models import Organization, PaymentAccount, CurrenciesRates, Currencies, Project, TypeCF
+from directory.models import PaymentAccount, Currencies, Project, TypeCF
 from payments.models import Payments
-from receipts.models import IncomeGroup
 from registers.models import AccountSettings
 
 
@@ -19,6 +17,7 @@ class AccountSettingsSet(ModelForm):
         self.fields['organization_default'].empty_label = ''
         self.fields['accounting_currency'].empty_label = ''
         self.fields['accounting_currency'].label = 'Main accounting currency'
+
 
 class AccountBalancesFilter(DynamicFormMixin, ModelForm):
     date_start = DateField(label="From", widget=DateInput(attrs={'type': 'date'}), required=False)

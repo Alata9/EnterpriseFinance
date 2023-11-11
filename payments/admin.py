@@ -1,18 +1,20 @@
 from django.contrib import admin
 
-from payments.models import ExpenseGroup, ExpensesItem, Payments, PaymentsPlan, Calculations
+from payments.models import Receipts, ChangePayAccount, Payments
 
 
-class ExpensesGroupAdmin(admin.ModelAdmin):
-    list_display = ['id', 'expense_group', 'comments']
-    list_display_links = ['id', 'expense_group', 'comments']
-    search_fields = ['expense_group']
+class ReceiptsAdmin(admin.ModelAdmin):
+    list_display = ['id', 'organization', 'date', 'amount', 'account', 'currency',
+                    'counterparty', 'item', 'project', 'comments']
+    list_display_links = ['id', 'organization', 'date', 'amount', 'account', 'currency',
+                          'counterparty', 'item', 'project', 'comments']
+    search_fields = ['organization', 'date', 'counterparty', 'account', 'currency', 'item', 'project']
 
 
-class ExpensesItemAdmin(admin.ModelAdmin):
-    list_display = ['id', 'expense_item', 'expense_group']
-    list_display_links = ['id', 'expense_item', 'expense_group']
-    search_fields = ['expense_item']
+class ChangePayAccountAdmin(admin.ModelAdmin):
+    list_display = ['id', 'pay_account_from', 'pay_account_to', 'date', 'amount', 'currency']
+    list_display_links = ['id', 'pay_account_from', 'pay_account_to', 'date', 'amount', 'currency']
+    search_fields = ['pay_account_from', 'pay_account_to', 'date', 'amount', 'currency']
 
 
 class PaymentsAdmin(admin.ModelAdmin):
@@ -23,24 +25,7 @@ class PaymentsAdmin(admin.ModelAdmin):
     search_fields = ['organization', 'date', 'counterparty', 'account', 'item', 'project']
 
 
-class PaymentsPlanAdmin(admin.ModelAdmin):
-    list_display = ['id', 'organization', 'date', 'amount', 'currency', 'is_cash',
-                    'counterparty', 'item', 'project', 'comments']
-    list_display_links = ['id', 'organization', 'date', 'amount', 'currency', 'is_cash',
-                          'counterparty', 'item', 'project', 'comments']
-    search_fields = ['organization', 'date', 'counterparty', 'currency', 'item', 'project']
 
-
-class CalculationsAdmin(admin.ModelAdmin):
-    list_display = ['id', 'name', 'type_calc', 'flow', 'organization', 'date_first', 'amount', 'currency', 'is_cash',
-                    'frequency', 'loan_rate', 'term', 'counterparty', 'item', 'project', 'comments']
-    list_display_links = ['id', 'name', 'type_calc', 'flow', 'organization', 'date_first', 'amount', 'currency', 'is_cash',
-                          'frequency', 'loan_rate', 'term', 'counterparty', 'item', 'project', 'comments']
-    search_fields = ['name', 'type_calc', 'organization', 'counterparty', 'item', 'project']
-
-
-admin.site.register(ExpenseGroup, ExpensesGroupAdmin)
-admin.site.register(ExpensesItem, ExpensesItemAdmin)
 admin.site.register(Payments, PaymentsAdmin)
-admin.site.register(PaymentsPlan, PaymentsPlanAdmin)
-admin.site.register(Calculations, CalculationsAdmin)
+admin.site.register(Receipts, ReceiptsAdmin)
+admin.site.register(ChangePayAccount, ChangePayAccountAdmin)

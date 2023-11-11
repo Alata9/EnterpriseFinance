@@ -9,7 +9,7 @@ from django.views.generic import UpdateView, ListView, View
 
 from directory.models import PaymentAccount, CurrenciesRates, TypeCF, Counterparties, InitialDebts
 from payments.models import Payments
-from receipts.models import Receipts, IncomeItem
+from payments.models import Receipts, IncomeItem
 from registers.forms import AccountSettingsSet, AccountBalancesFilter, DashboardFilter
 from registers.models import AccountSettings
 
@@ -150,7 +150,7 @@ class DashboardView(View):
         cf_invest = receipts_invest - payments_invest
         cf_fin = receipts_fin - payments_fin
 
-        cf_table['receipts'] = [int(receipts_oper), int(receipts_invest), int(receipts_fin), int(receipts_sum)]
+        cf_table['payments'] = [int(receipts_oper), int(receipts_invest), int(receipts_fin), int(receipts_sum)]
         cf_table['payments'] = [int(payments_oper), int(payments_invest), int(payments_fin), int(payments_sum)]
         cf_table['cash flow'] = [int(cf_oper), int(cf_invest), int(cf_fin), int(cf)]
 
@@ -174,7 +174,7 @@ class DashboardView(View):
 
         return dynamics
 
-    # get data payments and receipts
+    # get data payments and payments
     def get_total_cf(self, payments, receipts):
         payments_dynamics = self.get_dynamics(payments)
         receipts_dynamics = self.get_dynamics(receipts)
@@ -251,7 +251,7 @@ class ChartsOperView(View):
 
 
 
-    # function for data payments and receipts
+    # function for data payments and payments
     @staticmethod
     def get_dynamics(flow):
         dynamics = {}
@@ -267,7 +267,7 @@ class ChartsOperView(View):
         return dynamics
 
 
-    # get data payments and receipts for chart 3
+    # get data payments and payments for chart 3
     def get_total_cf(self, receipts, payments):
         payments_dynamics = self.get_dynamics(payments)
         receipts_dynamics = self.get_dynamics(receipts)
@@ -280,7 +280,7 @@ class ChartsOperView(View):
         return total_cf
 
 
-    # chart 3 Dynamics of receipts and payments
+    # chart 3 Dynamics of payments and payments
     def get_rp_dynamics(self, receipts, payments):
         total_cf = self.get_total_cf(receipts, payments)
         rp_dynamics = []
@@ -474,7 +474,7 @@ class ChartsFinView(View):
 
         return dynamics
 
-    # get data payments and receipts
+    # get data payments and payments
     def get_total_cf(self, payments, receipts):
         payments_dynamics = self.get_dynamics(payments)
         receipts_dynamics = self.get_dynamics(receipts)
@@ -515,9 +515,9 @@ def ChartsInvestView(request):
             payments = payments.filter(date__lte=form.cleaned_data['date_end'])
 
         # if form.cleaned_data['conversion_currency']:
-        #     receipts = receipts
         #     payments = payments
-            # for i in receipts:
+        #     payments = payments
+            # for i in payments:
             #     i.amount = i.amount * get_currency_rate(i.currency, form.cleaned_data['conversion_currency'], i.date)
             #     print(i)
             # for i in payments:
@@ -534,7 +534,7 @@ def ChartsInvestView(request):
             else:
                 structure[item] += amount
         return list(map(list, list(zip(list(structure), list(structure.values())))))
-    # print('rec_struc:', get_structure(receipts))
+    # print('rec_struc:', get_structure(payments))
     # print('pay_struc:', get_structure(payments))
 
 
@@ -551,11 +551,11 @@ def ChartsInvestView(request):
 
         return dynamics
 
-    # print('rec_dyn:', get_dynamics(receipts))
+    # print('rec_dyn:', get_dynamics(payments))
     # print('pay_dyn:', get_dynamics(payments))
 
 
-    # data payments and receipts
+    # data payments and payments
     def get_total_cf():
         payments_dynamics = get_dynamics(payments)
         receipts_dynamics = get_dynamics(receipts)
@@ -589,14 +589,14 @@ def ChartsInvestView(request):
             payments_sum = 0
         cf = receipts_sum - payments_sum
 
-        cf_table['total receipts'] = int(receipts_sum)
+        cf_table['total payments'] = int(receipts_sum)
         cf_table['total payments'] = int(payments_sum)
         cf_table['total cf'] = int(cf)
 
         return list(map(list, list(zip(list(cf_table), list(cf_table.values())))))
     # print('cf_table:', get_cf_table())
 
-    # diagr 6 receipts and payments dynamics
+    # diagr 6 payments and payments dynamics
     def get_rp_dynamics():
         total_cf = get_total_cf()
         rp_dynamics = []

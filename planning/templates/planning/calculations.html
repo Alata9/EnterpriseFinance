@@ -1,5 +1,5 @@
 {% extends 'registers/base.html' %}
-{% block title %}Receipts plan{% endblock %}
+{% block title %}Calculations{% endblock %}
 {% load crispy_forms_tags %}
 {% load widget_tweaks %}
 {% block content %}
@@ -7,61 +7,55 @@
 <div class="container-fluid px-10">
     <div class="row">
         <form action="" method="GET"
-            hx-get="/receipts_plan/list"
+            hx-get="/calculations/list"
             hx-trigger="change"
             hx-target="#id_table">
         <div class="col-md-2 border p-2 shadow">
-                <h2>Planned receipts</h2>
+                <h4>FILTER</h4>
                 {% csrf_token %}
                 <div class="form-group">
                 {{ form.ordering.label_tag }}
                 {% render_field form.ordering class="select form-control" %}
                 </div>
+                <hr>
                 <div class="form-group">
-                {{ form.date.label_tag }}
-                {% render_field form.date class="select form-control" %}
+                {% render_field form.flow class="select form-control" %}
                 </div>
                 <div class="form-group">
-                {{ form.date_end.label_tag }}
-                {% render_field form.date_end class="select form-control" %}
+                {% render_field form.type_calc class="select form-control" %}
                 </div>
                 <div id="div_id_organization"
                      class="form-group"
-                     hx-get="/receipts_plan/projects"
+                     hx-get="/calculations/projects"
                      hx-vals="js:{organization:document.getElementById('id_organization').value}"
                      hx-trigger="change"
                      hx-target="#id_project">
-                {% render_field form.organization class="select form-control" hx-get="/receipts_plan/project" hx-trigger="change" hx-target="#id_account" %}
+                {% render_field form.organization class="select form-control" %}
                 </div>
                 <div class="form-group">
-                {% render_field form.project class="select form-control" %}
+                {% render_field form.counterparty class="select form-control" %}
                 </div>
                 <div class="form-group">
                 {% render_field form.item class="select form-control" %}
                 </div>
                 <div class="form-group">
-                {% render_field form.counterparty class="select form-control" %}
+                {% render_field form.project class="select form-control" %}
                 </div>
-                <div class="row text-left">
-                    <div class="col-md-8 form-group">{% render_field form.currency class="select form-control" %}</div>
-                    <div class="col-md-4 form-group">{{ form.is_cash|as_crispy_field }}</div>
-                </div>
-                <div hx-get="/receipts_plan/list" hx-trigger="click" hx-target="#id_table">
+                <div hx-get="/calculations/list" hx-trigger="click" hx-target="#id_table">
                     <button class="btn btn-warning" type="reset" name="btn_reset" >RESET FILTERS</button>
                 </div>
+
         </div>
         <div class="col-md-10 border p-2 shadow">
             <div class="row d-grid gap-2 d-md-flex justify-content-md-end">
-                <div class="col-md-7"></div>
-                <div class="col-md-5">
-                    <a href="{% url 'receipts_plan_add' %}" class="btn btn-warning" name="btn_add">ADD NEW PLAN</a>
-                    <a href="{% url 'receipts_plan_upload_file' %}" class="btn btn-warning" name="btn_add">IMPORT FROM FILE</a>
-                    <button  class="btn btn-warning" name="btn_to_file">SAVE TO FILE</button>
+                <div class="col-md-10 fw-bold"><H2>Calculations</H2></div>
+                <div class="col-md-2">
+                    <a href="{% url 'calculation_add' %}" class="btn btn-warning" name="btn_add">ADD NEW</a>
                 </div>
             </div>
             <br>
             <div class="table-responsive" style="height: 550px">
-                {% include "receipts/receipts_plan_list.html" %}
+                {% include "planning/calculations_list.html" %}
             </div>
         </div>
         </form>
@@ -69,4 +63,3 @@
 </div>
 
 {% endblock %}
-

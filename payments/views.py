@@ -1,95 +1,154 @@
 import csv
 import datetime
 from decimal import Decimal
-from io import TextIOWrapper, BytesIO, StringIO
+from io import TextIOWrapper, StringIO, BytesIO
 
-from django.db.models import ProtectedError
 from django.http import HttpResponse, FileResponse
 from django.shortcuts import render
 from django.views.generic import UpdateView, DeleteView, ListView, FormView
 
-from directory.models import Organization, Project, Currencies, Counterparties, PaymentAccount
-from payments.forms import ExpenseGroupAdd, ExpenseItemAdd, PaymentsFilter, PaymentsAdd, UploadFile
-from payments.models import ExpenseGroup, ExpensesItem, Payments
+from directory.models import Organization, PaymentAccount, Currencies, Counterparties, Project, IncomeItem, ExpensesItem
 from registers.models import AccountSettings
+from payments.models import Receipts, ChangePayAccount, Payments
+from payments.forms import (
+    ReceiptsAdd, ReceiptsFilter, PaymentsFilter, PaymentsAdd,
+    ChangePayAccountAdd, ChangePayAccountFilter, UploadFile
+)
 
 
-# Expenses Groups----------------------------------------
+class ReceiptsView(ListView):
+    model = Receipts
+    template_name = 'payments/receipts.html'
 
-def ExpensesGroupView(request):
-    expense_groups = ExpenseGroup.objects.all()
-    context = {'expense_groups': expense_groups}
+    def get(self, request, *args, **kwargs):
+        if 'btn_to_file' in request.GET:
+            return self.to_file(request)
+        return super().get(request, *args, **kwargs)
 
-    return render(request, 'payments/expenses_groups.html', context=context)
+    def to_file(self, request):
+        my_data = [["Organization", "Account", "Date", "Amount", "Currency", "Counterparty", "Item", "Project", "Comments"]]
+        receipts = self.receipts_queryset(request)
+        for i in receipts:
+            my_data.append([i.organization, i.account, i.date, i.amount, i.currency, i.counterparty, i.item, i.project, i.comments])
+
+        t = str(datetime.datetime.today().strftime('%d-%m-%Y-%H%M%S'))
+        file_name = 'receipts_' + t + '.csv'
+        file_buffer = StringIO()
+
+        writer = csv.writer(file_buffer, delimiter=';')
+        writer.writerows(my_data)
+        file_bytes = BytesIO(file_buffer.getvalue().encode('cp1251'))
+        file_bytes.seek(0)
+
+        response = FileResponse(file_bytes, filename=file_name, as_attachment=True)
+
+        return response
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        ctx = super().get_context_data(object_list=None, **kwargs)
+        ctx['form'] = ReceiptsFilter()
+        return ctx
+
+    @staticmethod
+    def receipts_queryset(request):
+        receipts = Receipts.objects.all()
+
+        form = ReceiptsFilter(request.GET)
+        if form.is_valid():
+            if form.cleaned_data['date']:
+                receipts = receipts.filter(date__gte=form.cleaned_data['date'])
+            if form.cleaned_data['date_end']:
+                receipts = receipts.filter(date__lte=form.cleaned_data['date_end'])
+            if form.cleaned_data['counterparty']:
+                receipts = receipts.filter(counterparty=form.cleaned_data['counterparty'])
+            if form.cleaned_data['item']:
+                receipts = receipts.filter(item=form.cleaned_data['item'])
+            if form.cleaned_data['organization']:
+                receipts = receipts.filter(organization=form.cleaned_data['organization'])
+            if form.cleaned_data['project']:
+                receipts = receipts.filter(project=form.cleaned_data['project'])
+            if form.cleaned_data['account']:
+                receipts = receipts.filter(account=form.cleaned_data['account'])
+            if form.cleaned_data['ordering']:
+                receipts = receipts.order_by(form.cleaned_data['ordering'])
+
+        return receipts
+
+    @staticmethod
+    def htmx_list(request):
+        context = {'object_list': ReceiptsView.receipts_queryset(request)}
+
+        return render(request, 'payments/receipts_list.html', context=context)
 
 
-class ExpensesGroupIdView(UpdateView):
-    model = ExpenseGroup
-    template_name = 'payments/expenses_group_id.html'
-    form_class = ExpenseGroupAdd
-    success_url = '/expenses_groups'
+class ReceiptsIdView(UpdateView):
+    model = Receipts
+    template_name = 'payments/receipts_id.html'
+    form_class = ReceiptsAdd
+    success_url = '/receipts'
 
     def get_object(self, queryset=None):
         if 'pk' in self.kwargs:
             return super().get_object(queryset)
 
+        if 'from_pk' in self.kwargs:
+            obj = self.model.objects.get(pk=self.kwargs['from_pk'])
+            obj.id = None
+            return obj
 
-class ExpensesGroupDeleteView(DeleteView):
+        if 'plan_id' in self.kwargs:
+            return self.model.from_plan(self.kwargs['plan_id'])
+
+        org = AccountSettings.load().organization()
+        return self.model(organization=org)
+
+
+    @staticmethod
+    def htmx_accounts(request):
+        form = ReceiptsAdd(request.GET)
+        return HttpResponse(form["account"])
+
+    @staticmethod
+    def htmx_projects(request):
+        form = ReceiptsAdd(request.GET)
+        return HttpResponse(form["project"])
+
+
+class ReceiptsDeleteView(DeleteView):
     error = ''
-    model = ExpenseGroup
-    success_url = '/expenses_groups'
-    template_name = 'payments/expenses_group_delete.html'
-
-    def post(self, request, *args, **kwargs):
-        try:
-            return super().delete(request, *args, **kwargs)
-        except ProtectedError as error:
-            self.object = self.get_object()
-            context = self.get_context_data(
-                object=self.object,
-                error=f'Error: {error.protected_objects}'
-            )
-            return self.render_to_response(context)
-
-# Expenses Item----------------------------------------
-
-def ExpensesItemView(request):
-    expense_items = ExpensesItem.objects.all()
-    context = {'expense_items': expense_items}
+    model = Receipts
+    success_url = '/payments'
+    template_name = 'payments/receipts_delete.html'
 
 
-    return render(request, 'payments/expenses_items.html', context=context)
+class UploadFileReceiptView(FormView):
+    form_class = UploadFile
+    template_name = 'payments/receipts_upload_file.html'
+    success_url = '/payments'
 
+    def form_valid(self, form):
+        csvfile = form.cleaned_data['file']
+        f = TextIOWrapper(csvfile.file)
+        reader = csv.DictReader(f, delimiter=';')
+        for _, item in enumerate(reader, start=1):
+            receipt = Receipts()
+            try:
+                receipt.organization = Organization.objects.get(organization=item.get('organization'))
+                receipt.account = PaymentAccount.objects.get(account=item.get('account'))
+                if item.get('project'):
+                    receipt.project = Project.objects.get(project=item.get('project'))
+                receipt.date = datetime.datetime.strptime(item.get('date'), '%d.%m.%Y').date()
+                receipt.amount = Decimal(item.get('amount'))
+                receipt.currency = Currencies.objects.get(code=item.get('currency'))
+                receipt.counterparty = Counterparties.objects.get(counterparty=item.get('counterparty'))
+                receipt.item = IncomeItem.objects.get(income_item=item.get('item'))
+                receipt.comments = item.get('comments')
+                receipt.save()
+            except Exception as e:
+                print(e)
 
-class ExpensesItemIdView(UpdateView):
-    model = ExpensesItem
-    template_name = 'payments/expenses_item_id.html'
-    form_class = ExpenseItemAdd
-    success_url = '/expenses_items'
+        return super().form_valid(form)
 
-    def get_object(self, queryset=None):
-        if 'pk' in self.kwargs:
-            return super().get_object(queryset)
-
-
-class ExpensesItemDeleteView(DeleteView):
-    error = ''
-    model = ExpensesItem
-    success_url = '/expenses_items'
-    template_name = 'payments/expenses_item_delete.html'
-
-    def post(self, request, *args, **kwargs):
-        try:
-            return super().delete(request, *args, **kwargs)
-        except ProtectedError as error:
-            self.object = self.get_object()
-            context = self.get_context_data(
-                object=self.object,
-                error=f'Error: {error.protected_objects}'
-            )
-            return self.render_to_response(context)
-
-# Payments-----------------------------------
 
 class PaymentsView(ListView):
     model = Payments
@@ -101,10 +160,12 @@ class PaymentsView(ListView):
         return super().get(request, *args, **kwargs)
 
     def to_file(self, request):
-        my_data = [["Organization", "Account", "Date", "Amount", "Currency", "Counterparty", "Item", "Project", "Comments"]]
+        my_data = [
+            ["Organization", "Account", "Date", "Amount", "Currency", "Counterparty", "Item", "Project", "Comments"]]
         payments = self.payments_queryset(request)
         for i in payments:
-            my_data.append([i.organization, i.account, i.date, i.amount, i.currency, i.counterparty, i.item, i.project, i.comments])
+            my_data.append([i.organization, i.account, i.date, i.amount, i.currency, i.counterparty, i.item, i.project,
+                            i.comments])
 
         t = str(datetime.datetime.today().strftime('%d-%m-%Y-%H%M%S'))
         file_name = 'payments' + t + '.csv'
@@ -118,7 +179,6 @@ class PaymentsView(ListView):
         response = FileResponse(file_bytes, filename=file_name, as_attachment=True)
 
         return response
-
 
     def get_context_data(self, *, object_list=None, **kwargs):
         ctx = super().get_context_data(object_list=None, **kwargs)
@@ -178,7 +238,6 @@ class PaymentsIdView(UpdateView):
         org = AccountSettings.load().organization()
         return self.model(organization=org)
 
-
     @staticmethod
     def htmx_accounts(request):
         form = PaymentsAdd(request.GET)
@@ -197,7 +256,7 @@ class PaymentsDeleteView(DeleteView):
     template_name = 'payments/payments_delete.html'
 
 
-class UploadFileView(FormView):
+class UploadFilePaymentView(FormView):
     form_class = UploadFile
     template_name = 'payments/payments_upload_file.html'
     success_url = '/payments'
@@ -224,3 +283,60 @@ class UploadFileView(FormView):
                 print(e)
 
         return super().form_valid(form)
+
+
+class ChangePayAccountView(ListView):
+    model = ChangePayAccount
+    template_name = 'payments/change_payaccounts.html'
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        ctx = super().get_context_data(object_list=None, **kwargs)
+        ctx['form'] = ChangePayAccountFilter()
+        return ctx
+
+    @staticmethod
+    def changes_queryset(request):
+        changes = ChangePayAccount.objects.all()
+
+        form = ChangePayAccountFilter(request.GET)
+        if form.is_valid():
+            if form.cleaned_data['date']:
+                changes = changes.filter(date__gte=form.cleaned_data['date'])
+            if form.cleaned_data['date_end']:
+                changes = changes.filter(date__lte=form.cleaned_data['date_end'])
+            if form.cleaned_data['pay_account_from']:
+                changes = changes.filter(pay_account_from=form.cleaned_data['pay_account_from'])
+            if form.cleaned_data['pay_account_to']:
+                changes = changes.filter(pay_account_to=form.cleaned_data['pay_account_to'])
+
+        return changes
+
+    @staticmethod
+    def htmx_list(request):
+        context = {'object_list': ChangePayAccountView.changes_queryset(request)}
+
+        return render(request, 'payments/change_payaccount_list.html', context=context)
+
+
+class ChangePayAccountIdView(UpdateView):  # доработка
+    model = ChangePayAccount
+    template_name = 'payments/change_payaccount_id.html'
+    form_class = ChangePayAccountAdd
+    success_url = '/change_payaccounts'
+
+    def get_object(self, queryset=None):
+        if 'pk' in self.kwargs:
+            return super().get_object(queryset)
+
+        if 'from_pk' in self.kwargs:
+            obj = self.model.objects.get(pk=self.kwargs['from_pk'])
+            obj.id = None
+            return obj
+
+
+class ChangePayAccountDeleteView(DeleteView):
+    error = ''
+    model = ChangePayAccount
+    success_url = '/change_payaccounts'
+    template_name = 'payments/change_payaccount_delete.html'
+

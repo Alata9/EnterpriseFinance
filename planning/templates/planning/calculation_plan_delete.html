@@ -1,0 +1,32 @@
+{% extends 'registers/base.html' %}
+{% block title %}Delete a series of payments plan{% endblock %}
+{% load crispy_forms_tags %}
+{% block content %}
+
+<div class="container">
+    <div class="row h-100 p-2 g-3 justify-content-center" >
+        <div class="col-md-8 border p-3 shadow">
+             <form method="post">
+                 {% csrf_token %}
+                 {% if error %}
+                    {{ error }}
+                    {% else %}
+                 <h3>Are you sure you want to delete</h3>
+                 <h3>the series of planned payments by calculation: "{{ object }}"</h3>
+                 <h3></h3>
+                 <br>
+                 <div class="row">
+                    <div class="col-md-2">
+                        <button class="btn btn-warning" type="submit" name="btn_del">DELETE</button>
+                    </div>
+                    <div class="col-md-2">
+                        <input action="action" onclick="window.history.go(-1); return false;"
+                                class='btn btn-warning' type="submit" value="CANCEL"/>
+                    </div>
+                     {% endif %}
+                 </div>
+             </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

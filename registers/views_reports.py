@@ -11,7 +11,7 @@ from django.views.generic import ListView, UpdateView
 
 from directory.models import PaymentAccount, Currencies, CurrenciesRates
 from payments.models import Payments
-from receipts.models import Receipts, ChangePayAccount
+from payments.models import Receipts, ChangePayAccount
 from registers.forms import AccountBalancesFilter, AccountSettingsSet, DashboardFilter, CFStatementFilter
 from registers.models import AccountSettings
 
