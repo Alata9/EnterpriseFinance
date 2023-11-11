@@ -1,22 +1,24 @@
-
+from django import forms
 from django.core.exceptions import ValidationError
 from django.forms import ModelForm, DateInput, Textarea, HiddenInput, DateField, ModelChoiceField, Form, FileField, \
     ChoiceField
 from dynamic_forms import DynamicField, DynamicFormMixin
 
-from directory.models import PaymentAccount, Project
-from payments.models import Receipts, ChangePayAccount, Payments
+from directory.models import PaymentAccount, Project, Items
+from payments.models import ChangePayAccount, PaymentDocuments
 
 
 class ReceiptsAdd(DynamicFormMixin, ModelForm):
-
     class Meta:
-        model = Receipts
-        fields = (
-            'organization', 'account', 'date', 'amount', 'currency', 'counterparty', 'item', 'project', 'comments')
+        model = PaymentDocuments
+        fields = ('organization', 'account', 'date', 'inflow_amount', 'currency',
+                  'counterparty', 'item', 'project', 'comments', 'flow')
+
         widgets = {'date': DateInput(attrs={'type': 'Date'}),
                    'comments': Textarea(attrs={'cols': 60, 'rows': 3}),
-                   'currency': HiddenInput()}
+                   'currency': HiddenInput(),
+                   'flow': HiddenInput()
+                   }
 
     account = DynamicField(
         ModelChoiceField,
@@ -28,16 +30,22 @@ class ReceiptsAdd(DynamicFormMixin, ModelForm):
         queryset=lambda form: Project.objects.filter(organization=form['organization'].value()),
     )
 
+    item = DynamicField(
+        ModelChoiceField,
+        queryset=lambda form: Items.objects.filter(flow='Receipts'),
+    )
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['organization'].empty_label = 'Organization:'
         self.fields['account'].empty_label = 'Account:'
         self.fields['counterparty'].empty_label = 'Counterparty:'
         self.fields['item'].empty_label = 'Item:'
+        self.fields['inflow_amount'].label = 'Amount'
         self.fields['project'].empty_label = 'Project:'
         self.fields['project'].required = False
         self.fields['counterparty'].queryset = self.fields['counterparty'].queryset.order_by('counterparty')
-        self.fields['item'].queryset = self.fields['item'].queryset.order_by('income_item')
+        self.fields['item'].queryset = self.fields['item'].queryset.order_by('item')
         self.fields['project'].queryset = self.fields['project'].queryset.order_by('project')
         self.fields['account'].queryset = self.fields['account'].queryset.order_by('account')
 
@@ -58,18 +66,18 @@ class ReceiptsFilter(ModelForm):
     ordering = ChoiceField(label='Ordering', required=False,
                            choices=[
                                ['date', 'by date'],
-                               ['amount', 'by amount'],
+                               ['inflow_amount', 'by amount'],
                                ['counterparty', 'by counterparty'],
                                ['item', 'by item'],
                                ['project', 'by project']
                            ])
     class Meta:
-        model = Receipts
-        fields = ['organization', 'account', 'project', 'counterparty', 'item', 'date']
+        model = PaymentDocuments
+        fields = ['organization', 'account', 'project', 'counterparty', 'item', 'date', 'flow']
         widgets = {
             'date': DateInput(attrs={'type': 'Date'}),
             'date_end': DateInput(attrs={'type': 'Date'}),
-        }
+            'flow': HiddenInput()}
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -88,19 +96,21 @@ class ReceiptsFilter(ModelForm):
         self.fields['date'].required = False
         self.fields['date_end'].required = False
         self.fields['counterparty'].queryset = self.fields['counterparty'].queryset.order_by('counterparty')
-        self.fields['item'].queryset = self.fields['item'].queryset.order_by('income_item')
+        self.fields['item'].queryset = self.fields['item'].queryset.order_by('item')
         self.fields['project'].queryset = self.fields['project'].queryset.order_by('project')
         self.fields['account'].queryset = self.fields['account'].queryset.order_by('account')
 
 
 class PaymentsAdd(DynamicFormMixin, ModelForm):
     class Meta:
-        model = Payments
-        fields = (
-            'organization', 'account', 'date', 'amount', 'currency', 'counterparty', 'item', 'project', 'by_request', 'comments')
+        model = PaymentDocuments
+        fields = ('organization', 'account', 'date', 'outflow_amount', 'currency', 'counterparty',
+                  'item', 'project', 'by_request', 'comments', 'flow')
         widgets = {'date': DateInput(attrs={'type': 'Date'}),
                    'comments': Textarea(attrs={'cols': 60, 'rows': 3}),
-                   'currency': HiddenInput()}
+                   'currency': HiddenInput(),
+                   'flow': HiddenInput()
+                   }
 
     account = DynamicField(
         ModelChoiceField,
@@ -112,18 +122,24 @@ class PaymentsAdd(DynamicFormMixin, ModelForm):
         queryset=lambda form: Project.objects.filter(organization=form['organization'].value()),
     )
 
+    item = DynamicField(
+        ModelChoiceField,
+        queryset=lambda form: Items.objects.filter(flow='Payments'),
+    )
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['organization'].empty_label = 'Organization:'
         self.fields['account'].empty_label = 'Account:'
         self.fields['counterparty'].empty_label = 'Counterparty:'
         self.fields['item'].empty_label = 'Item:'
+        self.fields['outflow_amount'].label = 'Amount'
         self.fields['project'].empty_label = 'Project:'
         self.fields['project'].required = False
         self.fields['by_request'].empty_label = 'by Request:'
         self.fields['by_request'].required = False
         self.fields['counterparty'].queryset = self.fields['counterparty'].queryset.order_by('counterparty')
-        self.fields['item'].queryset = self.fields['item'].queryset.order_by('expense_item')
+        self.fields['item'].queryset = self.fields['item'].queryset.order_by('item')
         self.fields['project'].queryset = self.fields['project'].queryset.order_by('project')
         self.fields['account'].queryset = self.fields['account'].queryset.order_by('account')
 
@@ -144,18 +160,19 @@ class PaymentsFilter(ModelForm):
     ordering = ChoiceField(label='Ordering', required=False,
                            choices=[
                                ['date', 'by date'],
-                               ['amount', 'by amount'],
+                               ['outflow_amount', 'by amount'],
                                ['counterparty', 'by counterparty'],
                                ['item', 'by item'],
                                ['project', 'by project']
                            ])
     class Meta:
-        model = Payments
-        fields = ['organization', 'account', 'project', 'counterparty', 'item', 'date']
+        model = PaymentDocuments
+        fields = ['organization', 'account', 'project', 'counterparty', 'item', 'date', 'flow']
         widgets = {
             'date': DateInput(attrs={'type': 'Date'}),
             'date_end': DateInput(attrs={'type': 'Date'}),
-        }
+            'flow': HiddenInput()}
+
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -173,7 +190,7 @@ class PaymentsFilter(ModelForm):
         self.fields['date'].required = False
         self.fields['date_end'].required = False
         self.fields['counterparty'].queryset = self.fields['counterparty'].queryset.order_by('counterparty')
-        self.fields['item'].queryset = self.fields['item'].queryset.order_by('expense_item')
+        self.fields['item'].queryset = self.fields['item'].queryset.order_by('item')
         self.fields['project'].queryset = self.fields['project'].queryset.order_by('project')
         self.fields['account'].queryset = self.fields['account'].queryset.order_by('account')
 

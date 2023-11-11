@@ -4,12 +4,12 @@ from decimal import Decimal
 from io import TextIOWrapper, StringIO, BytesIO
 
 from django.http import HttpResponse, FileResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views.generic import UpdateView, DeleteView, ListView, FormView
 
 from directory.models import Organization, PaymentAccount, Currencies, Counterparties, Project, IncomeItem, ExpensesItem
 from registers.models import AccountSettings
-from payments.models import Receipts, ChangePayAccount, Payments
+from payments.models import Receipts, ChangePayAccount, Payments, PaymentDocuments
 from payments.forms import (
     ReceiptsAdd, ReceiptsFilter, PaymentsFilter, PaymentsAdd,
     ChangePayAccountAdd, ChangePayAccountFilter, UploadFile
@@ -17,8 +17,11 @@ from payments.forms import (
 
 
 class ReceiptsView(ListView):
-    model = Receipts
+    model = PaymentDocuments
     template_name = 'payments/receipts.html'
+
+    def get_queryset(self):
+        return PaymentDocuments.objects.filter(flow='Receipts')
 
     def get(self, request, *args, **kwargs):
         if 'btn_to_file' in request.GET:
@@ -29,7 +32,8 @@ class ReceiptsView(ListView):
         my_data = [["Organization", "Account", "Date", "Amount", "Currency", "Counterparty", "Item", "Project", "Comments"]]
         receipts = self.receipts_queryset(request)
         for i in receipts:
-            my_data.append([i.organization, i.account, i.date, i.amount, i.currency, i.counterparty, i.item, i.project, i.comments])
+            my_data.append([i.organization, i.account, i.date, i.inflow_amount, i.currency, i.counterparty,
+                            i.item, i.project, i.comments])
 
         t = str(datetime.datetime.today().strftime('%d-%m-%Y-%H%M%S'))
         file_name = 'receipts_' + t + '.csv'
@@ -51,8 +55,8 @@ class ReceiptsView(ListView):
 
     @staticmethod
     def receipts_queryset(request):
-        receipts = Receipts.objects.all()
-
+        receipts = PaymentDocuments.objects.filter(flow='Receipts')
+        print(receipts)
         form = ReceiptsFilter(request.GET)
         if form.is_valid():
             if form.cleaned_data['date']:
@@ -82,7 +86,7 @@ class ReceiptsView(ListView):
 
 
 class ReceiptsIdView(UpdateView):
-    model = Receipts
+    model = PaymentDocuments
     template_name = 'payments/receipts_id.html'
     form_class = ReceiptsAdd
     success_url = '/receipts'
@@ -102,6 +106,14 @@ class ReceiptsIdView(UpdateView):
         org = AccountSettings.load().organization()
         return self.model(organization=org)
 
+    def form_valid(self, form):
+        form = form.save(commit=False)
+        form.flow = 'Receipts'
+        try:
+            form.save()
+            return redirect('receipts')
+        except:
+            form.add_error(None, 'Data save error')
 
     @staticmethod
     def htmx_accounts(request):
@@ -131,14 +143,14 @@ class UploadFileReceiptView(FormView):
         f = TextIOWrapper(csvfile.file)
         reader = csv.DictReader(f, delimiter=';')
         for _, item in enumerate(reader, start=1):
-            receipt = Receipts()
+            receipt = PaymentDocuments()
             try:
                 receipt.organization = Organization.objects.get(organization=item.get('organization'))
                 receipt.account = PaymentAccount.objects.get(account=item.get('account'))
                 if item.get('project'):
                     receipt.project = Project.objects.get(project=item.get('project'))
                 receipt.date = datetime.datetime.strptime(item.get('date'), '%d.%m.%Y').date()
-                receipt.amount = Decimal(item.get('amount'))
+                receipt.amount = Decimal(item.get('inflow_amount'))
                 receipt.currency = Currencies.objects.get(code=item.get('currency'))
                 receipt.counterparty = Counterparties.objects.get(counterparty=item.get('counterparty'))
                 receipt.item = IncomeItem.objects.get(income_item=item.get('item'))
@@ -151,8 +163,11 @@ class UploadFileReceiptView(FormView):
 
 
 class PaymentsView(ListView):
-    model = Payments
+    model = PaymentDocuments
     template_name = 'payments/payments.html'
+
+    def get_queryset(self):
+        return PaymentDocuments.objects.filter(flow='Payments')
 
     def get(self, request, *args, **kwargs):
         if 'btn_to_file' in request.GET:
@@ -164,7 +179,7 @@ class PaymentsView(ListView):
             ["Organization", "Account", "Date", "Amount", "Currency", "Counterparty", "Item", "Project", "Comments"]]
         payments = self.payments_queryset(request)
         for i in payments:
-            my_data.append([i.organization, i.account, i.date, i.amount, i.currency, i.counterparty, i.item, i.project,
+            my_data.append([i.organization, i.account, i.date, i.outflow_amount, i.currency, i.counterparty, i.item, i.project,
                             i.comments])
 
         t = str(datetime.datetime.today().strftime('%d-%m-%Y-%H%M%S'))
@@ -187,7 +202,7 @@ class PaymentsView(ListView):
 
     @staticmethod
     def payments_queryset(request):
-        payments = Payments.objects.all()
+        payments = PaymentDocuments.objects.filter(flow='Payments')
 
         form = PaymentsFilter(request.GET)
         if form.is_valid():
@@ -218,7 +233,7 @@ class PaymentsView(ListView):
 
 
 class PaymentsIdView(UpdateView):
-    model = Payments
+    model = PaymentDocuments
     template_name = 'payments/payments_id.html'
     form_class = PaymentsAdd
     success_url = '/payments'
@@ -237,6 +252,16 @@ class PaymentsIdView(UpdateView):
 
         org = AccountSettings.load().organization()
         return self.model(organization=org)
+
+    def form_valid(self, form):
+        form = form.save(commit=False)
+        form.flow = 'Payments'
+        try:
+            form.save()
+            return redirect('payments')
+        except:
+            form.add_error(None, 'Data save error')
+
 
     @staticmethod
     def htmx_accounts(request):
@@ -266,14 +291,14 @@ class UploadFilePaymentView(FormView):
         f = TextIOWrapper(csvfile.file)
         reader = csv.DictReader(f, delimiter=';')
         for _, item in enumerate(reader, start=1):
-            payment = Payments()
+            payment = PaymentDocuments()
             try:
                 payment.organization = Organization.objects.get(organization=item.get('organization'))
                 payment.account = PaymentAccount.objects.get(account=item.get('account'))
                 if item.get('project'):
                     payment.project = Project.objects.get(project=item.get('project'))
                 payment.date = datetime.datetime.strptime(item.get('date'), '%d.%m.%Y').date()
-                payment.amount = Decimal(item.get('amount'))
+                payment.amount = Decimal(item.get('outflow_amount'))
                 payment.currency = Currencies.objects.get(code=item.get('currency'))
                 payment.counterparty = Counterparties.objects.get(counterparty=item.get('counterparty'))
                 payment.item = ExpensesItem.objects.get(expense_item=item.get('item'))

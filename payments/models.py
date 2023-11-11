@@ -20,6 +20,7 @@ class PaymentDocuments(models.Model):
     currency = models.ForeignKey(Currencies, on_delete=models.PROTECT, blank=True, null=True)
     project = models.ForeignKey(Project, on_delete=models.PROTECT, blank=True, null=True)
     counterparty = models.ForeignKey(Counterparties, on_delete=models.PROTECT, blank=False)
+    by_request = models.ForeignKey(PaymentsPlan, on_delete=models.PROTECT, blank=False, null=True)
     item = models.ForeignKey(Items, on_delete=models.PROTECT, blank=False)
     comments = models.CharField(max_length=255, blank=True, null=True)
 

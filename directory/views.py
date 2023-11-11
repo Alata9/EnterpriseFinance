@@ -7,6 +7,7 @@ from django.db.models import ProtectedError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.views.generic import DeleteView, UpdateView, ListView
+from registers.models import AccountSettings
 
 from directory.forms import (
     OrganizationAdd, ProjectAdd, PaymentAccountAdd,
@@ -173,7 +174,7 @@ class PaymentAccountDeleteView(DeleteView):
 
 
 # Counterparties-------------------
-from registers.models import AccountSettings
+
 
 
 def CounterpartiesView(request):
