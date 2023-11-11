@@ -8,10 +8,13 @@ from directory.views import (
     CurrenciesView, CurrenciesIdView, CurrencyDeleteView,
     RatesView, RatesIdView, RatesDeleteView, RatesParsingView,
     InitialDebtsView, InitialDebtIdView, InitialDebtDeleteView,
+    ItemIdView, ItemsView, ItemDeleteView,
+
+    # ---------for delete----------------------------
     ExpensesGroupView, ExpensesGroupIdView, ExpensesGroupDeleteView,
     ExpensesItemView, ExpensesItemIdView, ExpensesItemDeleteView,
     IncomeGroupView, IncomeGroupIdView, IncomeGroupDeleteView,
-    IncomeItemView, IncomeItemIdView, IncomeItemDeleteView
+    IncomeItemView, IncomeItemIdView, IncomeItemDeleteView,
 )
 
 
@@ -54,6 +57,15 @@ urlpatterns = [
     path('rates/copy/<int:from_pk>', RatesIdView.as_view(), name='rate_copy'),
     path('rates/import', RatesParsingView.as_view(), name='rates_parsing'),
     path('<int:pk>/rates/delete', RatesDeleteView.as_view(), name='rate_del'),
+
+    path('items/', ItemsView.as_view(), name='items'),
+    path('item/<int:pk>', ItemIdView.as_view(), name='item_id'),
+    path('item/add', ItemIdView.as_view(), name='item_add'),
+    path('items/list', ItemsView.htmx_list, name='items_list'),
+    path('<int:pk>/item/delete', ItemDeleteView.as_view(), name='item_del'),
+
+
+#----------------for delete------------------------------
 
     path('expenses_groups/', ExpensesGroupView, name='expenses_group'),
     path('expenses_group/<int:pk>/', ExpensesGroupIdView.as_view(), name='expenses_group_id'),

@@ -1,10 +1,11 @@
+from django import forms
 from django.core.exceptions import ValidationError
-from django.forms import ModelForm, Textarea, DateInput, DateField
+from django.forms import ModelForm, Textarea, DateInput, DateField, ChoiceField, ModelChoiceField
 
 from directory.models import (
     Organization, Project, PaymentAccount, Counterparties, InitialDebts,
     Currencies, CurrenciesRates,
-    ExpenseGroup, ExpensesItem, IncomeGroup, IncomeItem
+    ExpenseGroup, ExpensesItem, IncomeGroup, IncomeItem, Items
 )
 
 
@@ -134,6 +135,50 @@ class RatesParser(ModelForm):
         self.fields['currency'].required = True
 
 
+class ItemAdd(ModelForm):
+    class Meta:
+        model = Items
+        fields = ('item', 'group', 'flow')
+        widgets = {'flow': forms.HiddenInput()}
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['group'].empty_label = ''
+        self.fields['group'].required = True
+
+
+class AnyItemAdd(ModelForm):
+    class Meta:
+        model = Items
+        fields = ('item', 'group', 'flow')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['group'].empty_label = ''
+        self.fields['group'].required = True
+
+
+class ItemFilter(ModelForm):
+    ordering = ChoiceField(label='Ordering', required=False,
+                           choices=[
+                               ['flow', 'by flow'],
+                               ['group', 'by group'],
+                               ['item', 'by item']
+                           ])
+
+    class Meta:
+        model = Items
+        fields = ['group', 'flow']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['group'].empty_label = ''
+        self.fields['group'].required = False
+        self.fields['flow'].empty_label = ''
+        self.fields['flow'].required = False
+
+
+#------------for delete------------------------------------
 class ExpenseGroupAdd(ModelForm):
     class Meta:
         model = ExpenseGroup
@@ -174,4 +219,7 @@ class IncomeItemAdd(ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['income_group'].empty_label = ''
+
+
+
 

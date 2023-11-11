@@ -61,16 +61,23 @@ class Calculations(models.Model):
 
     @staticmethod
     def get_series_differ(date_first, term, loan_rate, amount):
+        '''
+        returns a list of changeable values for creating a series of planned payments
+        for the “Credit: differentiated” calculation, where:
+            date_pay - current date of payments,
+            debt_pay - current payment of main credit owed,
+            per_pay - current payment of percents owed.
+         '''
         date_pay = date_first
         number = date_first.day
-        debt_pay = amount / term                                            # сумма ежемесячного платежа по телу кредита (дифф.плат)
-        balance_owed = amount                                               # остаток текущего долга по кредиту
+        debt_pay = amount / term
+        balance_owed = amount
         data_list = [(date_pay, debt_pay, amount * loan_rate / 1200)]
         print(data_list)
         for i in range(term-1):
             date_pay = (date_pay + datetime.timedelta(days=31)).replace(day=number)
             balance_owed -= debt_pay
-            per_pay = balance_owed * loan_rate / 1200                       # сумма процентов к уплате
+            per_pay = balance_owed * loan_rate / 1200
             data_list.append((date_pay, debt_pay, per_pay))
             print(date_pay, debt_pay, per_pay)
         return data_list
@@ -99,8 +106,8 @@ class Calculations(models.Model):
         obj = Calculations.objects.get(pk=create_plan)
         existing_plan = PaymentsPlan.objects.filter(calculation=obj).order_by('date').all()
         type_calc = obj.type_calc
-        item_debt = ExpensesItem.objects.filter(id=1)  # статья погашения долга
-        item_per = ExpensesItem.objects.filter(id=11)  # статья погашения процентов
+        item_debt = ExpensesItem.objects.filter(id=1)
+        item_per = ExpensesItem.objects.filter(id=11)
 
         if type_calc == 'constant':
             data_list = cls.get_series_constant(obj.date_first, obj.frequency, obj.term)
@@ -161,7 +168,7 @@ class Calculations(models.Model):
                     plan_per.id = existing_plan[i].id
                 plan_per.save()
 
-        # PaymentsPlan.objects.filter(calculation=obj, date__gte=obj.date_first).delete()
+        PaymentsPlan.objects.filter(calculation=obj, date__gte=obj.date_pay).delete()
 
 
     def get_absolute_url(self):

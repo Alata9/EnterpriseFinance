@@ -1,4 +1,3 @@
-
 from django.db import models
 
 
@@ -113,6 +112,42 @@ class CurrenciesRates(models.Model):
         verbose_name_plural = "Currency rates"
 
 
+class Items(models.Model):
+    FlowDirection = (
+        ('Receipts', 'Receipts'),
+        ('Payments', 'Payments'),
+    )
+    ItemGroups = (
+        ('Sales_income', 'Sales income'),
+        ('Direct_expenses', 'Direct expenses'),
+        ('Administrative_expenses', 'Administrative expenses'),
+        ('Commercial_expenses', 'Commercial expenses'),
+        ('Production_costs', 'Production costs'),
+        ('Other', 'Other income and expenses'),
+        ('Loans', 'Credits and loans'),
+        ('Fixed_assets', 'Fixed assets'),
+        ('Other_noncurrent_assets', 'Other noncurrent assets'),
+        ('New_projects', 'New projects'),
+    )
+
+    item = models.CharField(max_length=100, unique=True)
+    flow = models.CharField(max_length=10, choices=FlowDirection, blank=True)
+    group = models.CharField(max_length=100, choices=ItemGroups, blank=True)
+
+    def __str__(self):
+        return self.item
+
+    class Meta:
+        ordering = ['group', 'item']
+        verbose_name = 'Item'
+        verbose_name_plural = 'Items'
+
+    def get_absolute_url(self):
+        return '/items'
+
+
+#-------------------for delete-------------------------------
+
 class TypeCF(models.Model):
     type = models.CharField(max_length=50)
 
@@ -183,4 +218,3 @@ class ExpensesItem(models.Model):
         ordering = ['expense_group', 'expense_item']
         verbose_name = 'Expense item'
         verbose_name_plural = 'Expense items'
-

@@ -46,19 +46,18 @@
     <div class="container-fluid">
       <div class="navbar-header">
         <a class="navbar-brand" href="{% url 'home' %}">Enterprise finance </a>
-
       </div>
 
       <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-
         <ul class="nav navbar-nav">
-
           <li class="dropdown">
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Reference books<b class="caret"></b></a>
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Directories<b class="caret"></b></a>
             <ul class="dropdown-menu">
               <li><a href="{% url 'organizations' %}">Organizations</a></li>
               <li><a href="{% url 'payment_accounts' %}">Payment accounts</a></li>
               <li><a href="{% url 'projects' %}">Projects</a></li>
+              <li class="divider"></li>
+              <li><a href="{% url 'items' %}">Items (income, expenses)</a></li>
               <li class="divider"></li>
               <li><a href="{% url 'counterparties' %}">Counterparties</a></li>
               <li><a href="{% url 'initial_debts' %}">Initial debts</a></li>
@@ -69,24 +68,12 @@
           </li>
 
           <li class="dropdown">
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Receipts <b class="caret"></b></a>
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Finance fact<b class="caret"></b></a>
             <ul class="dropdown-menu">
-              <li><a href="{% url 'income_groups' %}">Income groups</a></li>
-              <li><a href="{% url 'income_items' %}">Income items</a></li>
-              <li class="divider"></li>
               <li><a href="{% url 'receipts' %}">Receipts</a></li>
-
-            </ul>
-          </li>
-
-          <li class="dropdown">
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Payments <b class="caret"></b></a>
-            <ul class="dropdown-menu">
-              <li><a href="{% url 'expenses_group' %}">Expense groups</a></li>
-              <li><a href="{% url 'expenses_items' %}">Expense items</a></li>
-              <li class="divider"></li>
               <li><a href="{% url 'payments' %}">Payments</a></li>
-
+              <li class="divider"></li>
+              <li><a href="{% url 'change_payaccounts' %}">Change payment account</a></li>
             </ul>
           </li>
 

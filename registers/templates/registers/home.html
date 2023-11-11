@@ -10,10 +10,7 @@
             <h1>Enterprise finance</h1>
             <hr>
         </div>
-
     </div>
-
-
     <div class="row p-2 g-3 h-60">
     <div class="col-md-12">
         <div class="row p-2 g-3">
@@ -27,18 +24,6 @@
         <div class="row p-2 g-3">
             <div class="col-md-1"></div>
             <div class="col-md-2 text-left">
-                <h3>Transactions</h3>
-                <a class="text-decoration-none text-dark" href="{% url 'receipts' %}"><h5>Receipts</h5></a>
-                <a class="text-decoration-none text-dark" href="{% url 'payments' %}"><h5>Payments</h5></a>
-                <a class="text-decoration-none text-dark" href="{% url 'change_payaccounts' %}"><h5>Change payment account</h5></a>
-                <hr>
-                <a class="text-decoration-none text-dark" href="{% url 'income_groups' %}"><h5>Income groups</h5></a>
-                <a class="text-decoration-none text-dark" href="{% url 'income_items' %}"><h5>Income items</h5></a>
-                <a class="text-decoration-none text-dark" href="{% url 'expenses_group' %}"><h5>Expenses groups</h5></a>
-                <a class="text-decoration-none text-dark" href="{% url 'expenses_items' %}"><h5>Expenses items</h5></a>
-
-            </div>
-            <div class="col-md-2 text-left">
                 <h3>Directories</h3>
                 <a class="text-decoration-none text-dark" href="{% url 'organizations' %}"><h5>Organizations</h5></a>
                 <a class="text-decoration-none text-dark" href="{% url 'payment_accounts' %}"><h5>Payment accounts</h5></a>
@@ -51,6 +36,17 @@
                 <a class="text-decoration-none text-dark" href="{% url 'rates' %}"><h5>Currency rates</h5></a>
                 <hr>
                 <a class="text-decoration-none text-dark" href="{% url 'settings' %}"><h5>Accounting settings</h5></a>
+            </div>
+            <div class="col-md-2 text-left">
+                <h3>Finance fact</h3>
+                <a class="text-decoration-none text-dark" href="{% url 'receipts' %}"><h5>Receipts</h5></a>
+                <a class="text-decoration-none text-dark" href="{% url 'payments' %}"><h5>Payments</h5></a>
+                <a class="text-decoration-none text-dark" href="{% url 'change_payaccounts' %}"><h5>Change payment account</h5></a>
+                <hr>
+                <a class="text-decoration-none text-dark" href="{% url 'income_items' %}"><h5>Income items</h5></a>
+                <a class="text-decoration-none text-dark" href="{% url 'expenses_items' %}"><h5>Expenses items</h5></a>
+                <a class="text-decoration-none text-dark" href="{% url 'items' %}"><h5>Items (general directory)</h5></a>
+
             </div>
             <div class="col-md-2 text-left">
                 <h3>Finance plan</h3>

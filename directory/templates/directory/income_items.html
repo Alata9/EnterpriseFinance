@@ -26,8 +26,8 @@
                     </tr>
                     {% for i in income_items %}
                     <tr>
-                        <td width="300">{{i.income_group}}</td>
-                        <td width="300">{{i.income_item}}</td>
+                        <td width="300">{{i.group}}</td>
+                        <td width="300">{{i.item}}</td>
                         <td width="10" align="center">
                             <a href="{% url 'income_item_id' i.id %}" class='btn btn-info btn-xs' data-bs-toggle="tooltip"
                data-bs-placement="top" title="edit"><i class="bi bi-pencil-square"></i></a>
