@@ -1,11 +1,13 @@
+import csv
 import datetime
 import decimal
+from io import BytesIO, StringIO
 
 import numpy as np
 import pandas as pd
 
 from django.db.models import Sum
-from django.http import HttpResponse
+from django.http import HttpResponse, FileResponse
 from django.shortcuts import render
 from django.views.generic import ListView, UpdateView
 
@@ -13,9 +15,9 @@ from directory.models import PaymentAccount, Currencies, CurrenciesRates
 # from payments.models import Payments
 # from payments.models import Receipts, ChangePayAccount
 from payments.models import PaymentDocuments
-from registers.forms import (AccountSettingsSet, AccountBalancesFilter
+from registers.forms import (AccountSettingsSet, AccountBalancesFilter, AccountFlowsFilter
     # ,  DashboardFilter, CFStatementFilter
-)
+                             )
 from registers.models import AccountSettings
 
 
@@ -153,6 +155,74 @@ class AccountBalancesView(ListView):
 
         return rate
 
+
+class AccountFlowsView(ListView):
+    model = PaymentDocuments
+    template_name = 'registers/general_flows.html'
+
+    def get(self, request, *args, **kwargs):
+        if 'btn_to_file' in request.GET:
+            return self.to_file(request)
+        return super().get(request, *args, **kwargs)
+
+    def to_file(self, request):
+        my_data = [["Organization", "Account", "Date", "Inflow Amount", "Outflow Amount", "Currency",
+                    "Counterparty", "Item", "Project", "Comments"]]
+        receipts = self.flows_queryset(request)
+        for i in receipts:
+            my_data.append([i.organization, i.account, i.date, i.inflow_amount, i.inflow_amount, i.currency,
+                            i.counterparty, i.item, i.project, i.comments])
+
+        t = str(datetime.datetime.today().strftime('%d-%m-%Y-%H%M%S'))
+        file_name = 'account_flows_' + t + '.csv'
+        file_buffer = StringIO()
+
+        writer = csv.writer(file_buffer, delimiter=';')
+        writer.writerows(my_data)
+        file_bytes = BytesIO(file_buffer.getvalue().encode('cp1251'))
+        file_bytes.seek(0)
+
+        response = FileResponse(file_bytes, filename=file_name, as_attachment=True)
+
+        return response
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        ctx = super().get_context_data(object_list=None, **kwargs)
+        ctx['form'] = AccountFlowsFilter()
+        return ctx
+
+    @staticmethod
+    def flows_queryset(request):
+        flows = PaymentDocuments.objects.all()
+
+        form = AccountFlowsFilter(request.GET)
+        if form.is_valid():
+            if form.cleaned_data['date']:
+                flows = flows.filter(date__gte=form.cleaned_data['date'])
+            if form.cleaned_data['date_end']:
+                flows = flows.filter(date__lte=form.cleaned_data['date_end'])
+            if form.cleaned_data['counterparty']:
+                flows = flows.filter(counterparty=form.cleaned_data['counterparty'])
+            if form.cleaned_data['item']:
+                flows = flows.filter(item=form.cleaned_data['item'])
+            if form.cleaned_data['organization']:
+                flows = flows.filter(organization=form.cleaned_data['organization'])
+            if form.cleaned_data['project']:
+                flows = flows.filter(project=form.cleaned_data['project'])
+            if form.cleaned_data['account']:
+                flows = flows.filter(account=form.cleaned_data['account'])
+            if form.cleaned_data['ordering']:
+                flows = flows.order_by(form.cleaned_data['ordering'])
+
+        return flows
+
+
+
+    @staticmethod
+    def htmx_list(request):
+        context = {'object_list': AccountFlowsView.flows_queryset(request)}
+
+        return render(request, 'registers/general_flow_list.html', context=context)
 
 
 # class CfStatementView(ListView):
