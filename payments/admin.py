@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from payments.models import Receipts, ChangePayAccount, Payments, PaymentDocuments
+from payments.models import ChangePayAccount, PaymentDocuments
 
 
 class PaymentDocumentsAdmin(admin.ModelAdmin):
@@ -20,24 +20,3 @@ class ChangePayAccountAdmin(admin.ModelAdmin):
 admin.site.register(PaymentDocuments, PaymentDocumentsAdmin)
 admin.site.register(ChangePayAccount, ChangePayAccountAdmin)
 
-
-#------------for delete---------------
-
-class ReceiptsAdmin(admin.ModelAdmin):
-    list_display = ['id', 'organization', 'date', 'amount', 'account', 'currency',
-                    'counterparty', 'item', 'project', 'comments']
-    list_display_links = ['id', 'organization', 'date', 'amount', 'account', 'currency',
-                          'counterparty', 'item', 'project', 'comments']
-    search_fields = ['organization', 'date', 'counterparty', 'account', 'currency', 'item', 'project']
-
-class PaymentsAdmin(admin.ModelAdmin):
-    list_display = ['id', 'organization', 'date', 'amount', 'account', 'currency',
-                    'counterparty', 'item', 'project', 'by_request', 'comments']
-    list_display_links = ['id', 'organization', 'date', 'amount', 'account', 'currency',
-                          'counterparty', 'item', 'project', 'by_request', 'comments']
-    search_fields = ['organization', 'date', 'counterparty', 'account', 'item', 'project']
-
-
-
-admin.site.register(Payments, PaymentsAdmin)
-admin.site.register(Receipts, ReceiptsAdmin)

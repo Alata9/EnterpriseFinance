@@ -21,7 +21,7 @@
         <td width="100">{{i.item}}</td>
         <td width="100">{{i.counterparty}}</td>
         <td width="50">{{i.date|date:"d.m.Y"}}</td>
-        <td width="50" align="right">{{i.amount}}</td>
+        <td width="50" align="right">{{i.inflow_amount}}</td>
         <td width="50">{{i.currency}}</td>
         <td width="100">{% if i.is_cash %}<i class="bi bi-check2-square"></i>{% endif %}</td>
         <td width="100">{% if i.comments != None %}{{ i.comments }}{% endif %}</td>

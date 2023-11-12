@@ -13,7 +13,9 @@
             hx-trigger="change"
             hx-target="#id_table">
         <div class="col-md-2 border p-2 shadow">
-                <h1>Currency rates</h1>
+            <br><br>
+            <br><br>
+                <h4>FILTER</h4>
                 {% csrf_token %}
                 <div class="form-group">
                 {{ form.accounting_currency.label_tag }}
@@ -37,8 +39,8 @@
         </div>
             <div class="col-md-8 border p-2 shadow">
                 <div class="row d-grid gap-2 d-md-flex justify-content-md-end">
-                    <div class="col-md-7"></div>
-                    <div class="col-md-5">
+                    <div class="col-md-9 fw-bold"><H2>Currency rates</H2></div>
+                    <div class="col-md-3">
                         <a href="{% url 'rate_add' %}" class="btn btn-info" name="btn_add">ADD NEW</a>
                         <a href="{% url 'rates_parsing' %}" class="btn btn-info" name="btn_add">IMPORT</a>
                     </div>

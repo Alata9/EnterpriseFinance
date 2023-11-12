@@ -1,9 +1,9 @@
 
-from django.forms import ModelForm, DateInput, Textarea, ModelChoiceField, DateField, ChoiceField
+from django.forms import ModelForm, DateInput, Textarea, ModelChoiceField, DateField, ChoiceField, HiddenInput
 from dynamic_forms import DynamicFormMixin, DynamicField
 
-from directory.models import Project
-from planning.models import Calculations, ReceiptsPlan, PaymentsPlan
+from directory.models import Project, Items
+from planning.models import Calculations, PaymentDocumentPlan
 
 
 class CalculationAdd(DynamicFormMixin, ModelForm):
@@ -49,7 +49,7 @@ class CalculationAdd(DynamicFormMixin, ModelForm):
         self.fields['item'].required = True
 
         self.fields['counterparty'].queryset = self.fields['counterparty'].queryset.order_by('counterparty')
-        self.fields['item'].queryset = self.fields['item'].queryset.order_by('expense_item')
+        self.fields['item'].queryset = self.fields['item'].queryset.order_by('item')
         self.fields['project'].queryset = self.fields['project'].queryset.order_by('project')
 
 
@@ -80,24 +80,29 @@ class CalculationsFilter(ModelForm):
         self.fields['item'].empty_label = 'Item:'
         self.fields['item'].required = False
         self.fields['counterparty'].queryset = self.fields['counterparty'].queryset.order_by('counterparty')
-        self.fields['item'].queryset = self.fields['item'].queryset.order_by('expense_item')
+        self.fields['item'].queryset = self.fields['item'].queryset.order_by('item')
         self.fields['project'].queryset = self.fields['project'].queryset.order_by('project')
 
 
 class ReceiptsPlanAdd(DynamicFormMixin, ModelForm):
 
     class Meta:
-        model = ReceiptsPlan
-        fields = (
-            'organization', 'is_cash', 'date', 'amount', 'currency', 'counterparty', 'item', 'project', 'comments', 'calculation')
+        model = PaymentDocumentPlan
+        fields = ('organization', 'is_cash', 'date', 'inflow_amount', 'currency', 'counterparty', 'item', 'project',
+                  'comments', 'calculation', 'flow')
         widgets = {'date': DateInput(attrs={'type': 'Date'}),
                    'comments': Textarea(attrs={'cols': 60, 'rows': 3}),
-                   }
+                   'flow': HiddenInput()}
 
     project = DynamicField(
         ModelChoiceField,
         queryset=lambda form: Project.objects.filter(organization=form['organization'].value()),
     )
+
+    item = DynamicField(
+        ModelChoiceField,
+        queryset=lambda form: Items.objects.filter(flow='Receipts'))
+
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -106,10 +111,11 @@ class ReceiptsPlanAdd(DynamicFormMixin, ModelForm):
         self.fields['counterparty'].empty_label = 'Counterparty:'
         self.fields['currency'].empty_label = 'Currency:'
         self.fields['item'].empty_label = 'Item:'
+        self.fields['inflow_amount'].label = 'Amount'
         self.fields['project'].empty_label = 'Project:'
         self.fields['project'].required = False
         self.fields['counterparty'].queryset = self.fields['counterparty'].queryset.order_by('counterparty')
-        self.fields['item'].queryset = self.fields['item'].queryset.order_by('income_item')
+        self.fields['item'].queryset = self.fields['item'].queryset.order_by('item')
         self.fields['project'].queryset = self.fields['project'].queryset.order_by('project')
 
 
@@ -118,19 +124,19 @@ class ReceiptsPlanFilter(ModelForm):
     ordering = ChoiceField(label='Ordering', required=False,
                            choices=[
                                ['date', 'by date'],
-                               ['amount', 'by amount'],
+                               ['inflow_amount', 'by amount'],
                                ['counterparty', 'by counterparty'],
                                ['item', 'by item'],
                                ['project', 'by project'],
                                ['calculation', 'by calculation']
                            ])
     class Meta:
-        model = ReceiptsPlan
-        fields = ['organization', 'is_cash', 'currency', 'project', 'counterparty', 'item', 'date', 'calculation']
+        model = PaymentDocumentPlan
+        fields = ['organization', 'is_cash', 'currency', 'project', 'counterparty', 'item', 'date', 'calculation', 'flow']
         widgets = {
             'date': DateInput(attrs={'type': 'Date'}),
             'date_end': DateInput(attrs={'type': 'Date'}),
-        }
+            'flow': HiddenInput()}
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -151,23 +157,28 @@ class ReceiptsPlanFilter(ModelForm):
         self.fields['date'].required = False
         self.fields['date_end'].required = False
         self.fields['counterparty'].queryset = self.fields['counterparty'].queryset.order_by('counterparty')
-        self.fields['item'].queryset = self.fields['item'].queryset.order_by('income_item')
+        self.fields['item'].queryset = self.fields['item'].queryset.order_by('item')
         self.fields['project'].queryset = self.fields['project'].queryset.order_by('project')
 
 
 class PaymentsPlanAdd(DynamicFormMixin, ModelForm):
     class Meta:
-        model = PaymentsPlan
+        model = PaymentDocumentPlan
         fields = (
-            'organization', 'is_cash', 'date', 'amount', 'currency', 'counterparty', 'item', 'project', 'comments', 'calculation')
+            'organization', 'is_cash', 'date', 'outflow_amount', 'currency', 'counterparty', 'item', 'project',
+            'comments', 'calculation', 'flow')
         widgets = {'date': DateInput(attrs={'type': 'Date'}),
                    'comments': Textarea(attrs={'cols': 60, 'rows': 3}),
-                   }
+                   'flow': HiddenInput()}
 
     project = DynamicField(
         ModelChoiceField,
         queryset=lambda form: Project.objects.filter(organization=form['organization'].value()),
     )
+
+    item = DynamicField(
+        ModelChoiceField,
+        queryset=lambda form: Items.objects.filter(flow='Payments'))
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -175,11 +186,12 @@ class PaymentsPlanAdd(DynamicFormMixin, ModelForm):
         self.fields['currency'].empty_label = 'Currency:'
         self.fields['counterparty'].empty_label = 'Counterparty:'
         self.fields['item'].empty_label = 'Item:'
+        self.fields['outflow_amount'].label = 'Amount'
         self.fields['project'].empty_label = 'Project:'
         self.fields['project'].required = False
         self.fields['is_cash'].label = 'is cash'
         self.fields['counterparty'].queryset = self.fields['counterparty'].queryset.order_by('counterparty')
-        self.fields['item'].queryset = self.fields['item'].queryset.order_by('expense_item')
+        self.fields['item'].queryset = self.fields['item'].queryset.order_by('item')
         self.fields['project'].queryset = self.fields['project'].queryset.order_by('project')
 
 
@@ -188,19 +200,19 @@ class PaymentsPlanFilter(ModelForm):
     ordering = ChoiceField(label='Ordering', required=False,
                            choices=[
                                ['date', 'by date'],
-                               ['amount', 'by amount'],
+                               ['outflow_amount', 'by amount'],
                                ['counterparty', 'by counterparty'],
                                ['item', 'by item'],
                                ['project', 'by project'],
                                ['calculation', 'by calculation']
                            ])
     class Meta:
-        model = PaymentsPlan
-        fields = ['organization', 'currency', 'is_cash', 'project', 'counterparty', 'item', 'date', 'calculation']
+        model = PaymentDocumentPlan
+        fields = ['organization', 'currency', 'is_cash', 'project', 'counterparty', 'item', 'date', 'calculation', 'flow']
         widgets = {
             'date': DateInput(attrs={'type': 'Date'}),
             'date_end': DateInput(attrs={'type': 'Date'}),
-        }
+            'flow': HiddenInput()}
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -220,5 +232,5 @@ class PaymentsPlanFilter(ModelForm):
         self.fields['date'].required = False
         self.fields['date_end'].required = False
         self.fields['counterparty'].queryset = self.fields['counterparty'].queryset.order_by('counterparty')
-        self.fields['item'].queryset = self.fields['item'].queryset.order_by('expense_item')
+        self.fields['item'].queryset = self.fields['item'].queryset.order_by('item')
         self.fields['project'].queryset = self.fields['project'].queryset.order_by('project')

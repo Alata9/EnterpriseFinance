@@ -1,11 +1,10 @@
 from django import forms
 from django.core.exceptions import ValidationError
-from django.forms import ModelForm, Textarea, DateInput, DateField, ChoiceField, ModelChoiceField
+from django.forms import ModelForm, Textarea, DateInput, DateField, ChoiceField
 
 from directory.models import (
     Organization, Project, PaymentAccount, Counterparties, InitialDebts,
-    Currencies, CurrenciesRates,
-    ExpenseGroup, ExpensesItem, IncomeGroup, IncomeItem, Items
+    Currencies, CurrenciesRates, Items,
 )
 
 
@@ -176,50 +175,4 @@ class ItemFilter(ModelForm):
         self.fields['group'].required = False
         self.fields['flow'].empty_label = ''
         self.fields['flow'].required = False
-
-
-#------------for delete------------------------------------
-class ExpenseGroupAdd(ModelForm):
-    class Meta:
-        model = ExpenseGroup
-        fields = ('expense_group', 'type_cf', 'comments')
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['type_cf'].empty_label = ''
-        self.fields['type_cf'].label = 'Activities'
-
-
-class ExpenseItemAdd(ModelForm):
-    class Meta:
-        model = ExpensesItem
-        fields = ('expense_item', 'expense_group')
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['expense_group'].empty_label = ''
-
-
-class IncomeGroupAdd(ModelForm):
-    class Meta:
-        model = IncomeGroup
-        fields = ('income_group', 'type_cf', 'comments')
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['type_cf'].empty_label = ''
-        self.fields['type_cf'].label = 'Activities'
-
-
-class IncomeItemAdd(ModelForm):
-    class Meta:
-        model = IncomeItem
-        fields = ('income_item', 'income_group')
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['income_group'].empty_label = ''
-
-
-
 

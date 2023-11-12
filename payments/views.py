@@ -7,9 +7,13 @@ from django.http import HttpResponse, FileResponse
 from django.shortcuts import render, redirect
 from django.views.generic import UpdateView, DeleteView, ListView, FormView
 
-from directory.models import Organization, PaymentAccount, Currencies, Counterparties, Project, IncomeItem, ExpensesItem
+from directory.models import (Organization, PaymentAccount, Currencies, Counterparties, Project, Items,
+    # IncomeItem, ExpensesItem
+                              )
 from registers.models import AccountSettings
-from payments.models import Receipts, ChangePayAccount, Payments, PaymentDocuments
+from payments.models import ( ChangePayAccount, PaymentDocuments,
+                             # Receipts, Payments,
+                             )
 from payments.forms import (
     ReceiptsAdd, ReceiptsFilter, PaymentsFilter, PaymentsAdd,
     ChangePayAccountAdd, ChangePayAccountFilter, UploadFile
@@ -128,7 +132,7 @@ class ReceiptsIdView(UpdateView):
 
 class ReceiptsDeleteView(DeleteView):
     error = ''
-    model = Receipts
+    model = PaymentDocuments
     success_url = '/payments'
     template_name = 'payments/receipts_delete.html'
 
@@ -153,7 +157,7 @@ class UploadFileReceiptView(FormView):
                 receipt.amount = Decimal(item.get('inflow_amount'))
                 receipt.currency = Currencies.objects.get(code=item.get('currency'))
                 receipt.counterparty = Counterparties.objects.get(counterparty=item.get('counterparty'))
-                receipt.item = IncomeItem.objects.get(income_item=item.get('item'))
+                receipt.item = Items.objects.get(income_item=item.get('item'))
                 receipt.comments = item.get('comments')
                 receipt.save()
             except Exception as e:
@@ -276,7 +280,7 @@ class PaymentsIdView(UpdateView):
 
 class PaymentsDeleteView(DeleteView):
     error = ''
-    model = Payments
+    model = PaymentDocuments
     success_url = '/payments'
     template_name = 'payments/payments_delete.html'
 
@@ -301,7 +305,7 @@ class UploadFilePaymentView(FormView):
                 payment.amount = Decimal(item.get('outflow_amount'))
                 payment.currency = Currencies.objects.get(code=item.get('currency'))
                 payment.counterparty = Counterparties.objects.get(counterparty=item.get('counterparty'))
-                payment.item = ExpensesItem.objects.get(expense_item=item.get('item'))
+                payment.item = Items.objects.get(expense_item=item.get('item'))
                 payment.comments = item.get('comments')
                 payment.save()
             except Exception as e:
@@ -343,8 +347,7 @@ class ChangePayAccountView(ListView):
         return render(request, 'payments/change_payaccount_list.html', context=context)
 
 
-class ChangePayAccountIdView(UpdateView):  # доработка
-    model = ChangePayAccount
+class ChangePayAccountIdView(UpdateView):                       #  edit - auto-add currency by account
     template_name = 'payments/change_payaccount_id.html'
     form_class = ChangePayAccountAdd
     success_url = '/change_payaccounts'

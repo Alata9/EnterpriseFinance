@@ -3,7 +3,6 @@ from django.contrib import admin
 from directory.models import (
     Organization, PaymentAccount, Project, Counterparties, InitialDebts,
     Currencies, CurrenciesRates, Items,
-    TypeCF, IncomeGroup, IncomeItem, ExpenseGroup, ExpensesItem
 )
 
 
@@ -64,41 +63,3 @@ admin.site.register(Counterparties, CounterpartiesAdmin)
 admin.site.register(InitialDebts, InitialDebtsAdmin)
 admin.site.register(Items, ItemsAdmin)
 
-
-#---------for delete------------------------------------------------
-
-class TypeCFAdmin(admin.ModelAdmin):
-    list_display = ['id', 'type']
-    list_display_links = ['id', 'type']
-    search_fields = ['type']
-
-
-class ExpensesGroupAdmin(admin.ModelAdmin):
-    list_display = ['id', 'expense_group', 'comments']
-    list_display_links = ['id', 'expense_group', 'comments']
-    search_fields = ['expense_group']
-
-
-class ExpensesItemAdmin(admin.ModelAdmin):
-    list_display = ['id', 'expense_item', 'expense_group']
-    list_display_links = ['id', 'expense_item', 'expense_group']
-    search_fields = ['expense_item']
-
-
-class IncomeGroupAdmin(admin.ModelAdmin):
-    list_display = ['id', 'income_group', 'comments']
-    list_display_links = ['id', 'income_group', 'comments']
-    search_fields = ['income_group']
-
-
-class IncomeItemAdmin(admin.ModelAdmin):
-    list_display = ['id', 'income_item', 'income_group']
-    list_display_links = ['id', 'income_item', 'income_group']
-    search_fields = ['income_item']
-
-
-admin.site.register(TypeCF, TypeCFAdmin)
-admin.site.register(IncomeGroup, IncomeGroupAdmin)
-admin.site.register(IncomeItem, IncomeItemAdmin)
-admin.site.register(ExpenseGroup, ExpensesGroupAdmin)
-admin.site.register(ExpensesItem, ExpensesItemAdmin)

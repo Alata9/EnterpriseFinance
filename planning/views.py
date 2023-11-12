@@ -4,15 +4,13 @@ from decimal import Decimal
 from io import TextIOWrapper, StringIO, BytesIO
 
 from django.http import FileResponse, HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views.generic import DeleteView, FormView, ListView, UpdateView
-
-from directory.models import Organization, Project, Currencies, Counterparties, PaymentAccount
+from directory.models import Organization, Project, Currencies, Counterparties, PaymentAccount, Items
 from registers.models import AccountSettings
 from payments.forms import UploadFile
-from payments.models import ExpensesItem
-from payments.models import IncomeItem
-from planning.models import ReceiptsPlan, PaymentsPlan, Calculations
+from planning.models import Calculations, PaymentDocumentPlan
+
 from planning.forms import (
     ReceiptsPlanFilter, ReceiptsPlanAdd,
     PaymentsPlanFilter, PaymentsPlanAdd,
@@ -21,8 +19,11 @@ from planning.forms import (
 
 
 class ReceiptsPlanView(ListView):
-    model = ReceiptsPlan
+    model = PaymentDocumentPlan
     template_name = 'planning/receipts_plan.html'
+
+    def get_queryset(self):
+        return PaymentDocumentPlan.objects.filter(flow='Receipts')
 
     def get(self, request, *args, **kwargs):
         if 'btn_to_file' in request.GET:
@@ -38,7 +39,7 @@ class ReceiptsPlanView(ListView):
                 i.is_cash = ''
             else:
                 i.is_cash = 'cash'
-            my_data.append([i.organization, i.date, i.amount, i.currency, i.is_cash, i.counterparty, i.item, i.project,
+            my_data.append([i.organization, i.date, i.inflow_amount, i.currency, i.is_cash, i.counterparty, i.item, i.project,
                             i.comments])
 
         t = str(datetime.datetime.today().strftime('%d-%m-%Y-%H%M%S'))
@@ -61,7 +62,7 @@ class ReceiptsPlanView(ListView):
 
     @staticmethod
     def receipts_queryset(request):
-        receipts_pl = ReceiptsPlan.objects.all()
+        receipts_pl = PaymentDocumentPlan.objects.filter(flow='Receipts')
 
         form = ReceiptsPlanFilter(request.GET)
         if form.is_valid():
@@ -94,7 +95,7 @@ class ReceiptsPlanView(ListView):
 
 
 class ReceiptsPlanIdView(UpdateView):
-    model = ReceiptsPlan
+    model = PaymentDocumentPlan
     template_name = 'planning/receipts_plan_id.html'
     form_class = ReceiptsPlanAdd
     success_url = '/receipts_plan'
@@ -111,6 +112,15 @@ class ReceiptsPlanIdView(UpdateView):
         org = AccountSettings.load().organization()
         return self.model(organization=org)
 
+    def form_valid(self, form):
+        form = form.save(commit=False)
+        form.flow = 'Receipts'
+        try:
+            form.save()
+            return redirect('receipts_plan')
+        except:
+            form.add_error(None, 'Data save error')
+
     @staticmethod
     def htmx_projects(request):
         form = ReceiptsPlanAdd(request.GET)
@@ -119,7 +129,7 @@ class ReceiptsPlanIdView(UpdateView):
 
 class ReceiptsPlanDeleteView(DeleteView):
     error = ''
-    model = ReceiptsPlan
+    model = PaymentDocumentPlan
     success_url = '/receipts_plan'
     template_name = 'planning/receipts_plan_delete.html'
 
@@ -134,7 +144,7 @@ class ReceiptsPlanUploadFileView(FormView):
         f = TextIOWrapper(csvfile.file)
         reader = csv.DictReader(f, delimiter=';')
         for _, item in enumerate(reader, start=1):
-            receipts_pl = ReceiptsPlan()
+            receipts_pl = PaymentDocumentPlan()
             try:
                 receipts_pl.organization = Organization.objects.get(organization=item.get('organization'))
                 receipts_pl.is_cash = PaymentAccount.objects.get(is_cash=item.get('is_cash'))
@@ -144,7 +154,7 @@ class ReceiptsPlanUploadFileView(FormView):
                 receipts_pl.amount = Decimal(item.get('amount'))
                 receipts_pl.currency = Currencies.objects.get(code=item.get('currency'))
                 receipts_pl.counterparty = Counterparties.objects.get(counterparty=item.get('counterparty'))
-                receipts_pl.item = IncomeItem.objects.get(expense_item=item.get('item'))
+                receipts_pl.item = Items.objects.get(expense_item=item.get('item'))
                 receipts_pl.comments = item.get('comments')
                 receipts_pl.save()
             except Exception as e:
@@ -154,8 +164,11 @@ class ReceiptsPlanUploadFileView(FormView):
 
 
 class PaymentsPlanView(ListView):
-    model = PaymentsPlan
+    model = PaymentDocumentPlan
     template_name = 'planning/payments_plan.html'
+
+    def get_queryset(self):
+        return PaymentDocumentPlan.objects.filter(flow='Payments')
 
     def get(self, request, *args, **kwargs):
         if 'btn_to_file' in request.GET:
@@ -171,7 +184,7 @@ class PaymentsPlanView(ListView):
                 i.is_cash = ''
             else:
                 i.is_cash = 'cash'
-            my_data.append([i.organization, i.date, i.amount, i.currency, i.is_cash, i.counterparty, i.item, i.project,
+            my_data.append([i.organization, i.date, i.outflow_amount, i.currency, i.is_cash, i.counterparty, i.item, i.project,
                             i.comments])
 
         t = str(datetime.datetime.today().strftime('%d-%m-%Y-%H%M%S'))
@@ -194,7 +207,7 @@ class PaymentsPlanView(ListView):
 
     @staticmethod
     def payments_queryset(request):
-        payments_pl = PaymentsPlan.objects.all()
+        payments_pl = PaymentDocumentPlan.objects.filter(flow='Payments')
 
         form = PaymentsPlanFilter(request.GET)
         if form.is_valid():
@@ -229,7 +242,7 @@ class PaymentsPlanView(ListView):
 
 
 class PaymentsPlanIdView(UpdateView):
-    model = PaymentsPlan
+    model = PaymentDocumentPlan
     template_name = 'planning/payments_plan_id.html'
     form_class = PaymentsPlanAdd
     success_url = '/payments_plan'
@@ -246,6 +259,15 @@ class PaymentsPlanIdView(UpdateView):
         org = AccountSettings.load().organization()
         return self.model(organization=org)
 
+    def form_valid(self, form):
+        form = form.save(commit=False)
+        form.flow = 'Payments'
+        try:
+            form.save()
+            return redirect('payments_plan')
+        except:
+            form.add_error(None, 'Data save error')
+
     @staticmethod
     def htmx_projects(request):
         form = PaymentsPlanAdd(request.GET)
@@ -254,7 +276,7 @@ class PaymentsPlanIdView(UpdateView):
 
 class PaymentsPlanDeleteView(DeleteView):
     error = ''
-    model = PaymentsPlan
+    model = PaymentDocumentPlan
     success_url = '/payments_plan'
     template_name = 'planning/payments_plan_delete.html'
 
@@ -269,7 +291,7 @@ class PaymentsPlanUploadFileView(FormView):
         f = TextIOWrapper(csvfile.file)
         reader = csv.DictReader(f, delimiter=';')
         for _, item in enumerate(reader, start=1):
-            payment_pl = PaymentsPlan()
+            payment_pl = PaymentDocumentPlan()
             try:
                 payment_pl.organization = Organization.objects.get(organization=item.get('organization'))
                 payment_pl.is_cash = PaymentAccount.objects.get(is_cash=item.get('is_cash'))
@@ -279,7 +301,7 @@ class PaymentsPlanUploadFileView(FormView):
                 payment_pl.amount = Decimal(item.get('amount'))
                 payment_pl.currency = Currencies.objects.get(code=item.get('currency'))
                 payment_pl.counterparty = Counterparties.objects.get(counterparty=item.get('counterparty'))
-                payment_pl.item = ExpensesItem.objects.get(expense_item=item.get('item'))
+                payment_pl.item = Items.objects.get(expense_item=item.get('item'))
                 payment_pl.comments = item.get('comments')
                 payment_pl.save()
             except Exception as e:
@@ -291,6 +313,7 @@ class PaymentsPlanUploadFileView(FormView):
 class CalculationView(ListView):
     model = Calculations
     template_name = 'planning/calculations.html'
+    success_url = '/calculations'
 
     def get_context_data(self, *, object_list=None, **kwargs):
         ctx = super().get_context_data(object_list=None, **kwargs)
@@ -354,7 +377,7 @@ class CalculationIdView(UpdateView):
         return HttpResponse(form["project"])
 
     def calculation_queryset(request):
-        payments_pl = PaymentsPlan.objects.all()
+        payments_pl = PaymentDocumentPlan.objects.all()
         form = CalculationAdd(request.GET)
         if form.is_valid():
             if form.cleaned_data['name']:

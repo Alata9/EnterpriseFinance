@@ -57,7 +57,9 @@
               <li><a href="{% url 'payment_accounts' %}">Payment accounts</a></li>
               <li><a href="{% url 'projects' %}">Projects</a></li>
               <li class="divider"></li>
-              <li><a href="{% url 'items' %}">Items (income, expenses)</a></li>
+              <li><a href="{% url 'income_items' %}">Income items</a></li>
+              <li><a href="{% url 'expenses_items' %}">Expense items</a></li>
+              <li><a href="{% url 'items' %}">Items (general directory)</a></li>
               <li class="divider"></li>
               <li><a href="{% url 'counterparties' %}">Counterparties</a></li>
               <li><a href="{% url 'initial_debts' %}">Initial debts</a></li>
@@ -89,27 +91,9 @@
             </ul>
           </li>
 
-          <li class="dropdown">
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Reports <b class="caret"></b></a>
-            <ul class="dropdown-menu">
-              <li><a href="{% url 'account_balances' %}">Account balances</a></li>
-              <li class="divider"></li>
-              <li><a href="{% url 'cf_statement' %}">Cash flow statement</a></li>
-              <li><a href="{% url 'cf_budget' %}">Cash flow budget</a></li>
-              <li class="divider"></li>
-              <li><a href="{% url 'plan_fact_analysis' %}">Plan-fact analysis</a></li>
-            </ul>
-          </li>
 
-          <li class="dropdown">
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Dashboards<b class="caret"></b></a>
-            <ul class="dropdown-menu">
-              <li><a href="{% url 'dashboard' %}">Main dashboard</a></li>
-              <li><a href="{% url 'charts_oper' %}">Operating activities</a></li>
-              <li><a href="{% url 'charts_fin' %}">Loans dashboard</a></li>
-              <li><a href="{% url 'charts_invest' %}">Investment</a></li>
-            </ul>
-          </li>
+
+
 
           <li><a href="{% url 'settings' %}">Accounting settings</a></li>
         </ul>

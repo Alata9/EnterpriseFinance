@@ -1,4 +1,3 @@
-from django import forms
 from django.core.exceptions import ValidationError
 from django.forms import ModelForm, DateInput, Textarea, HiddenInput, DateField, ModelChoiceField, Form, FileField, \
     ChoiceField
@@ -109,8 +108,7 @@ class PaymentsAdd(DynamicFormMixin, ModelForm):
         widgets = {'date': DateInput(attrs={'type': 'Date'}),
                    'comments': Textarea(attrs={'cols': 60, 'rows': 3}),
                    'currency': HiddenInput(),
-                   'flow': HiddenInput()
-                   }
+                   'flow': HiddenInput()}
 
     account = DynamicField(
         ModelChoiceField,
@@ -199,7 +197,8 @@ class ChangePayAccountAdd(ModelForm):
     class Meta:
         model = ChangePayAccount
         fields = ('pay_account_from', 'pay_account_to', 'date', 'amount', 'currency')
-        widgets = {'date': DateInput(attrs={'type': 'Date'})}
+        widgets = {'date': DateInput(attrs={'type': 'Date'}),
+                   'currency': HiddenInput()}
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -209,6 +208,17 @@ class ChangePayAccountAdd(ModelForm):
         self.fields['pay_account_to'].label = 'To'
         self.fields['currency'].empty_label = ''
 
+    def clean(self):
+        cleaned_data = super().clean()
+        acc = cleaned_data.get('pay_account_from')
+
+        if not acc or not acc.currency:
+            raise ValidationError("Account with currency required")
+
+        cleaned_data['currency'] = acc.currency
+
+        return cleaned_data
+
 
 class ChangePayAccountFilter(ModelForm):
     class Meta:
@@ -216,7 +226,6 @@ class ChangePayAccountFilter(ModelForm):
         fields = ['pay_account_from', 'pay_account_to', 'amount', 'currency', 'date']
         widgets = {
             'date': DateInput(attrs={'type': 'Date'}),
-            'date_end': DateInput(attrs={'type': 'Date'}),
         }
     date_end = DateField(label="To", widget=DateInput(attrs={'type': 'date'}), required=False)
 

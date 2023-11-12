@@ -12,7 +12,9 @@
               hx-trigger="change"
               hx-target="#id_table">
         <div class="col-md-2 border p-2 shadow">
-                <h3>Change payment account</h3>
+                <br><br>
+                <br><br>
+                <h4>FILTER</h4>
                 {% csrf_token %}
                 {{ form|crispy }}
                 <div hx-get="/change_payaccount/list" hx-trigger="click" hx-target="#id_table">
@@ -21,7 +23,7 @@
         </div>
             <div class="col-md-8 border p-2 shadow">
                 <div class="row d-grid gap-2 d-md-flex justify-content-md-end">
-                    <div class="col-md-10"></div>
+                    <div class="col-md-10 fw-bold"><H2>Change payment account</H2></div>
                     <div class="col-md-1">
                         <a href="{% url 'change_payaccount_add' %}" class="btn btn-info" name="btn_add">ADD NEW</a>
                     </div>

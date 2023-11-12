@@ -126,7 +126,6 @@ class Items(models.Model):
         ('Other', 'Other income and expenses'),
         ('Loans', 'Credits and loans'),
         ('Fixed_assets', 'Fixed assets'),
-        ('Other_noncurrent_assets', 'Other noncurrent assets'),
         ('New_projects', 'New projects'),
     )
 
@@ -145,76 +144,3 @@ class Items(models.Model):
     def get_absolute_url(self):
         return '/items'
 
-
-#-------------------for delete-------------------------------
-
-class TypeCF(models.Model):
-    type = models.CharField(max_length=50)
-
-    def __str__(self):
-        return self.type
-
-    class Meta:
-        ordering = ['id']
-        verbose_name = 'Activities'
-        verbose_name_plural = "Activities"
-
-
-class IncomeGroup(models.Model):
-    income_group = models.CharField(max_length=50)
-    comments = models.CharField(max_length=255, blank=True, null=True)
-    type_cf = models.ForeignKey(TypeCF, on_delete=models.PROTECT, blank=True, null=True)
-
-    def __str__(self):
-        return self.income_group
-
-    class Meta:
-        ordering = ['type_cf', 'income_group']
-        verbose_name = 'Income group'
-        verbose_name_plural = 'Income groups'
-
-    def get_absolute_url(self):
-        return '/income_group'
-
-
-class IncomeItem(models.Model):
-    income_item = models.CharField(max_length=50)
-    income_group = models.ForeignKey(IncomeGroup, on_delete=models.PROTECT, blank=True)
-
-    def __str__(self):
-        return self.income_item
-
-    class Meta:
-        ordering = ['income_group', 'income_item']
-        verbose_name = 'Income item'
-        verbose_name_plural = 'Income items'
-
-    def get_absolute_url(self):
-        return '/income_item'
-
-
-class ExpenseGroup(models.Model):
-    expense_group = models.CharField(max_length=50)
-    comments = models.CharField(max_length=255, blank=True, null=True)
-    type_cf = models.ForeignKey(TypeCF, on_delete=models.PROTECT, blank=True, null=True)
-
-    def __str__(self):
-        return self.expense_group
-
-    class Meta:
-        ordering = ['type_cf', 'expense_group']
-        verbose_name = 'Expense group'
-        verbose_name_plural = 'Expense groups'
-
-
-class ExpensesItem(models.Model):
-    expense_item = models.CharField(max_length=50)
-    expense_group = models.ForeignKey(ExpenseGroup, on_delete=models.PROTECT, blank=True, null=True)
-
-    def __str__(self):
-        return self.expense_item
-
-    class Meta:
-        ordering = ['expense_group', 'expense_item']
-        verbose_name = 'Expense item'
-        verbose_name_plural = 'Expense items'

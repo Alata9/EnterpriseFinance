@@ -12,14 +12,12 @@ from registers.models import AccountSettings
 from directory.forms import (
     OrganizationAdd, ProjectAdd, PaymentAccountAdd,
     CurrencyAdd, CurrenciesRatesAdd, RatesFilter, RatesParser,
-    CounterpartyAdd, InitialDebtsAdd, InitialDebtsFilter,
-    ExpenseGroupAdd, ExpenseItemAdd, IncomeGroupAdd, IncomeItemAdd, ItemAdd, ItemFilter, AnyItemAdd
+    CounterpartyAdd, InitialDebtsAdd, InitialDebtsFilter, ItemAdd, ItemFilter, AnyItemAdd,
 )
 from directory.models import (
     Organization, Project, PaymentAccount,
     Currencies, CurrenciesRates,
-    Counterparties, InitialDebts,
-    ExpenseGroup, ExpensesItem, IncomeGroup, IncomeItem, Items
+    Counterparties, InitialDebts, Items,
 )
 
 
@@ -30,7 +28,6 @@ def OrganizationsView(request):
     context = {'organizations': organizations}
 
     return render(request, 'directory/organizations.html', context=context)
-
 
 
 def OrganizationAddView(request):
@@ -174,8 +171,6 @@ class PaymentAccountDeleteView(DeleteView):
 
 
 # Counterparties-------------------
-
-
 
 def CounterpartiesView(request):
     counterparties = Counterparties.objects.all()
@@ -453,179 +448,6 @@ class RatesParsingView(UpdateView):
         return HttpResponseRedirect(self.get_success_url())
 
 
-# Expenses ----------------------------------------
-
-def ExpensesGroupView(request):
-    expense_groups = ExpenseGroup.objects.all()
-    context = {'expense_groups': expense_groups}
-
-    return render(request, 'directory/expenses_groups.html', context=context)
-
-
-class ExpensesGroupIdView(UpdateView):
-    model = ExpenseGroup
-    template_name = 'directory/expenses_group_id.html'
-    form_class = ExpenseGroupAdd
-    success_url = '/expenses_groups'
-
-    def get_object(self, queryset=None):
-        if 'pk' in self.kwargs:
-            return super().get_object(queryset)
-
-
-class ExpensesGroupDeleteView(DeleteView):
-    error = ''
-    model = ExpenseGroup
-    success_url = '/expenses_groups'
-    template_name = 'directory/expenses_group_delete.html'
-
-    def post(self, request, *args, **kwargs):
-        try:
-            return super().delete(request, *args, **kwargs)
-        except ProtectedError as error:
-            self.object = self.get_object()
-            context = self.get_context_data(
-                object=self.object,
-                error=f'Error: {error.protected_objects}'
-            )
-            return self.render_to_response(context)
-
-
-def ExpensesItemView(request):
-    expense_items = Items.objects.filter(flow='Payments')
-    context = {'expense_items': expense_items}
-
-
-    return render(request, 'directory/expenses_items.html', context=context)
-
-
-class ExpensesItemIdView(UpdateView):
-    model = Items
-    template_name = 'directory/expenses_item_id.html'
-    form_class = ItemAdd
-    success_url = '/expenses_items'
-
-    def get_object(self, queryset=None):
-        if 'pk' in self.kwargs:
-            return super().get_object(queryset)
-
-    def form_valid(self, form):
-        form = form.save(commit=False)
-        form.flow = 'Payments'
-        try:
-            form.save()
-            return redirect('income_items')
-        except:
-            form.add_error(None, 'Data save error')
-
-
-class ExpensesItemDeleteView(DeleteView):
-    error = ''
-    model = Items
-    success_url = '/expenses_items'
-    template_name = 'directory/expenses_item_delete.html'
-
-    def post(self, request, *args, **kwargs):
-        try:
-            return super().delete(request, *args, **kwargs)
-        except ProtectedError as error:
-            self.object = self.get_object()
-            context = self.get_context_data(
-                object=self.object,
-                error=f'Error: {error.protected_objects}'
-            )
-            return self.render_to_response(context)
-
-
-# Income ----------------------------------------
-
-def IncomeGroupView(request):
-    income_groups = IncomeGroup.objects.all()
-    context = {'income_groups': income_groups}
-
-    return render(request, 'directory/income_groups.html', context=context)
-
-
-class IncomeGroupIdView(UpdateView):
-    model = IncomeGroup
-    template_name = 'directory/income_group_id.html'
-    form_class = IncomeGroupAdd
-
-    def get_object(self, queryset=None):
-        if 'pk' in self.kwargs:
-            return super().get_object(queryset)
-
-    def form_valid(self, form):
-        try:
-            form.save()
-            return redirect('income_groups')
-        except:
-            form.add_error(None, 'Data save error')
-
-
-class IncomeGroupDeleteView(DeleteView):
-    error = ''
-    model = IncomeGroup
-    success_url = '/income_groups'
-    template_name = 'directory/income_group_delete.html'
-
-    def post(self, request, *args, **kwargs):
-        try:
-            return super().delete(request, *args, **kwargs)
-        except ProtectedError as error:
-            self.object = self.get_object()
-            context = self.get_context_data(
-                object=self.object,
-                error=f'Error: {error.protected_objects}'
-            )
-            return self.render_to_response(context)
-
-
-def IncomeItemView(request):
-    income_items = Items.objects.filter(flow='Receipts')
-    context = {'income_items': income_items}
-
-    return render(request, 'directory/income_items.html', context=context)
-
-
-class IncomeItemIdView(UpdateView):
-    model = Items
-    template_name = 'directory/income_item_id.html'
-    form_class = ItemAdd
-    success_url = 'income_items'
-
-    def get_object(self, queryset=None):
-        if 'pk' in self.kwargs:
-            return super().get_object(queryset)
-
-    def form_valid(self, form):
-        form = form.save(commit=False)
-        form.flow = 'Receipts'
-        try:
-            form.save()
-            return redirect('income_items')
-        except:
-            form.add_error(None, 'Data save error')
-
-
-class IncomeItemDeleteView(DeleteView):
-    error = ''
-    model = Items
-    success_url = '/income_items'
-    template_name = 'directory/income_item_delete.html'
-
-    def post(self, request, *args, **kwargs):
-        try:
-            return super().delete(request, *args, **kwargs)
-        except ProtectedError as error:
-            self.object = self.get_object()
-            context = self.get_context_data(
-                object=self.object,
-                error=f'Error: {error.protected_objects}'
-            )
-            return self.render_to_response(context)
-
-
 class ItemsView(ListView):
     model = Items
     template_name = 'directory/items.html'
@@ -691,3 +513,95 @@ class ItemDeleteView(DeleteView):
                 error=f'Error: {error.protected_objects}'
             )
             return self.render_to_response(context)
+
+
+def ExpensesItemView(request):
+    expense_items = Items.objects.filter(flow='Payments')
+    context = {'expense_items': expense_items}
+
+
+    return render(request, 'directory/expenses_items.html', context=context)
+
+
+class ExpensesItemIdView(UpdateView):
+    model = Items
+    template_name = 'directory/expenses_item_id.html'
+    form_class = ItemAdd
+    success_url = '/expenses_items'
+
+    def get_object(self, queryset=None):
+        if 'pk' in self.kwargs:
+            return super().get_object(queryset)
+
+    def form_valid(self, form):
+        form = form.save(commit=False)
+        form.flow = 'Payments'
+        try:
+            form.save()
+            return redirect('expenses_items')
+        except:
+            form.add_error(None, 'Data save error')
+
+
+class ExpensesItemDeleteView(DeleteView):
+    error = ''
+    model = Items
+    success_url = '/expenses_items'
+    template_name = 'directory/expenses_item_delete.html'
+
+    def post(self, request, *args, **kwargs):
+        try:
+            return super().delete(request, *args, **kwargs)
+        except ProtectedError as error:
+            self.object = self.get_object()
+            context = self.get_context_data(
+                object=self.object,
+                error=f'Error: {error.protected_objects}'
+            )
+            return self.render_to_response(context)
+
+
+def IncomeItemView(request):
+    income_items = Items.objects.filter(flow='Receipts')
+    context = {'income_items': income_items}
+
+    return render(request, 'directory/income_items.html', context=context)
+
+
+class IncomeItemIdView(UpdateView):
+    model = Items
+    template_name = 'directory/income_item_id.html'
+    form_class = ItemAdd
+    success_url = 'income_items'
+
+    def get_object(self, queryset=None):
+        if 'pk' in self.kwargs:
+            return super().get_object(queryset)
+
+    def form_valid(self, form):
+        form = form.save(commit=False)
+        form.flow = 'Receipts'
+        try:
+            form.save()
+            return redirect('income_items')
+        except:
+            form.add_error(None, 'Data save error')
+
+
+class IncomeItemDeleteView(DeleteView):
+    error = ''
+    model = Items
+    success_url = '/income_items'
+    template_name = 'directory/income_item_delete.html'
+
+    def post(self, request, *args, **kwargs):
+        try:
+            return super().delete(request, *args, **kwargs)
+        except ProtectedError as error:
+            self.object = self.get_object()
+            context = self.get_context_data(
+                object=self.object,
+                error=f'Error: {error.protected_objects}'
+            )
+            return self.render_to_response(context)
+

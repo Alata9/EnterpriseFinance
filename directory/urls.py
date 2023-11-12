@@ -9,11 +9,7 @@ from directory.views import (
     RatesView, RatesIdView, RatesDeleteView, RatesParsingView,
     InitialDebtsView, InitialDebtIdView, InitialDebtDeleteView,
     ItemIdView, ItemsView, ItemDeleteView,
-
-    # ---------for delete----------------------------
-    ExpensesGroupView, ExpensesGroupIdView, ExpensesGroupDeleteView,
     ExpensesItemView, ExpensesItemIdView, ExpensesItemDeleteView,
-    IncomeGroupView, IncomeGroupIdView, IncomeGroupDeleteView,
     IncomeItemView, IncomeItemIdView, IncomeItemDeleteView,
 )
 
@@ -64,27 +60,13 @@ urlpatterns = [
     path('items/list', ItemsView.htmx_list, name='items_list'),
     path('<int:pk>/item/delete', ItemDeleteView.as_view(), name='item_del'),
 
-
-#----------------for delete------------------------------
-
-    path('expenses_groups/', ExpensesGroupView, name='expenses_group'),
-    path('expenses_group/<int:pk>/', ExpensesGroupIdView.as_view(), name='expenses_group_id'),
-    path('expenses_group/add/', ExpensesGroupIdView.as_view(), name='expenses_group_add'),
-    path('<int:pk>/expenses_group/delete/', ExpensesGroupDeleteView.as_view(), name='expenses_group_delete'),
-
     path('expenses_items/', ExpensesItemView, name='expenses_items'),
     path('expenses_item/<int:pk>/', ExpensesItemIdView.as_view(), name='expenses_item_id'),
     path('expenses_item/add/', ExpensesItemIdView.as_view(), name='expenses_item_add'),
     path('<int:pk>/expenses_item/delete', ExpensesItemDeleteView.as_view(), name='expenses_item_delete'),
 
-    path('income_groups/', IncomeGroupView, name='income_groups'),
-    path('income_group/<int:pk>', IncomeGroupIdView.as_view(), name='income_group_id'),
-    path('income_group/add', IncomeGroupIdView.as_view(), name='income_group_add'),
-    path('<int:pk>/income_group/delete', IncomeGroupDeleteView.as_view(), name='income_group_delete'),
-
     path('income_items/', IncomeItemView, name='income_items'),
     path('income_item/<int:pk>', IncomeItemIdView.as_view(), name='income_item_id'),
     path('income_item/add', IncomeItemIdView.as_view(), name='income_item_add'),
     path('<int:pk>/income_item/delete', IncomeItemDeleteView.as_view(), name='income_item_delete'),
-
 ]

@@ -1,14 +1,15 @@
 from django.db import models
-
 import datetime
 
-from directory.models import Organization, Counterparties, Project, Currencies, ExpensesItem, IncomeItem
+from directory.models import (
+    Organization, Counterparties, Project, Currencies, Items,
+)
 
 
 class Calculations(models.Model):
     FlowDirection = (
-        ('receipts', 'Receipts'),
-        ('payments', 'Payments'),
+        ('Receipts', 'Receipts'),
+        ('Payments', 'Payments'),
     )
 
     TypeCalculation = (
@@ -23,8 +24,8 @@ class Calculations(models.Model):
         ('weekly', 'weekly'),
         ('daily', 'daily'),
     )
-    type_calc = models.CharField(max_length=200, choices=TypeCalculation, default='constant', blank=True)
-    flow = models.CharField(max_length=10, choices=FlowDirection, blank=True, default='payments')
+    type_calc = models.CharField(max_length=200, choices=TypeCalculation, blank=True)
+    flow = models.CharField(max_length=10, choices=FlowDirection, blank=True)
     name = models.CharField(max_length=100, blank=True, unique=True)
     organization = models.ForeignKey(Organization, on_delete=models.PROTECT, blank=True)
     counterparty = models.ForeignKey(Counterparties, on_delete=models.PROTECT, blank=True)
@@ -32,7 +33,7 @@ class Calculations(models.Model):
     is_cash = models.BooleanField(blank=True, default=False)
     currency = models.ForeignKey(Currencies, on_delete=models.PROTECT, blank=True)
     comments = models.CharField(max_length=250, blank=True, null=True)
-    item = models.ForeignKey(ExpensesItem, on_delete=models.PROTECT, blank=True)
+    item = models.ForeignKey(Items, on_delete=models.PROTECT, blank=True)
     date_first = models.DateField(blank=True)
     amount = models.DecimalField(max_digits=15, decimal_places=2, blank=True)
     term = models.IntegerField(blank=True, null=True)
@@ -61,13 +62,11 @@ class Calculations(models.Model):
 
     @staticmethod
     def get_series_differ(date_first, term, loan_rate, amount):
-        '''
-        returns a list of changeable values for creating a series of planned payments
-        for the “Credit: differentiated” calculation, where:
+        """ returns a list of changeable values for planned payments for the “differentiated” calculation, where:
             date_pay - current date of payments,
             debt_pay - current payment of main credit owed,
-            per_pay - current payment of percents owed.
-         '''
+            per_pay - current payment of percents owed."""
+
         date_pay = date_first
         number = date_first.day
         debt_pay = amount / term
@@ -90,7 +89,7 @@ class Calculations(models.Model):
         annuity = (amount * loan_rate/1200) / (1 - (1 + loan_rate/1200)**(-term))
         balance_owed = amount
         data_list = []
-        print(data_list)
+
         for i in range(term):
             date_pay = (date_pay + datetime.timedelta(days=31)).replace(day=number)
             per_pay = balance_owed * loan_rate / 1200
@@ -103,16 +102,25 @@ class Calculations(models.Model):
 
     @classmethod
     def create_plan_payments(cls, create_plan):
+        data_list = []
         obj = Calculations.objects.get(pk=create_plan)
-        existing_plan = PaymentsPlan.objects.filter(calculation=obj).order_by('date').all()
+        existing_plan = PaymentDocumentPlan.objects.filter(calculation=obj).order_by('date').all()
         type_calc = obj.type_calc
-        item_debt = ExpensesItem.objects.filter(id=1)
-        item_per = ExpensesItem.objects.filter(id=11)
+
+        flow = obj.flow
+        if flow == 'Payments':                                         # edit - divide loan and borrower, change filter
+            item_per = Items.objects.filter(id=15)
+            item_debt = Items.objects.filter(id=14)
+
+        else:
+            item_per = Items.objects.filter(id=16)
+            item_debt = Items.objects.filter(id=12)
 
         if type_calc == 'constant':
             data_list = cls.get_series_constant(obj.date_first, obj.frequency, obj.term)
             for i in range(obj.term):
-                plan = PaymentsPlan(
+                plan = PaymentDocumentPlan(
+                    flow='Payments',
                     calculation=obj,
                     organization=obj.organization,
                     currency=obj.currency,
@@ -122,7 +130,7 @@ class Calculations(models.Model):
                     comments=obj.comments,
                     date=data_list[i],
                     item=obj.item,
-                    amount=obj.amount
+                    outflow_amount=obj.amount
                 )
                 if len(existing_plan) > i:
                     plan.id = existing_plan[i].id
@@ -135,7 +143,8 @@ class Calculations(models.Model):
                 data_list = cls.get_series_annuity(obj.date_first, obj.term, obj.loan_rate, obj.amount)
 
             for i in range(obj.term):
-                plan_debt = PaymentsPlan(
+                plan_debt = PaymentDocumentPlan(
+                    flow='Payments',
                     calculation=obj,
                     organization=obj.organization,
                     currency=obj.currency,
@@ -144,15 +153,16 @@ class Calculations(models.Model):
                     counterparty=obj.counterparty,
                     comments=obj.comments,
                     date=data_list[i][0],
-                    item=obj.item,
-                    amount=data_list[i][1]
+                    item=obj.item,                          # change
+                    outflow_amount=data_list[i][1]
                 )
                 if len(existing_plan) > i:
                     plan_debt.id = existing_plan[i].id
                 plan_debt.save()
 
             for i in range(obj.term):
-                plan_per = PaymentsPlan(
+                plan_per = PaymentDocumentPlan(
+                    flow='Payments',
                     calculation=obj,
                     organization=obj.organization,
                     currency=obj.currency,
@@ -161,65 +171,44 @@ class Calculations(models.Model):
                     counterparty=obj.counterparty,
                     comments=obj.comments,
                     date=data_list[i][0],
-                    item=obj.item,
-                    amount=data_list[i][2]
+                    item=obj.item,                              # change
+                    outflow_amount=data_list[i][2]
                 )
                 if len(existing_plan) > i:
                     plan_per.id = existing_plan[i].id
                 plan_per.save()
 
-        PaymentsPlan.objects.filter(calculation=obj, date__gte=obj.date_pay).delete()
+
+        # PaymentDocumentPlan.objects.filter(calculation=obj, date__gte=obj.date_pay).delete()
 
 
     def get_absolute_url(self):
         return '/calculations'
 
 
-class PaymentsPlan(models.Model):
+class PaymentDocumentPlan(models.Model):
+    FlowDirection = (
+        ('Receipts', 'Receipts'),
+        ('Payments', 'Payments'),
+    )
+
+    flow = models.CharField(max_length=10, choices=FlowDirection, blank=True)
     organization = models.ForeignKey(Organization, on_delete=models.PROTECT, blank=True, null=True)
     date = models.DateField(blank=True)
-    amount = models.DecimalField(max_digits=15, decimal_places=2)
+    inflow_amount = models.DecimalField(max_digits=15, decimal_places=2, default=0)
+    outflow_amount = models.DecimalField(max_digits=15, decimal_places=2, default=0)
     currency = models.ForeignKey(Currencies, on_delete=models.PROTECT, blank=True)
     is_cash = models.BooleanField(blank=False, default=False)
     project = models.ForeignKey(Project, on_delete=models.PROTECT, blank=False, null=True)
     counterparty = models.ForeignKey(Counterparties, on_delete=models.PROTECT, blank=True)
-    item = models.ForeignKey(ExpensesItem, on_delete=models.PROTECT, blank=True)
+    item = models.ForeignKey(Items, on_delete=models.PROTECT, blank=True)
     calculation = models.ForeignKey(Calculations, on_delete=models.PROTECT, blank=True, null=True)
     comments = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
-        return f'{self.date}, {self.counterparty}, {self.item}, {self.amount}'
-
-    class Meta:
-        ordering = ['date', 'item']
-        verbose_name = 'Payment plan'
-        verbose_name_plural = 'Payments plan'
-
-    def get_absolute_url(self):
-        return '/payments_plan'
-
-
-class ReceiptsPlan(models.Model):
-    organization = models.ForeignKey(Organization, on_delete=models.PROTECT, blank=True, null=True)
-    date = models.DateField(blank=True)
-    amount = models.DecimalField(max_digits=15, decimal_places=2)
-    currency = models.ForeignKey(Currencies, on_delete=models.PROTECT, blank=True)
-    is_cash = models.BooleanField(blank=False, default=False)
-    project = models.ForeignKey(Project, on_delete=models.PROTECT, blank=False, null=True)
-    counterparty = models.ForeignKey(Counterparties, on_delete=models.PROTECT, blank=True)
-    item = models.ForeignKey(IncomeItem, on_delete=models.PROTECT, blank=True)
-    calculation = models.ForeignKey(Calculations, on_delete=models.PROTECT, blank=True, null=True)
-    comments = models.CharField(max_length=255, blank=True, null=True)
-
-    def __str__(self):
-        return f'{self.date}, {self.counterparty}, {self.item}, {self.amount}'
+        return self.pk
 
     class Meta:
         ordering = ['organization', 'date', 'item']
-        verbose_name = 'Receipt plan'
-        verbose_name_plural = 'Receipts plan'
-
-    def get_absolute_url(self):
-        return '/receipts_plan'
-
-
+        verbose_name = 'Payment-plan document'
+        verbose_name_plural = 'Payment-plan documents'
