@@ -6,14 +6,10 @@ from io import TextIOWrapper, StringIO, BytesIO
 from django.http import HttpResponse, FileResponse
 from django.shortcuts import render, redirect
 from django.views.generic import UpdateView, DeleteView, ListView, FormView
-
-from directory.models import (Organization, PaymentAccount, Currencies, Counterparties, Project, Items,
-    # IncomeItem, ExpensesItem
-                              )
+from directory.models import Organization, PaymentAccount, Currencies, Counterparties, Project, Items
 from registers.models import AccountSettings
-from payments.models import ( ChangePayAccount, PaymentDocuments,
-                             # Receipts, Payments,
-                             )
+from payments.models import ChangePayAccount, PaymentDocuments
+
 from payments.forms import (
     ReceiptsAdd, ReceiptsFilter, PaymentsFilter, PaymentsAdd,
     ChangePayAccountAdd, ChangePayAccountFilter, UploadFile
@@ -183,8 +179,8 @@ class PaymentsView(ListView):
             ["Organization", "Account", "Date", "Amount", "Currency", "Counterparty", "Item", "Project", "Comments"]]
         payments = self.payments_queryset(request)
         for i in payments:
-            my_data.append([i.organization, i.account, i.date, i.outflow_amount, i.currency, i.counterparty, i.item, i.project,
-                            i.comments])
+            my_data.append([i.organization, i.account, i.date, i.outflow_amount, i.currency, i.counterparty, i.item,
+                            i.project, i.comments])
 
         t = str(datetime.datetime.today().strftime('%d-%m-%Y-%H%M%S'))
         file_name = 'payments' + t + '.csv'
@@ -253,6 +249,7 @@ class PaymentsIdView(UpdateView):
 
         if 'plan_id' in self.kwargs:
             return self.model.from_plan(self.kwargs['plan_id'])
+
 
         org = AccountSettings.load().organization()
         return self.model(organization=org)

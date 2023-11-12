@@ -3,9 +3,9 @@ from django.urls import path
 # from registers.views_charts import (htmx_projects,
 #     # DashboardView, ChartsOperView, ChartsInvestView, ChartsFinView,
 # )
-from registers.views_reports import (HomeView, AccountSettingsView,
+from registers.views_reports import (HomeView, AccountSettingsView, AccountBalancesView
 
-    # AccountBalancesView, CfStatementView, CfBudgetView, PlanFactAnalysisView,
+    # , CfStatementView, CfBudgetView, PlanFactAnalysisView,
 )
 
 urlpatterns = [
@@ -19,8 +19,8 @@ urlpatterns = [
     # path('investment', ChartsInvestView, name='charts_invest'),
     # path('financing', ChartsFinView.as_view(), name='charts_fin'),
     #
-    # path('account_balances/', AccountBalancesView.as_view(), name='account_balances'),
-    # path('account_balances/list', AccountBalancesView.htmx_list, name='account_balances_list'),
+    path('account_balances/', AccountBalancesView.as_view(), name='account_balances'),
+    path('account_balances/list', AccountBalancesView.htmx_list, name='account_balances_list'),
     #
     # path('cf_statement/', CfStatementView.as_view(), name='cf_statement'),
     # path('cf_statement/list', CfStatementView.htmx_list, name='cf_statement_list'),

@@ -104,10 +104,11 @@ class PaymentsAdd(DynamicFormMixin, ModelForm):
     class Meta:
         model = PaymentDocuments
         fields = ('organization', 'account', 'date', 'outflow_amount', 'currency', 'counterparty',
-                  'item', 'project', 'by_request', 'comments', 'flow')
+                  'item', 'project', 'by_plan', 'comments', 'flow')
         widgets = {'date': DateInput(attrs={'type': 'Date'}),
                    'comments': Textarea(attrs={'cols': 60, 'rows': 3}),
                    'currency': HiddenInput(),
+                   'by_plan': HiddenInput(),
                    'flow': HiddenInput()}
 
     account = DynamicField(
@@ -134,8 +135,6 @@ class PaymentsAdd(DynamicFormMixin, ModelForm):
         self.fields['outflow_amount'].label = 'Amount'
         self.fields['project'].empty_label = 'Project:'
         self.fields['project'].required = False
-        self.fields['by_request'].empty_label = 'by Request:'
-        self.fields['by_request'].required = False
         self.fields['counterparty'].queryset = self.fields['counterparty'].queryset.order_by('counterparty')
         self.fields['item'].queryset = self.fields['item'].queryset.order_by('item')
         self.fields['project'].queryset = self.fields['project'].queryset.order_by('project')

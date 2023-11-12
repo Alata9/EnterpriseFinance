@@ -1,9 +1,7 @@
 from django.db import models
 import datetime
 
-from directory.models import (
-    Organization, Counterparties, Project, Currencies, Items,
-)
+from directory.models import Organization, Counterparties, Project, Currencies, Items
 
 
 class Calculations(models.Model):
@@ -206,7 +204,7 @@ class PaymentDocumentPlan(models.Model):
     comments = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
-        return self.pk
+        return f'{self.pk}'
 
     class Meta:
         ordering = ['organization', 'date', 'item']
