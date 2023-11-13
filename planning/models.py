@@ -70,7 +70,7 @@ class Calculations(models.Model):
         debt_pay = amount / term
         balance_owed = amount
         data_list = [(date_pay, debt_pay, amount * loan_rate / 1200)]
-        print(data_list)
+
         for i in range(term-1):
             date_pay = (date_pay + datetime.timedelta(days=31)).replace(day=number)
             balance_owed -= debt_pay
@@ -94,7 +94,7 @@ class Calculations(models.Model):
             debt_pay = annuity - per_pay
             balance_owed -= debt_pay
             data_list.append((date_pay, debt_pay, per_pay))
-            print(date_pay, debt_pay, per_pay)
+
         return data_list
 
 

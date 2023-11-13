@@ -7,46 +7,15 @@
 <div class="container-fluid px-10">
     <div class="row">
         <form action="" method="GET"
-            hx-get="/payments/list"
+            hx-get="/account_flows/list"
             hx-trigger="change"
             hx-target="#id_table">
         <div class="col-md-2 border p-2 shadow">
             <br><br>
             <h4>FILTER</h4>
             {% csrf_token %}
-            <div class="form-group">
-            {{ form.ordering.label_tag }}
-            {% render_field form.ordering class="select form-control" %}
-            </div>
-            <div class="form-group">
-            {{ form.date.label_tag }}
-            {% render_field form.date class="select form-control" %}
-            </div>
-            <div class="form-group">
-            {{ form.date_end.label_tag }}
-            {% render_field form.date_end class="select form-control" %}
-            </div>
-            <hr>
-            <div id="div_id_organization"
-                 class="form-group"
-                 hx-get="/account_flows/projects"
-                 hx-vals="js:{organization:document.getElementById('id_organization').value}"
-                 hx-trigger="change"
-                 hx-target="#id_project">
-            {% render_field form.organization class="select form-control" hx-get="/account_flows/accounts" hx-trigger="change" hx-target="#id_account" %}
-            </div>
-            <div class="form-group">
-            {% render_field form.account class="select form-control" %}
-            </div>
-            <div class="form-group">
-            {% render_field form.counterparty class="select form-control" %}
-            </div>
-            <div class="form-group">
-            {% render_field form.item class="select form-control" %}
-            </div>
-            <div class="form-group">
-            {% render_field form.project class="select form-control" %}
-            </div>
+            {{ form|crispy }}
+            <br>
             <div hx-get="/account_flows/list" hx-trigger="click" hx-target="#id_table">
                 <button class="btn btn-info" type="reset" name="btn_reset" >RESET FILTERS</button>
             </div>

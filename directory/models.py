@@ -127,6 +127,7 @@ class Items(models.Model):
         ('Loans', 'Credits and loans'),
         ('Fixed_assets', 'Fixed assets'),
         ('New_projects', 'New projects'),
+        ('Change_account', 'Change payment account'),
     )
 
     item = models.CharField(max_length=100, unique=True)

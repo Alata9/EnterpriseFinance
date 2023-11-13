@@ -31,7 +31,9 @@ class ReceiptsPlanView(ListView):
         return super().get(request, *args, **kwargs)
 
     def to_file(self, request):
-        my_data = [
+        time_report = str(datetime.datetime.today().strftime('%d-%m-%Y, %H:%M:%S'))
+
+        my_data = [[f'List of planned receipts from {time_report}'], [],
             ["Organization", "Date", "Amount", "Currency", "is_cash", "Counterparty", "Item", "Project", "Comments"]]
         payments = self.receipts_queryset(request)
         for i in payments:
@@ -43,7 +45,7 @@ class ReceiptsPlanView(ListView):
                             i.comments])
 
         t = str(datetime.datetime.today().strftime('%d-%m-%Y-%H%M%S'))
-        file_name = 'receipts_plan' + t + '.csv'
+        file_name = 'receipts_plan ' + t + '.csv'
         file_buffer = StringIO()
 
         writer = csv.writer(file_buffer, delimiter=';')
@@ -176,7 +178,9 @@ class PaymentsPlanView(ListView):
         return super().get(request, *args, **kwargs)
 
     def to_file(self, request):
-        my_data = [
+        time_report = str(datetime.datetime.today().strftime('%d-%m-%Y, %H:%M:%S'))
+
+        my_data = [[f'List of payment requests from {time_report}'], [],
             ["Organization", "Date", "Amount", "Currency", "is_cash", "Counterparty", "Item", "Project", "Comments"]]
         payments = self.payments_queryset(request)
         for i in payments:

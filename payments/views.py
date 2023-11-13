@@ -29,7 +29,10 @@ class ReceiptsView(ListView):
         return super().get(request, *args, **kwargs)
 
     def to_file(self, request):
-        my_data = [["Organization", "Account", "Date", "Amount", "Currency", "Counterparty", "Item", "Project", "Comments"]]
+        time_report = str(datetime.datetime.today().strftime('%d-%m-%Y, %H:%M:%S'))
+
+        my_data = [[f'List of receipts from {time_report}'], [],
+                   ["Organization", "Account", "Date", "Amount", "Currency", "Counterparty", "Item", "Project", "Comments"]]
         receipts = self.receipts_queryset(request)
         for i in receipts:
             my_data.append([i.organization, i.account, i.date, i.inflow_amount, i.currency, i.counterparty,
@@ -175,8 +178,10 @@ class PaymentsView(ListView):
         return super().get(request, *args, **kwargs)
 
     def to_file(self, request):
-        my_data = [
-            ["Organization", "Account", "Date", "Amount", "Currency", "Counterparty", "Item", "Project", "Comments"]]
+        time_report = str(datetime.datetime.today().strftime('%d-%m-%Y, %H:%M:%S'))
+
+        my_data = [[f'List of payments from {time_report}'], [],
+                   ["Organization", "Account", "Date", "Amount", "Currency", "Counterparty", "Item", "Project", "Comments"]]
         payments = self.payments_queryset(request)
         for i in payments:
             my_data.append([i.organization, i.account, i.date, i.outflow_amount, i.currency, i.counterparty, i.item,

@@ -160,18 +160,22 @@ class AccountFlowsView(ListView):
     model = PaymentDocuments
     template_name = 'registers/general_flows.html'
 
+    def get_queryset(self):
+        return PaymentDocuments.objects.all().order_by('date')
+
     def get(self, request, *args, **kwargs):
         if 'btn_to_file' in request.GET:
             return self.to_file(request)
         return super().get(request, *args, **kwargs)
 
     def to_file(self, request):
-        my_data = [["Organization", "Account", "Date", "Inflow Amount", "Outflow Amount", "Currency",
-                    "Counterparty", "Item", "Project", "Comments"]]
+        my_data = [['header'],
+                   ["Date", "Counterparty", "Inflow", "Outflow", "Currency", "Item", "Project", "Comments"]]
+
         receipts = self.flows_queryset(request)
         for i in receipts:
-            my_data.append([i.organization, i.account, i.date, i.inflow_amount, i.inflow_amount, i.currency,
-                            i.counterparty, i.item, i.project, i.comments])
+            my_data.append([i.date, i.counterparty, i.inflow_amount, i.inflow_amount, i.currency,
+                            i.item, i.project, i.comments])
 
         t = str(datetime.datetime.today().strftime('%d-%m-%Y-%H%M%S'))
         file_name = 'account_flows_' + t + '.csv'
@@ -187,13 +191,14 @@ class AccountFlowsView(ListView):
         return response
 
     def get_context_data(self, *, object_list=None, **kwargs):
-        ctx = super().get_context_data(object_list=None, **kwargs)
-        ctx['form'] = AccountFlowsFilter()
+        ctx = {
+            'object_list': self.flows_queryset(self.request),
+            'form': AccountFlowsFilter()}
         return ctx
 
     @staticmethod
     def flows_queryset(request):
-        flows = PaymentDocuments.objects.all()
+        flows = PaymentDocuments.objects.all().order_by('date')
 
         form = AccountFlowsFilter(request.GET)
         if form.is_valid():
@@ -201,22 +206,16 @@ class AccountFlowsView(ListView):
                 flows = flows.filter(date__gte=form.cleaned_data['date'])
             if form.cleaned_data['date_end']:
                 flows = flows.filter(date__lte=form.cleaned_data['date_end'])
-            if form.cleaned_data['counterparty']:
-                flows = flows.filter(counterparty=form.cleaned_data['counterparty'])
-            if form.cleaned_data['item']:
-                flows = flows.filter(item=form.cleaned_data['item'])
-            if form.cleaned_data['organization']:
-                flows = flows.filter(organization=form.cleaned_data['organization'])
-            if form.cleaned_data['project']:
-                flows = flows.filter(project=form.cleaned_data['project'])
             if form.cleaned_data['account']:
                 flows = flows.filter(account=form.cleaned_data['account'])
-            if form.cleaned_data['ordering']:
-                flows = flows.order_by(form.cleaned_data['ordering'])
+            else:
+                flows = PaymentDocuments.objects.none()
 
-        return flows
-
-
+        total = AccountFlowsView.get_total(flows)
+        return {
+            'flows': flows,
+            'total': total,
+        }
 
     @staticmethod
     def htmx_list(request):
@@ -224,6 +223,20 @@ class AccountFlowsView(ListView):
 
         return render(request, 'registers/general_flow_list.html', context=context)
 
+    @staticmethod
+    def get_total(flows):
+        total = []
+        inflow_sum = flows.aggregate(Sum("inflow_amount")).get('inflow_amount__sum', 0.00)
+        if inflow_sum is None:
+            inflow_sum = 0
+
+        outflow_sum = flows.aggregate(Sum("outflow_amount")).get('outflow_amount__sum', 0.00)
+        if outflow_sum is None:
+            outflow_sum = 0
+
+        total.append({'inflow_total': inflow_sum, 'outflow_total': outflow_sum})
+
+        return total
 
 # class CfStatementView(ListView):
 #     model = Payments

@@ -8,7 +8,7 @@ class PaymentDocumentsAdmin(admin.ModelAdmin):
                     'counterparty', 'item', 'project', 'comments', 'flow']
     list_display_links = ['id', 'organization', 'date', 'outflow_amount', 'inflow_amount', 'account', 'currency',
                           'counterparty', 'item', 'project', 'comments', 'flow']
-    search_fields = ['flow', 'organization', 'date', 'counterparty', 'account', 'currency', 'item', 'project']
+    search_fields = ['date', 'flow', 'organization', 'counterparty', 'account', 'currency', 'item', 'project']
 
 
 class ChangePayAccountAdmin(admin.ModelAdmin):
