@@ -46,7 +46,8 @@ class AccountFlowsFilter(ModelForm):
         fields = ['account', 'date']
         widgets = {
             'date': DateInput(attrs={'type': 'Date'}),
-            'date_end': DateInput(attrs={'type': 'Date'})}
+            # 'date_end': DateInput(attrs={'type': 'Date'})
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

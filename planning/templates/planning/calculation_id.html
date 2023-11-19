@@ -56,8 +56,10 @@
             <div class="row text-center">
                 <div class="col-md-4">
                     <button class="btn btn-warning" type="submit" name="btn_save">SAVE</button>
+                    {% if object.id %}
                     <a href="{% url 'calculation_create_plan' object.id %}" class='btn btn-warning'>CREATE PLAN</a>
                     <a href="{% url 'calculation_delete_plan' object.id %}" class='btn btn-warning'>DELETE PLAN</a>
+                    {% endif %}
                     <input action="action" onclick="window.history.go(-1); return false;"
                            class='btn btn-warning' type="submit" value="CANCEL"/>
                 </div>

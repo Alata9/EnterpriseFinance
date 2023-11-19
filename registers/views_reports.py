@@ -172,8 +172,8 @@ class AccountFlowsView(ListView):
         my_data = [['header'],
                    ["Date", "Counterparty", "Inflow", "Outflow", "Currency", "Item", "Project", "Comments"]]
 
-        receipts = self.flows_queryset(request)
-        for i in receipts:
+        flows = self.flows_queryset(request)
+        for i in flows:
             my_data.append([i.date, i.counterparty, i.inflow_amount, i.inflow_amount, i.currency,
                             i.item, i.project, i.comments])
 
@@ -208,8 +208,6 @@ class AccountFlowsView(ListView):
                 flows = flows.filter(date__lte=form.cleaned_data['date_end'])
             if form.cleaned_data['account']:
                 flows = flows.filter(account=form.cleaned_data['account'])
-            else:
-                flows = PaymentDocuments.objects.none()
 
         total = AccountFlowsView.get_total(flows)
         return {

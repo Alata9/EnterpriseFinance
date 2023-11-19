@@ -7,8 +7,8 @@ from django.shortcuts import render, redirect
 from django.views.generic import UpdateView, ListView, View
 
 from directory.models import PaymentAccount, CurrenciesRates, Counterparties, InitialDebts
-from payments.models import Payments, PaymentDocuments
-from payments.models import Receipts, IncomeItem
+from payments.models import PaymentDocuments
+
 from registers.forms import AccountSettingsSet, AccountBalancesFilter, DashboardFilter
 from registers.models import AccountSettings
 
@@ -24,14 +24,14 @@ class DashboardView(View):
 
         accounts = PaymentAccount.objects.all()
         receipts = PaymentDocuments.objects.filter(flow='Receipts')
-        receipts_oper = PaymentDocuments.objects.filter(item__income_group__type_cf=1)
-        receipts_invest = PaymentDocuments.objects.filter(item__income_group__type_cf=2)
-        receipts_fin = PaymentDocuments.objects.filter(item__income_group__type_cf=3)
+        receipts_oper = PaymentDocuments.objects.filter(item__activity='operating')
+        receipts_invest = PaymentDocuments.objects.filter(item__activity='investing')
+        receipts_fin = PaymentDocuments.objects.filter(item__activity='financing')
 
         payments = PaymentDocuments.objects.filter(flow='Payments')
-        payments_oper = PaymentDocuments.objects.filter(item__expense_group__type_cf=1)
-        payments_invest = PaymentDocuments.objects.filter(item__expense_group__type_cf=2)
-        payments_fin = PaymentDocuments.objects.filter(item__expense_group__type_cf=3)
+        payments_oper = PaymentDocuments.objects.filter(item__activity='operating')
+        payments_invest = PaymentDocuments.objects.filter(item__activity='investing')
+        payments_fin = PaymentDocuments.objects.filter(item__activity='financing')
 
 
         if form.is_valid():
@@ -95,17 +95,17 @@ class DashboardView(View):
 
         for i in accounts:
             currency = PaymentAccount.objects.filter(account=i).values_list('currency__code', flat=True)[0]
-            open_balance = PaymentAccount.objects.filter(account=i).values_list('open_balance', flat=True)[0]
+            # open_balance = PaymentAccount.objects.filter(account=i).values_list('open_balance', flat=True)[0]
 
             receipts = Receipts.objects.filter(account__account=i)
-            receipts_sum = receipts.aggregate(Sum("amount")).get('amount__sum', 0.00)
+            receipts_sum = receipts.aggregate(Sum("inflow_amount")).get('inflow_amount__sum', 0.00)
             if receipts_sum == None: receipts_sum = 0
 
             payments = Payments.objects.filter(account__account=i)
-            payments_sum = payments.aggregate(Sum("amount")).get('amount__sum', 0.00)
+            payments_sum = payments.aggregate(Sum("outflow_amount")).get('outflow_amount__sum', 0.00)
             if payments_sum == None: payments_sum = 0
 
-            final_balance = open_balance + receipts_sum - payments_sum
+            final_balance = receipts_sum - payments_sum
             account_balances[i] = [int(final_balance), currency]
 
         account_balances = [[k, *v] for k, v in account_balances.items()]
@@ -119,28 +119,28 @@ class DashboardView(View):
             receipts_invest, payments_invest, receipts_fin, payments_fin):
 
         cf_table = {}
-        receipts_sum = receipts.aggregate(Sum("amount")).get('amount__sum', 0.00)
+        receipts_sum = receipts.aggregate(Sum("inflow_amount")).get('inflow_amount__sum', 0.00)
         if receipts_sum is None:
             receipts_sum = 0
-        payments_sum = payments.aggregate(Sum("amount")).get('amount__sum', 0.00)
+        payments_sum = payments.aggregate(Sum("outflow_amount")).get('outflow_amount__sum', 0.00)
         if payments_sum is None:
             payments_sum = 0
-        receipts_oper = receipts_oper.aggregate(Sum("amount")).get('amount__sum', 0.00)
+        receipts_oper = receipts_oper.aggregate(Sum("inflow_amount")).get('inflow_amount__sum', 0.00)
         if receipts_oper is None:
             receipts_oper = 0
-        payments_oper = payments_oper.aggregate(Sum("amount")).get('amount__sum', 0.00)
+        payments_oper = payments_oper.aggregate(Sum("outflow_amount")).get('outflow_amount__sum', 0.00)
         if payments_oper is None:
             payments_oper = 0
-        receipts_invest = receipts_invest.aggregate(Sum("amount")).get('amount__sum', 0.00)
+        receipts_invest = receipts_invest.aggregate(Sum("inflow_amount")).get('inflow_amount__sum', 0.00)
         if receipts_invest is None:
             receipts_invest = 0
-        payments_invest = payments_invest.aggregate(Sum("amount")).get('amount__sum', 0.00)
+        payments_invest = payments_invest.aggregate(Sum("outflow_amount")).get('outflow_amount__sum', 0.00)
         if payments_invest is None:
             payments_invest = 0
-        receipts_fin = receipts_fin.aggregate(Sum("amount")).get('amount__sum', 0.00)
+        receipts_fin = receipts_fin.aggregate(Sum("inflow_amount")).get('inflow_amount__sum', 0.00)
         if receipts_fin is None:
             receipts_fin = 0
-        payments_fin = payments_fin.aggregate(Sum("amount")).get('amount__sum', 0.00)
+        payments_fin = payments_fin.aggregate(Sum("outflow_amount")).get('outflow_amount__sum', 0.00)
         if payments_fin is None:
             payments_fin = 0
 

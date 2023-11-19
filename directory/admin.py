@@ -49,8 +49,8 @@ class InitialDebtsAdmin(admin.ModelAdmin):
 
 
 class ItemsAdmin(admin.ModelAdmin):
-    list_display = ['id', 'item', 'group', 'flow']
-    list_display_links = ['id', 'item', 'group', 'flow']
+    list_display = ['id', 'item', 'item_user', 'group', 'flow', 'activity', 'system_field']
+    list_display_links = ['id', 'item', 'item_user', 'group', 'flow', 'activity', 'system_field']
     search_fields = ['item']
 
 

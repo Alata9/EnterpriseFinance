@@ -490,6 +490,22 @@ class ItemIdView(UpdateView):
             return super().get_object(queryset)
 
     def form_valid(self, form):
+        activities = {
+            Items.ItemGroups[0][0]: 'operating',
+            Items.ItemGroups[1][0]: 'operating',
+            Items.ItemGroups[2][0]: 'operating',
+            Items.ItemGroups[3][0]: 'operating',
+            Items.ItemGroups[4][0]: 'operating',
+            Items.ItemGroups[5][0]: 'operating',
+            Items.ItemGroups[6][0]: 'financing',
+            Items.ItemGroups[7][0]: 'investing',
+            Items.ItemGroups[8][0]: 'investing',
+        }
+
+        form = form.save(commit=False)
+        form.activity = activities.get(form.group)
+        if form.system_field is False:
+            form.item = form.item_user
         try:
             form.save()
             return redirect('items')
@@ -534,7 +550,22 @@ class ExpensesItemIdView(UpdateView):
             return super().get_object(queryset)
 
     def form_valid(self, form):
+        activities = {
+            Items.ItemGroups[0][0]: 'operating',
+            Items.ItemGroups[1][0]: 'operating',
+            Items.ItemGroups[2][0]: 'operating',
+            Items.ItemGroups[3][0]: 'operating',
+            Items.ItemGroups[4][0]: 'operating',
+            Items.ItemGroups[5][0]: 'operating',
+            Items.ItemGroups[6][0]: 'financing',
+            Items.ItemGroups[7][0]: 'investing',
+            Items.ItemGroups[8][0]: 'investing',
+        }
+
         form = form.save(commit=False)
+        form.activity = activities.get(form.group)
+        if form.system_field == False:
+            form.item = form.item_user
         form.flow = 'Payments'
         try:
             form.save()
@@ -579,7 +610,22 @@ class IncomeItemIdView(UpdateView):
             return super().get_object(queryset)
 
     def form_valid(self, form):
+        activities = {
+            Items.ItemGroups[0][0]: 'operating',
+            Items.ItemGroups[1][0]: 'operating',
+            Items.ItemGroups[2][0]: 'operating',
+            Items.ItemGroups[3][0]: 'operating',
+            Items.ItemGroups[4][0]: 'operating',
+            Items.ItemGroups[5][0]: 'operating',
+            Items.ItemGroups[6][0]: 'financing',
+            Items.ItemGroups[7][0]: 'investing',
+            Items.ItemGroups[8][0]: 'investing',
+        }
+
         form = form.save(commit=False)
+        form.activity = activities.get(form.group)
+        if form.system_field == False:
+            form.item = form.item_user
         form.flow = 'Receipts'
         try:
             form.save()

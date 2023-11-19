@@ -2,7 +2,6 @@
 <table class="table table-condensed table-scroll table-striped" id="id_table" >
     <tr>
         <th align="center">organization</th>
-        <th align="center">calculation</th>
         <th align="center">project</th>
         <th align="center">item</th>
         <th align="center">counterparty</th>
@@ -10,13 +9,15 @@
         <th align="center">amount</th>
         <th align="center">currency</th>
         <th align="center">is_cash</th>
+        <th align="center">by calculation</th>
         <th align="center">comments</th>
         <th align="center"></th>
     </tr>
     {% for i in object_list %}
     <tr>
+
         <td width="100">{{i.organization}}</td>
-        <td width="100" align="left">{% if i.calculation != None %}{{ i.calculation }}{% endif %}</td>
+
         <td width="100">{% if i.project != None %}{{ i.project }}{% endif %}</td>
         <td width="100">{{i.item}}</td>
         <td width="100">{{i.counterparty}}</td>
@@ -24,6 +25,11 @@
         <td width="100" align="right">{{i.outflow_amount}}</td>
         <td width="100">{{i.currency}}</td>
         <td width="100">{% if i.is_cash %}<i class="bi bi-check2-square"></i>{% endif %}</td>
+        <td width="100">
+            {% if i.calculation != None %}
+            <a href="{% url 'calculation_id' i.calculation.id %}">{{ i.calculation }}</a>
+            {% endif %}
+        </td>
         <td width="100">{% if i.comments != None %}{{ i.comments }}{% endif %}</td>
         <td width="100" align="center" style='white-space: nowrap'>
             <a href="{% url 'payments_plan_id' i.id %}" class='btn btn-warning btn-xs' data-bs-toggle="tooltip"

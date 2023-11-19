@@ -97,21 +97,6 @@ class Currencies(models.Model):
         verbose_name_plural = 'Currencies'
 
 
-class CurrenciesRates(models.Model):
-    date = models.DateField(blank=False)
-    accounting_currency = models.ForeignKey(Currencies, related_name='cur1', on_delete=models.CASCADE, blank=True, null=True)
-    currency = models.ForeignKey(Currencies, on_delete=models.CASCADE, related_name='cur2', blank=True, null=True)
-    rate = models.DecimalField(max_digits=15, decimal_places=6, blank=False, default=0.00)
-
-    def __str__(self):
-        return f'{self.accounting_currency}, {self.currency}, {self.date}, {self.rate}'
-
-    class Meta:
-        ordering = ['date', 'accounting_currency', 'currency']
-        verbose_name = 'Rate'
-        verbose_name_plural = "Currency rates"
-
-
 class Items(models.Model):
     FlowDirection = (
         ('Receipts', 'Receipts'),
@@ -127,12 +112,31 @@ class Items(models.Model):
         ('Loans', 'Credits and loans'),
         ('Fixed_assets', 'Fixed assets'),
         ('New_projects', 'New projects'),
-        ('Change_account', 'Change payment account'),
     )
 
-    item = models.CharField(max_length=100, unique=True)
-    flow = models.CharField(max_length=10, choices=FlowDirection, blank=True)
-    group = models.CharField(max_length=100, choices=ItemGroups, blank=True)
+    Activities = (
+        ('operating', 'operating'),
+        ('financing', 'financing'),
+        ('investing', 'investing'),
+    )
+
+    @classmethod
+    def get_activity(cls, group):
+        activities = {
+            'operating': [cls.ItemGroups[0], cls.ItemGroups[1], cls.ItemGroups[2],
+                          cls.ItemGroups[3], cls.ItemGroups[4], cls.ItemGroups[5]],
+            'financing': [cls.ItemGroups[6]],
+            'investing': [cls.ItemGroups[7], cls.ItemGroups[8]],
+        }
+        return [k for k in activities if set(activities[k]) & {group}]
+
+    item_user = models.CharField(max_length=100, unique=True, blank=True, null=True)        # user enters
+    group = models.CharField(max_length=100, choices=ItemGroups, blank=True)                # user enters
+
+    item = models.CharField(max_length=100, unique=True, blank=True, null=True)             # system name, add initially
+    flow = models.CharField(max_length=10, choices=FlowDirection, blank=True)               # auto-adding
+    activity = models.CharField(max_length=10, choices=Activities, blank=True, null=True)   # auto-adding
+    system_field = models.BooleanField(blank=True, null=True, default=False)                # add initially
 
     def __str__(self):
         return self.item
@@ -145,3 +149,17 @@ class Items(models.Model):
     def get_absolute_url(self):
         return '/items'
 
+
+class CurrenciesRates(models.Model):
+    date = models.DateField(blank=False)
+    accounting_currency = models.ForeignKey(Currencies, related_name='cur1', on_delete=models.CASCADE, blank=True, null=True)
+    currency = models.ForeignKey(Currencies, on_delete=models.CASCADE, related_name='cur2', blank=True, null=True)
+    rate = models.DecimalField(max_digits=15, decimal_places=6, blank=False, default=0.00)
+
+    def __str__(self):
+        return f'{self.accounting_currency}, {self.currency}, {self.date}, {self.rate}'
+
+    class Meta:
+        ordering = ['date', 'accounting_currency', 'currency']
+        verbose_name = 'Rate'
+        verbose_name_plural = "Currency rates"

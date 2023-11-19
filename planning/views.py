@@ -360,6 +360,12 @@ class CalculationIdView(UpdateView):
     form_class = CalculationAdd
     success_url = '/calculations'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if 'pk' in self.kwargs:
+            context['object_list'] = self.calculation_queryset(self.kwargs['pk'])
+        return context
+
     def get_object(self, queryset=None):
         if 'pk' in self.kwargs:
             return super().get_object(queryset)
@@ -369,8 +375,9 @@ class CalculationIdView(UpdateView):
             obj.id = None
             return obj
 
-        if 'create_plan' in self.kwargs:
-            return self.model.create_plan_payments(self.kwargs['create_plan'])
+        if 'calc_pk' in self.kwargs:
+            self.model.create_plan_payments(self.kwargs['calc_pk'])
+            return redirect('/calculation_id')
 
         org = AccountSettings.load().organization()
         return self.model(organization=org)
@@ -380,12 +387,10 @@ class CalculationIdView(UpdateView):
         form = CalculationAdd(request.GET)
         return HttpResponse(form["project"])
 
-    def calculation_queryset(request):
+    @staticmethod
+    def calculation_queryset(calc_id):
         payments_pl = PaymentDocumentPlan.objects.all()
-        form = CalculationAdd(request.GET)
-        if form.is_valid():
-            if form.cleaned_data['name']:
-                payments_pl = payments_pl.filter(name=form.cleaned_data['name'])
+        payments_pl = payments_pl.filter(calculation_id=calc_id)
 
         return payments_pl
 

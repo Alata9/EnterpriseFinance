@@ -41,9 +41,8 @@ class Calculations(models.Model):
     def __str__(self):
         return self.name
 
-
     @staticmethod
-    def get_series_constant(date_first, frequency, term):
+    def get_series_constant(date_first, frequency, term, amount):
         frequency_days = {'annually': 365, 'monthly': 31, 'weekly': 7, 'daily': 1}
         days = frequency_days.get(frequency)
         date_pay = date_first
@@ -54,9 +53,8 @@ class Calculations(models.Model):
                 date_pay = (date_pay + datetime.timedelta(days=days))
             else:
                 date_pay = (date_pay + datetime.timedelta(days=days)).replace(day=number)
-            data_list.append(date_pay)
+            data_list.append((date_pay, amount))
         return data_list
-
 
     @staticmethod
     def get_series_differ(date_first, term, loan_rate, amount):
@@ -69,22 +67,25 @@ class Calculations(models.Model):
         number = date_first.day
         debt_pay = amount / term
         balance_owed = amount
-        data_list = [(date_pay, debt_pay, amount * loan_rate / 1200)]
+        data_list = [
+            (date_pay, debt_pay),
+            (date_pay, amount * loan_rate / 1200),
+        ]
 
-        for i in range(term-1):
+        for i in range(term - 1):
             date_pay = (date_pay + datetime.timedelta(days=31)).replace(day=number)
             balance_owed -= debt_pay
             per_pay = balance_owed * loan_rate / 1200
-            data_list.append((date_pay, debt_pay, per_pay))
-            print(date_pay, debt_pay, per_pay)
-        return data_list
+            data_list.append((date_pay, debt_pay))
+            data_list.append((date_pay, per_pay))
 
+        return data_list
 
     @staticmethod
     def get_series_annuity(date_first, term, loan_rate, amount):
         date_pay = date_first
         number = date_first.day
-        annuity = (amount * loan_rate/1200) / (1 - (1 + loan_rate/1200)**(-term))
+        annuity = (amount * loan_rate / 1200) / (1 - (1 + loan_rate / 1200) ** (-term))
         balance_owed = amount
         data_list = []
 
@@ -93,32 +94,35 @@ class Calculations(models.Model):
             per_pay = balance_owed * loan_rate / 1200
             debt_pay = annuity - per_pay
             balance_owed -= debt_pay
-            data_list.append((date_pay, debt_pay, per_pay))
+            data_list.append((date_pay, debt_pay))
+            data_list.append((date_pay, per_pay))
 
         return data_list
 
-
     @classmethod
     def create_plan_payments(cls, create_plan):
-        data_list = []
         obj = Calculations.objects.get(pk=create_plan)
         existing_plan = PaymentDocumentPlan.objects.filter(calculation=obj).order_by('date').all()
         type_calc = obj.type_calc
-
         flow = obj.flow
-        if flow == 'Payments':                                         # edit - divide loan and borrower, change filter
-            item_per = Items.objects.filter(id=15)
-            item_debt = Items.objects.filter(id=14)
 
+        if flow == 'Payments':
+            item_per = Items.objects.filter(item='outflow from loan percents')
+            item_debt = Items.objects.filter(item='outflow by a loan')
         else:
-            item_per = Items.objects.filter(id=16)
-            item_debt = Items.objects.filter(id=12)
+            item_per = Items.objects.filter(item='inflow by borrow percents')
+            item_debt = Items.objects.filter(item='inflow from a borrow')
 
         if type_calc == 'constant':
-            data_list = cls.get_series_constant(obj.date_first, obj.frequency, obj.term)
-            for i in range(obj.term):
+            data_list = cls.get_series_constant(obj.date_first, obj.frequency, obj.term, obj.amount)
+        elif type_calc == 'differential':
+            data_list = cls.get_series_differ(obj.date_first, obj.term, obj.loan_rate, obj.amount)
+        else:
+            data_list = cls.get_series_annuity(obj.date_first, obj.term, obj.loan_rate, obj.amount)
+
+        if flow == 'Payments':
+            for i, data in enumerate(data_list):
                 plan = PaymentDocumentPlan(
-                    flow='Payments',
                     calculation=obj,
                     organization=obj.organization,
                     currency=obj.currency,
@@ -126,23 +130,18 @@ class Calculations(models.Model):
                     project=obj.project,
                     counterparty=obj.counterparty,
                     comments=obj.comments,
-                    date=data_list[i],
+                    flow='Payments',
+                    date=data[0],
                     item=obj.item,
-                    outflow_amount=obj.amount
+                    outflow_amount=data[1]
                 )
                 if len(existing_plan) > i:
                     plan.id = existing_plan[i].id
                 plan.save()
 
         else:
-            if type_calc == 'differential':
-                data_list = cls.get_series_differ(obj.date_first, obj.term, obj.loan_rate, obj.amount)
-            else:
-                data_list = cls.get_series_annuity(obj.date_first, obj.term, obj.loan_rate, obj.amount)
-
-            for i in range(obj.term):
-                plan_debt = PaymentDocumentPlan(
-                    flow='Payments',
+            for i, data in enumerate(data_list):
+                plan = PaymentDocumentPlan(
                     calculation=obj,
                     organization=obj.organization,
                     currency=obj.currency,
@@ -150,35 +149,17 @@ class Calculations(models.Model):
                     project=obj.project,
                     counterparty=obj.counterparty,
                     comments=obj.comments,
-                    date=data_list[i][0],
-                    item=obj.item,                          # change
-                    outflow_amount=data_list[i][1]
+                    flow='Receipts',
+                    date=data[0],
+                    item=obj.item,
+                    inflow_amount=data[1]
                 )
+
                 if len(existing_plan) > i:
-                    plan_debt.id = existing_plan[i].id
-                plan_debt.save()
+                    plan.id = existing_plan[i].id
+                plan.save()
 
-            for i in range(obj.term):
-                plan_per = PaymentDocumentPlan(
-                    flow='Payments',
-                    calculation=obj,
-                    organization=obj.organization,
-                    currency=obj.currency,
-                    is_cash=obj.is_cash,
-                    project=obj.project,
-                    counterparty=obj.counterparty,
-                    comments=obj.comments,
-                    date=data_list[i][0],
-                    item=obj.item,                              # change
-                    outflow_amount=data_list[i][2]
-                )
-                if len(existing_plan) > i:
-                    plan_per.id = existing_plan[i].id
-                plan_per.save()
-
-
-        # PaymentDocumentPlan.objects.filter(calculation=obj, date__gte=obj.date_pay).delete()
-
+        PaymentDocumentPlan.objects.filter(calculation=obj, date__gt=data_list[-1][0]).delete()
 
     def get_absolute_url(self):
         return '/calculations'

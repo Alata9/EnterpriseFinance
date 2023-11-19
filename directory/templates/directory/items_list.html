@@ -1,15 +1,21 @@
 <table class="table table-condensed table-scroll table-striped" id="id_table" >
     <tr>
-        <th align="center">item</th>
+<!--        <th align="center">item</th>-->
+        <th align="center">item_user</th>
         <th align="center">group</th>
         <th align="center">flow</th>
+        <th align="center">activity</th>
+        <th align="center">system</th>
         <th align="center"></th>
     </tr>
     {% for i in object_list %}
     <tr>
-        <td width="200">{{ i.item }}</td>
+<!--        <td width="200">{{ i.item }}</td>-->
+        <td width="200">{{ i.item_user }}</td>
         <td width="150">{{ i.group }}</td>
         <td width="150">{{ i.flow }}</td>
+        <td width="150">{{ i.activity }}</td>
+        <td width="150">{% if i.system_field %}<i class="bi bi-check2-square"></i>{% endif %}</td>
         <td width="10" align="center" style='white-space: nowrap'>
             <a href="{% url 'item_id' i.id %}" class='btn btn-info btn-xs' data-bs-toggle="tooltip"
                data-bs-placement="top" title="edit"><i class="bi bi-pencil-square"></i></a>

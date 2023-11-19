@@ -137,24 +137,37 @@ class RatesParser(ModelForm):
 class ItemAdd(ModelForm):
     class Meta:
         model = Items
-        fields = ('item', 'group', 'flow')
-        widgets = {'flow': forms.HiddenInput()}
+        fields = ('item', 'item_user', 'group', 'flow', 'activity', 'system_field')
+        widgets = {'flow': forms.HiddenInput(),
+                   'item': forms.HiddenInput(),
+                   'activity': forms.HiddenInput(),
+                   'system_field': forms.HiddenInput(),
+                   }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['group'].empty_label = ''
         self.fields['group'].required = True
+        self.fields['item_user'].label = 'Item'
+        self.fields['item_user'].required = True
 
 
 class AnyItemAdd(ModelForm):
     class Meta:
         model = Items
-        fields = ('item', 'group', 'flow')
+        fields = ('item', 'item_user', 'group', 'flow', 'activity', 'system_field')
+        widgets = {
+                   'item': forms.HiddenInput(),
+                   'activity': forms.HiddenInput(),
+                   'system_field': forms.HiddenInput(),
+                   }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['group'].empty_label = ''
         self.fields['group'].required = True
+        self.fields['flow'].empty_label = ''
+        self.fields['flow'].required = False
 
 
 class ItemFilter(ModelForm):

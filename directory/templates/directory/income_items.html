@@ -20,14 +20,14 @@
             <div class="table-responsive" style="height: 550px">
                 <table class="table table-condensed table-scroll table-striped" >
                     <tr>
-                        <th align="center">Income groups</th>
                         <th align="center">Income items</th>
+                        <th align="center">Income groups</th>
                         <th align="center"></th>
                     </tr>
                     {% for i in income_items %}
                     <tr>
+                        <td width="300">{{i.item_user}}</td>
                         <td width="300">{{i.group}}</td>
-                        <td width="300">{{i.item}}</td>
                         <td width="10" align="center">
                             <a href="{% url 'income_item_id' i.id %}" class='btn btn-info btn-xs' data-bs-toggle="tooltip"
                data-bs-placement="top" title="edit"><i class="bi bi-pencil-square"></i></a>

@@ -32,7 +32,7 @@ class CalculationAdd(DynamicFormMixin, ModelForm):
         self.fields['type_calc'].label = 'Type of calculation*'
         self.fields['is_cash'].label = 'is cash'
         self.fields['date_first'].label = 'First payment day'
-        self.fields['name'].label = "Calculation's name (unique)*"
+        self.fields['name'].label = "Calculation's name (unique)"
         self.fields['flow'].label = "Flow direction*"
         self.fields['term'].label = 'Quantity*'
         self.fields['amount'].label = 'Amount'
