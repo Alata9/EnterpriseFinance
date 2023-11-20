@@ -504,8 +504,6 @@ class ItemIdView(UpdateView):
 
         form = form.save(commit=False)
         form.activity = activities.get(form.group)
-        if form.system_field is False:
-            form.item = form.item_user
         try:
             form.save()
             return redirect('items')
@@ -564,32 +562,12 @@ class ExpensesItemIdView(UpdateView):
 
         form = form.save(commit=False)
         form.activity = activities.get(form.group)
-        if form.system_field == False:
-            form.item = form.item_user
         form.flow = 'Payments'
         try:
             form.save()
             return redirect('expenses_items')
         except:
             form.add_error(None, 'Data save error')
-
-
-class ExpensesItemDeleteView(DeleteView):
-    error = ''
-    model = Items
-    success_url = '/expenses_items'
-    template_name = 'directory/expenses_item_delete.html'
-
-    def post(self, request, *args, **kwargs):
-        try:
-            return super().delete(request, *args, **kwargs)
-        except ProtectedError as error:
-            self.object = self.get_object()
-            context = self.get_context_data(
-                object=self.object,
-                error=f'Error: {error.protected_objects}'
-            )
-            return self.render_to_response(context)
 
 
 def IncomeItemView(request):
@@ -624,8 +602,6 @@ class IncomeItemIdView(UpdateView):
 
         form = form.save(commit=False)
         form.activity = activities.get(form.group)
-        if form.system_field == False:
-            form.item = form.item_user
         form.flow = 'Receipts'
         try:
             form.save()
@@ -634,20 +610,5 @@ class IncomeItemIdView(UpdateView):
             form.add_error(None, 'Data save error')
 
 
-class IncomeItemDeleteView(DeleteView):
-    error = ''
-    model = Items
-    success_url = '/income_items'
-    template_name = 'directory/income_item_delete.html'
 
-    def post(self, request, *args, **kwargs):
-        try:
-            return super().delete(request, *args, **kwargs)
-        except ProtectedError as error:
-            self.object = self.get_object()
-            context = self.get_context_data(
-                object=self.object,
-                error=f'Error: {error.protected_objects}'
-            )
-            return self.render_to_response(context)
 

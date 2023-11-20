@@ -3,7 +3,7 @@ from django.urls import path
 from planning.views import (
     PaymentsPlanView, PaymentsPlanIdView, PaymentsPlanDeleteView, PaymentsPlanUploadFileView,
     ReceiptsPlanView, ReceiptsPlanIdView, ReceiptsPlanDeleteView, ReceiptsPlanUploadFileView,
-    CalculationView, CalculationIdView, CalculationDeleteView, CalculationPlanDeleteView
+    CalculationView, CalculationIdView, CalculationPlanDeleteView
 )
 
 urlpatterns = [
@@ -26,7 +26,7 @@ urlpatterns = [
     path('calculation/<int:pk>', CalculationIdView.as_view(), name='calculation_id'),
     path('calculation/add', CalculationIdView.as_view(), name='calculation_add'),
     path('calculation/copy/<int:from_pk>', CalculationIdView.as_view(), name='calculation_copy'),
-    path('<int:pk>/calculation_delete', CalculationDeleteView.as_view(), name='calculation_delete'),
+
 
     path('receipts_plan/', ReceiptsPlanView.as_view(), name='receipts_plan'),
     path('receipts_plan/<int:pk>', ReceiptsPlanIdView.as_view(), name='receipts_plan_id'),

@@ -9,8 +9,8 @@ from directory.views import (
     RatesView, RatesIdView, RatesDeleteView, RatesParsingView,
     InitialDebtsView, InitialDebtIdView, InitialDebtDeleteView,
     ItemIdView, ItemsView, ItemDeleteView,
-    ExpensesItemView, ExpensesItemIdView, ExpensesItemDeleteView,
-    IncomeItemView, IncomeItemIdView, IncomeItemDeleteView,
+    ExpensesItemView, ExpensesItemIdView,
+    IncomeItemView, IncomeItemIdView,
 )
 
 
@@ -63,10 +63,8 @@ urlpatterns = [
     path('expenses_items/', ExpensesItemView, name='expenses_items'),
     path('expenses_item/<int:pk>/', ExpensesItemIdView.as_view(), name='expenses_item_id'),
     path('expenses_item/add/', ExpensesItemIdView.as_view(), name='expenses_item_add'),
-    path('<int:pk>/expenses_item/delete', ExpensesItemDeleteView.as_view(), name='expenses_item_delete'),
 
     path('income_items/', IncomeItemView, name='income_items'),
     path('income_item/<int:pk>', IncomeItemIdView.as_view(), name='income_item_id'),
     path('income_item/add', IncomeItemIdView.as_view(), name='income_item_add'),
-    path('<int:pk>/income_item/delete', IncomeItemDeleteView.as_view(), name='income_item_delete'),
 ]

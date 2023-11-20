@@ -44,7 +44,7 @@ class ReceiptsAdd(DynamicFormMixin, ModelForm):
         self.fields['project'].empty_label = 'Project:'
         self.fields['project'].required = False
         self.fields['counterparty'].queryset = self.fields['counterparty'].queryset.order_by('counterparty')
-        self.fields['item'].queryset = self.fields['item'].queryset.order_by('item')
+        self.fields['item'].queryset = self.fields['item'].queryset.order_by('name')
         self.fields['project'].queryset = self.fields['project'].queryset.order_by('project')
         self.fields['account'].queryset = self.fields['account'].queryset.order_by('account')
 
@@ -95,7 +95,7 @@ class ReceiptsFilter(ModelForm):
         self.fields['date'].required = False
         self.fields['date_end'].required = False
         self.fields['counterparty'].queryset = self.fields['counterparty'].queryset.order_by('counterparty')
-        self.fields['item'].queryset = self.fields['item'].queryset.order_by('item')
+        self.fields['item'].queryset = self.fields['item'].queryset.order_by('name')
         self.fields['project'].queryset = self.fields['project'].queryset.order_by('project')
         self.fields['account'].queryset = self.fields['account'].queryset.order_by('account')
 
@@ -136,7 +136,7 @@ class PaymentsAdd(DynamicFormMixin, ModelForm):
         self.fields['project'].empty_label = 'Project:'
         self.fields['project'].required = False
         self.fields['counterparty'].queryset = self.fields['counterparty'].queryset.order_by('counterparty')
-        self.fields['item'].queryset = self.fields['item'].queryset.order_by('item')
+        self.fields['item'].queryset = self.fields['item'].queryset.order_by('name')
         self.fields['project'].queryset = self.fields['project'].queryset.order_by('project')
         self.fields['account'].queryset = self.fields['account'].queryset.order_by('account')
 
@@ -187,7 +187,7 @@ class PaymentsFilter(ModelForm):
         self.fields['date'].required = False
         self.fields['date_end'].required = False
         self.fields['counterparty'].queryset = self.fields['counterparty'].queryset.order_by('counterparty')
-        self.fields['item'].queryset = self.fields['item'].queryset.order_by('item')
+        self.fields['item'].queryset = self.fields['item'].queryset.order_by('name')
         self.fields['project'].queryset = self.fields['project'].queryset.order_by('project')
         self.fields['account'].queryset = self.fields['account'].queryset.order_by('account')
 

@@ -3,6 +3,7 @@ import datetime
 from decimal import Decimal
 from io import TextIOWrapper, StringIO, BytesIO
 
+from django.db.models import ProtectedError
 from django.http import FileResponse, HttpResponse
 from django.shortcuts import render, redirect
 from django.views.generic import DeleteView, FormView, ListView, UpdateView
@@ -34,15 +35,17 @@ class ReceiptsPlanView(ListView):
         time_report = str(datetime.datetime.today().strftime('%d-%m-%Y, %H:%M:%S'))
 
         my_data = [[f'List of planned receipts from {time_report}'], [],
-            ["Organization", "Date", "Amount", "Currency", "is_cash", "Counterparty", "Item", "Project", "Comments"]]
+                   ["Organization", "Date", "Amount", "Currency", "is_cash", "Counterparty", "Item", "Project",
+                    "Comments"]]
         payments = self.receipts_queryset(request)
         for i in payments:
             if i.is_cash is False:
                 i.is_cash = ''
             else:
                 i.is_cash = 'cash'
-            my_data.append([i.organization, i.date, i.inflow_amount, i.currency, i.is_cash, i.counterparty, i.item, i.project,
-                            i.comments])
+            my_data.append(
+                [i.organization, i.date, i.inflow_amount, i.currency, i.is_cash, i.counterparty, i.item, i.project,
+                 i.comments])
 
         t = str(datetime.datetime.today().strftime('%d-%m-%Y-%H%M%S'))
         file_name = 'receipts_plan ' + t + '.csv'
@@ -135,6 +138,17 @@ class ReceiptsPlanDeleteView(DeleteView):
     success_url = '/receipts_plan'
     template_name = 'planning/receipts_plan_delete.html'
 
+    def post(self, request, *args, **kwargs):
+        try:
+            return super().delete(request, *args, **kwargs)
+        except ProtectedError as error:
+            self.object = self.get_object()
+            context = self.get_context_data(
+                object=self.object,
+                error=f'Error: {error.protected_objects}'
+            )
+            return self.render_to_response(context)
+
 
 class ReceiptsPlanUploadFileView(FormView):
     form_class = UploadFile
@@ -181,15 +195,17 @@ class PaymentsPlanView(ListView):
         time_report = str(datetime.datetime.today().strftime('%d-%m-%Y, %H:%M:%S'))
 
         my_data = [[f'List of payment requests from {time_report}'], [],
-            ["Organization", "Date", "Amount", "Currency", "is_cash", "Counterparty", "Item", "Project", "Comments"]]
+                   ["Organization", "Date", "Amount", "Currency", "is_cash", "Counterparty", "Item", "Project",
+                    "Comments"]]
         payments = self.payments_queryset(request)
         for i in payments:
             if i.is_cash is False:
                 i.is_cash = ''
             else:
                 i.is_cash = 'cash'
-            my_data.append([i.organization, i.date, i.outflow_amount, i.currency, i.is_cash, i.counterparty, i.item, i.project,
-                            i.comments])
+            my_data.append(
+                [i.organization, i.date, i.outflow_amount, i.currency, i.is_cash, i.counterparty, i.item, i.project,
+                 i.comments])
 
         t = str(datetime.datetime.today().strftime('%d-%m-%Y-%H%M%S'))
         file_name = 'payments_plan' + t + '.csv'
@@ -284,6 +300,17 @@ class PaymentsPlanDeleteView(DeleteView):
     success_url = '/payments_plan'
     template_name = 'planning/payments_plan_delete.html'
 
+    def post(self, request, *args, **kwargs):
+        try:
+            return super().delete(request, *args, **kwargs)
+        except ProtectedError as error:
+            self.object = self.get_object()
+            context = self.get_context_data(
+                object=self.object,
+                error=f'Error: {error.protected_objects}'
+            )
+            return self.render_to_response(context)
+
 
 class PaymentsPlanUploadFileView(FormView):
     form_class = UploadFile
@@ -335,7 +362,7 @@ class CalculationView(ListView):
             if form.cleaned_data['counterparty']:
                 payments_pl = payments_pl.filter(counterparty=form.cleaned_data['counterparty'])
             if form.cleaned_data['item']:
-                payments_pl = payments_pl.filter(item=form.cleaned_data['item'])
+                payments_pl = payments_pl.filter(name=form.cleaned_data['item'])
             if form.cleaned_data['is_cash']:
                 payments_pl = payments_pl.filter(is_cash=True)
             if form.cleaned_data['organization']:
@@ -360,6 +387,14 @@ class CalculationIdView(UpdateView):
     form_class = CalculationAdd
     success_url = '/calculations'
 
+    def post(self, request, *args, **kwargs):
+        rez = super().post(request, *args, **kwargs)
+        if 'btn_create' in self.request.POST and self.object and self.object.id:
+            self.object.create_plan_payments()
+            return redirect('calculation_id', self.object.id)
+
+        return rez
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if 'pk' in self.kwargs:
@@ -374,10 +409,6 @@ class CalculationIdView(UpdateView):
             obj = self.model.objects.get(pk=self.kwargs['from_pk'])
             obj.id = None
             return obj
-
-        if 'calc_pk' in self.kwargs:
-            self.model.create_plan_payments(self.kwargs['calc_pk'])
-            return redirect('/calculation_id')
 
         org = AccountSettings.load().organization()
         return self.model(organization=org)
@@ -394,18 +425,9 @@ class CalculationIdView(UpdateView):
 
         return payments_pl
 
-    @staticmethod
-    def htmx_list(request):
+    def htmx_list(self, request):
         context = {'object_list': CalculationIdView.calculation_queryset(request)}
-
-        return render(request, 'planning/payments_plan_list.html', context=context)
-
-
-class CalculationDeleteView(DeleteView):
-    error = ''
-    model = Calculations
-    success_url = '/calculations'
-    template_name = 'payments/calculation_delete.html'
+        return render(request, 'planning/calc_to_plan_list.html', context=context)
 
 
 class CalculationPlanDeleteView(DeleteView):
@@ -413,3 +435,14 @@ class CalculationPlanDeleteView(DeleteView):
     model = Calculations
     success_url = '/calculations'
     template_name = 'planning/calculation_plan_delete.html'
+
+    def post(self, request, *args, **kwargs):
+        try:
+            return super().delete(request, *args, **kwargs)
+        except ProtectedError as error:
+            self.object = self.get_object()
+            context = self.get_context_data(
+                object=self.object,
+                error=f'Error: {error.protected_objects}'
+            )
+            return self.render_to_response(context)

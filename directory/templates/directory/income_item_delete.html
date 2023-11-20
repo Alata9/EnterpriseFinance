@@ -11,12 +11,19 @@
                  {% if error %}
                     {{ error }}
                     {% else %}
+                 {% if object.code is None %}
                  <h3>Are you sure you want to delete</h3>
-                 <h4>income item: "{{ object }}"</h4>
+                 <h3>item: "{{ object }}"</h3>
+                 {% else %}
+                 <h3>"{{ object }}"</h3>
+                 <h4>is a system accounting item and cannot be deleted.</h4>
+                 {% endif %}
                  <br>
                  <div class="row">
                     <div class="col-md-2">
-                        <button class="btn btn-info" type="submit" name="btn_del">DELETE</button>
+                        {% if object.code is None %}
+                            <button class="btn btn-info" type="submit" name="btn_del">DELETE</button>
+                        {% endif %}
                     </div>
                     <div class="col-md-2">
                         <a href="/income_items" class='btn btn-info'>CANCEL</a>

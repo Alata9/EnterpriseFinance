@@ -130,19 +130,18 @@ class Items(models.Model):
         }
         return [k for k in activities if set(activities[k]) & {group}]
 
-    item_user = models.CharField(max_length=100, unique=True, blank=True, null=True)        # user enters
-    group = models.CharField(max_length=100, choices=ItemGroups, blank=True)                # user enters
-
-    item = models.CharField(max_length=100, unique=True, blank=True, null=True)             # system name, add initially
+    name = models.CharField(max_length=100, unique=True, blank=True, null=True)             # user enters
+    code = models.CharField(max_length=100, unique=True, blank=True, null=True)             # system name, add initially
+    group = models.CharField(max_length=100, choices=ItemGroups, blank=False)               # user enters
     flow = models.CharField(max_length=10, choices=FlowDirection, blank=True)               # auto-adding
     activity = models.CharField(max_length=10, choices=Activities, blank=True, null=True)   # auto-adding
-    system_field = models.BooleanField(blank=True, null=True, default=False)                # add initially
+
 
     def __str__(self):
-        return self.item
+        return self.name
 
     class Meta:
-        ordering = ['group', 'item']
+        ordering = ['group', 'name']
         verbose_name = 'Item'
         verbose_name_plural = 'Items'
 

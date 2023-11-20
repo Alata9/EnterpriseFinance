@@ -9,7 +9,7 @@
         {% csrf_token %}
         <div class="row text-center">
             <div class="col-md-4 border p-2 shadow"><h1>New calculation</h1></div>
-            <div class="col-md-8 border p-2 shadow"><H3>List of payment request</H3></div>
+            <div class="col-md-8 border p-2 shadow"><H3>List of payment documents</H3></div>
         </div>
         <div class="row">
             <div class="col-md-2 border p-2 shadow">
@@ -49,19 +49,18 @@
                 </div>
             <div class="col-md-8">
                 <div class="table-responsive" style="height: 450px">
-                    {% include "planning/payments_plan_list.html" %}
+                    {% include "planning/calc_to_plan_list.html" %}
                 </div>
             </div>
         </div>
             <div class="row text-center">
                 <div class="col-md-4">
-                    <button class="btn btn-warning" type="submit" name="btn_save">SAVE</button>
+<!--                    <button class="btn btn-warning" type="submit" name="btn_save">SAVE</button>-->
+                    <button class="btn btn-warning" type="submit" name="btn_create">SAVE AND CREATE PLAN</button>
                     {% if object.id %}
-                    <a href="{% url 'calculation_create_plan' object.id %}" class='btn btn-warning'>CREATE PLAN</a>
-                    <a href="{% url 'calculation_delete_plan' object.id %}" class='btn btn-warning'>DELETE PLAN</a>
+                    <a href="{% url 'calculation_delete_plan' object.id %}" class='btn btn-warning'>DELETE ALL</a>
                     {% endif %}
-                    <input action="action" onclick="window.history.go(-1); return false;"
-                           class='btn btn-warning' type="submit" value="CANCEL"/>
+                    <a href="/calculations" class='btn btn-warning'>CANCEL</a>
                 </div>
             </div>
         </div>

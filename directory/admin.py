@@ -49,9 +49,9 @@ class InitialDebtsAdmin(admin.ModelAdmin):
 
 
 class ItemsAdmin(admin.ModelAdmin):
-    list_display = ['id', 'item', 'item_user', 'group', 'flow', 'activity', 'system_field']
-    list_display_links = ['id', 'item', 'item_user', 'group', 'flow', 'activity', 'system_field']
-    search_fields = ['item']
+    list_display = ['id', 'code', 'name', 'group', 'flow', 'activity']
+    list_display_links = ['id', 'code', 'name', 'group', 'flow', 'activity']
+    search_fields = ['code', 'name']
 
 
 admin.site.register(Organization, OrganizationAdmin)

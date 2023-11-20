@@ -49,7 +49,7 @@ class CalculationAdd(DynamicFormMixin, ModelForm):
         self.fields['item'].required = True
 
         self.fields['counterparty'].queryset = self.fields['counterparty'].queryset.order_by('counterparty')
-        self.fields['item'].queryset = self.fields['item'].queryset.order_by('item')
+        # self.fields['item'].queryset = self.fields['item'].queryset.order_by('name')
         self.fields['project'].queryset = self.fields['project'].queryset.order_by('project')
 
 
@@ -80,7 +80,7 @@ class CalculationsFilter(ModelForm):
         self.fields['item'].empty_label = 'Item:'
         self.fields['item'].required = False
         self.fields['counterparty'].queryset = self.fields['counterparty'].queryset.order_by('counterparty')
-        self.fields['item'].queryset = self.fields['item'].queryset.order_by('item')
+        self.fields['item'].queryset = self.fields['item'].queryset.order_by('name')
         self.fields['project'].queryset = self.fields['project'].queryset.order_by('project')
 
 
@@ -115,7 +115,7 @@ class ReceiptsPlanAdd(DynamicFormMixin, ModelForm):
         self.fields['project'].empty_label = 'Project:'
         self.fields['project'].required = False
         self.fields['counterparty'].queryset = self.fields['counterparty'].queryset.order_by('counterparty')
-        self.fields['item'].queryset = self.fields['item'].queryset.order_by('item')
+        self.fields['item'].queryset = self.fields['item'].queryset.order_by('name')
         self.fields['project'].queryset = self.fields['project'].queryset.order_by('project')
 
 
@@ -157,7 +157,7 @@ class ReceiptsPlanFilter(ModelForm):
         self.fields['date'].required = False
         self.fields['date_end'].required = False
         self.fields['counterparty'].queryset = self.fields['counterparty'].queryset.order_by('counterparty')
-        self.fields['item'].queryset = self.fields['item'].queryset.order_by('item')
+        self.fields['item'].queryset = self.fields['item'].queryset.order_by('name')
         self.fields['project'].queryset = self.fields['project'].queryset.order_by('project')
 
 
@@ -191,7 +191,7 @@ class PaymentsPlanAdd(DynamicFormMixin, ModelForm):
         self.fields['project'].required = False
         self.fields['is_cash'].label = 'is cash'
         self.fields['counterparty'].queryset = self.fields['counterparty'].queryset.order_by('counterparty')
-        self.fields['item'].queryset = self.fields['item'].queryset.order_by('item')
+        self.fields['item'].queryset = self.fields['item'].queryset.order_by('name')
         self.fields['project'].queryset = self.fields['project'].queryset.order_by('project')
 
 
@@ -232,5 +232,5 @@ class PaymentsPlanFilter(ModelForm):
         self.fields['date'].required = False
         self.fields['date_end'].required = False
         self.fields['counterparty'].queryset = self.fields['counterparty'].queryset.order_by('counterparty')
-        self.fields['item'].queryset = self.fields['item'].queryset.order_by('item')
+        self.fields['item'].queryset = self.fields['item'].queryset.order_by('name')
         self.fields['project'].queryset = self.fields['project'].queryset.order_by('project')

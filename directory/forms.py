@@ -134,38 +134,36 @@ class RatesParser(ModelForm):
         self.fields['currency'].required = True
 
 
-class ItemAdd(ModelForm):
+class ItemAdd(ModelForm):                                           #edit - form for divided flow
     class Meta:
         model = Items
-        fields = ('item', 'item_user', 'group', 'flow', 'activity', 'system_field')
+        fields = ('code', 'name', 'group', 'flow', 'activity')
         widgets = {'flow': forms.HiddenInput(),
-                   'item': forms.HiddenInput(),
+                   'code': forms.HiddenInput(),
                    'activity': forms.HiddenInput(),
-                   'system_field': forms.HiddenInput(),
                    }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['group'].empty_label = ''
         self.fields['group'].required = True
-        self.fields['item_user'].label = 'Item'
-        self.fields['item_user'].required = True
+        self.fields['name'].label = 'Item'
+        self.fields['name'].required = True
 
 
-class AnyItemAdd(ModelForm):
+class AnyItemAdd(ModelForm):                                        #edit - form for general flow
     class Meta:
         model = Items
-        fields = ('item', 'item_user', 'group', 'flow', 'activity', 'system_field')
+        fields = ('code', 'name', 'group', 'flow', 'activity')
         widgets = {
-                   'item': forms.HiddenInput(),
-                   'activity': forms.HiddenInput(),
-                   'system_field': forms.HiddenInput(),
+                   # 'code': forms.HiddenInput(),
+                   # 'activity': forms.HiddenInput(),
                    }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['group'].empty_label = ''
-        self.fields['group'].required = True
+        self.fields['group'].required = False
         self.fields['flow'].empty_label = ''
         self.fields['flow'].required = False
 
@@ -175,7 +173,7 @@ class ItemFilter(ModelForm):
                            choices=[
                                ['flow', 'by flow'],
                                ['group', 'by group'],
-                               ['item', 'by item']
+                               ['name', 'by item']
                            ])
 
     class Meta:

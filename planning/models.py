@@ -47,7 +47,7 @@ class Calculations(models.Model):
         days = frequency_days.get(frequency)
         date_pay = date_first
         number = date_first.day
-        data_list = [date_pay]
+        data_list = [(date_pay, amount)]
         for i in range(term):
             if frequency in ['weekly', 'daily']:
                 date_pay = (date_pay + datetime.timedelta(days=days))
@@ -58,11 +58,6 @@ class Calculations(models.Model):
 
     @staticmethod
     def get_series_differ(date_first, term, loan_rate, amount):
-        """ returns a list of changeable values for planned payments for the “differentiated” calculation, where:
-            date_pay - current date of payments,
-            debt_pay - current payment of main credit owed,
-            per_pay - current payment of percents owed."""
-
         date_pay = date_first
         number = date_first.day
         debt_pay = amount / term
@@ -99,67 +94,50 @@ class Calculations(models.Model):
 
         return data_list
 
-    @classmethod
-    def create_plan_payments(cls, create_plan):
-        obj = Calculations.objects.get(pk=create_plan)
-        existing_plan = PaymentDocumentPlan.objects.filter(calculation=obj).order_by('date').all()
-        type_calc = obj.type_calc
-        flow = obj.flow
 
-        if flow == 'Payments':
-            item_per = Items.objects.filter(item='outflow from loan percents')
-            item_debt = Items.objects.filter(item='outflow by a loan')
+    def create_plan_payments(self):
+        existing_plan = PaymentDocumentPlan.objects.filter(calculation=self).order_by('date').all()
+
+        if self.flow == 'Payments':
+            item_per = Items.objects.filter(code='outflow from loan percents')
+            item_debt = Items.objects.filter(code='outflow by a loan')
         else:
-            item_per = Items.objects.filter(item='inflow by borrow percents')
-            item_debt = Items.objects.filter(item='inflow from a borrow')
+            item_per = Items.objects.filter(code='inflow by borrow percents')
+            item_debt = Items.objects.filter(code='inflow from a borrow')
 
-        if type_calc == 'constant':
-            data_list = cls.get_series_constant(obj.date_first, obj.frequency, obj.term, obj.amount)
-        elif type_calc == 'differential':
-            data_list = cls.get_series_differ(obj.date_first, obj.term, obj.loan_rate, obj.amount)
+        if self.type_calc == 'constant':
+            data_list = self.get_series_constant(self.date_first, self.frequency, self.term, self.amount)
+        elif self.type_calc == 'differential':
+            data_list = self.get_series_differ(self.date_first, self.term, self.loan_rate, self.amount)
         else:
-            data_list = cls.get_series_annuity(obj.date_first, obj.term, obj.loan_rate, obj.amount)
+            data_list = self.get_series_annuity(self.date_first, self.term, self.loan_rate, self.amount)
 
-        if flow == 'Payments':
-            for i, data in enumerate(data_list):
-                plan = PaymentDocumentPlan(
-                    calculation=obj,
-                    organization=obj.organization,
-                    currency=obj.currency,
-                    is_cash=obj.is_cash,
-                    project=obj.project,
-                    counterparty=obj.counterparty,
-                    comments=obj.comments,
-                    flow='Payments',
-                    date=data[0],
-                    item=obj.item,
-                    outflow_amount=data[1]
-                )
-                if len(existing_plan) > i:
-                    plan.id = existing_plan[i].id
-                plan.save()
+        for i, data in enumerate(data_list):
+            plan = PaymentDocumentPlan(
+                calculation=self,
+                organization=self.organization,
+                currency=self.currency,
+                is_cash=self.is_cash,
+                project=self.project,
+                counterparty=self.counterparty,
+                comments=self.comments,
+                flow=self.flow,
+                date=data[0]
+            )
+            if self.flow == 'Payments':
+                plan.outflow_amount = data[1]
+                plan.inflow_amount = 0
+                plan.item = self.item
+            else:
+                plan.outflow_amount = 0
+                plan.inflow_amount = data[1]
+                plan.item = self.item
 
-        else:
-            for i, data in enumerate(data_list):
-                plan = PaymentDocumentPlan(
-                    calculation=obj,
-                    organization=obj.organization,
-                    currency=obj.currency,
-                    is_cash=obj.is_cash,
-                    project=obj.project,
-                    counterparty=obj.counterparty,
-                    comments=obj.comments,
-                    flow='Receipts',
-                    date=data[0],
-                    item=obj.item,
-                    inflow_amount=data[1]
-                )
+            if len(existing_plan) > i:
+                plan.id = existing_plan[i].id
+            plan.save()
 
-                if len(existing_plan) > i:
-                    plan.id = existing_plan[i].id
-                plan.save()
-
-        PaymentDocumentPlan.objects.filter(calculation=obj, date__gt=data_list[-1][0]).delete()
+        PaymentDocumentPlan.objects.filter(calculation=self, date__gt=data_list[-1][0]).delete()
 
     def get_absolute_url(self):
         return '/calculations'
@@ -181,7 +159,7 @@ class PaymentDocumentPlan(models.Model):
     project = models.ForeignKey(Project, on_delete=models.PROTECT, blank=False, null=True)
     counterparty = models.ForeignKey(Counterparties, on_delete=models.PROTECT, blank=True)
     item = models.ForeignKey(Items, on_delete=models.PROTECT, blank=True)
-    calculation = models.ForeignKey(Calculations, on_delete=models.PROTECT, blank=True, null=True)
+    calculation = models.ForeignKey(Calculations, on_delete=models.CASCADE, blank=True, null=True)
     comments = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
