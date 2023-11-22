@@ -46,7 +46,6 @@ class AccountFlowsFilter(ModelForm):
         fields = ['account', 'date']
         widgets = {
             'date': DateInput(attrs={'type': 'Date'}),
-            # 'date_end': DateInput(attrs={'type': 'Date'})
         }
 
     def __init__(self, *args, **kwargs):
@@ -58,10 +57,7 @@ class AccountFlowsFilter(ModelForm):
         self.fields['date_end'].required = False
 
 
-
-
 class DashboardFilter(DynamicFormMixin, ModelForm):
-
     conversion_currency = ModelChoiceField(queryset=Currencies.objects.values_list("code", flat=True),
                                            empty_label='', required=False)
     date_start = DateField(label="From", widget=DateInput(attrs={'type': 'date'}), required=False)

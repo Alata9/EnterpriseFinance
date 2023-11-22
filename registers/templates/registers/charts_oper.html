@@ -31,25 +31,22 @@
                     {% csrf_token %}
                     <div id="div_id_organization" class="form-group">
                         {{ form.organization.label_tag }}
-                        {% render_field form.organization class="select form-control" hx-get="/operating/project" hx-trigger="change" hx-target="#id_project" %}
+                        {% render_field form.organization class="select form-control" hx-get="/operating/project"hx-trigger="change" hx-target="#id_project" %}
                     </div>
                     <div id="div_id_project" class="form-group">
-                    {{ form.project.label_tag }}
-                    {% render_field form.project class="select form-control" %}
-                    </div>
-<!--                    <div class="form-group">-->
-<!--                    {{ form.conversion_currency.label_tag }}-->
-<!--                    {% render_field form.conversion_currency class="select form-control" %}-->
-<!--                    </div>-->
-                    <div class="form-group">
-                    {{ form.date_start.label_tag }}
-                    {% render_field form.date_start class="select form-control" %}
+                        {{ form.project.label_tag }}
+                        {% render_field form.project class="select form-control" %}
                     </div>
                     <div class="form-group">
-                    {{ form.date_end.label_tag }}
-                    {% render_field form.date_end class="select form-control" %}
+                        {{ form.date_start.label_tag }}
+                        {% render_field form.date_start class="select form-control" %}
                     </div>
-                    <br><button class="btn btn-info" type="submit" name="btn_show">SHOW</button>
+                    <div class="form-group">
+                        {{ form.date_end.label_tag }}
+                        {% render_field form.date_end class="select form-control" %}
+                    </div>
+                    <br>
+                    <button class="btn btn-info" type="submit" name="btn_show">SHOW</button>
                 </div>
             </form>
         </div>
@@ -91,8 +88,5 @@
         </div>
     </div>
 </div>
-
-
-
 
 {% endblock %}

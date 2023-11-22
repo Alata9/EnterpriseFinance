@@ -199,7 +199,6 @@ class AccountFlowsView(ListView):
     @staticmethod
     def flows_queryset(request):
         flows = PaymentDocuments.objects.all().order_by('date')
-
         form = AccountFlowsFilter(request.GET)
         if form.is_valid():
             if form.cleaned_data['date']:
@@ -235,6 +234,7 @@ class AccountFlowsView(ListView):
         total.append({'inflow_total': inflow_sum, 'outflow_total': outflow_sum})
 
         return total
+
 
 # class CfStatementView(ListView):
 #     model = Payments

@@ -339,7 +339,8 @@ class ChangePayAccountView(ListView):
                 changes = changes.filter(pay_account_from=form.cleaned_data['pay_account_from'])
             if form.cleaned_data['pay_account_to']:
                 changes = changes.filter(pay_account_to=form.cleaned_data['pay_account_to'])
-
+            if form.cleaned_data['organization']:
+                changes = changes.filter(organization=form.cleaned_data['organization'])
         return changes
 
     @staticmethod
@@ -350,6 +351,7 @@ class ChangePayAccountView(ListView):
 
 
 class ChangePayAccountIdView(UpdateView):                       #  edit - auto-add currency by account
+    model = ChangePayAccount
     template_name = 'payments/change_payaccount_id.html'
     form_class = ChangePayAccountAdd
     success_url = '/change_payaccounts'
@@ -362,6 +364,14 @@ class ChangePayAccountIdView(UpdateView):                       #  edit - auto-a
             obj = self.model.objects.get(pk=self.kwargs['from_pk'])
             obj.id = None
             return obj
+
+        if 'plan_id' in self.kwargs:
+            return self.model.from_plan(self.kwargs['plan_id'])
+
+    @staticmethod
+    def htmx_account1(request):
+        form = ChangePayAccountAdd(request.GET)
+        return HttpResponse(form["pay_account_from"])
 
 
 class ChangePayAccountDeleteView(DeleteView):

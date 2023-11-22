@@ -10,11 +10,12 @@
     let cfDynamicsData = {{ cf_dynamics|safe }};
     let accountBalancesData = {{ account_balances|safe }};
     let cfTableData = {{ cf_table|safe }};
+
+
 </script>
 
 <script type="text/javascript" src="{% static '/registers/js/dashboard_main.js' %}?a=2"></script>
 <script src="https://www.gstatic.com/charts/loader.js"></script>
-
 
 <div class="container-fluid px-10">
     <div class="row fluid">
@@ -27,9 +28,9 @@
             <form method='GET'>
                 <div class="col-md-12">
                     {% csrf_token %}
-                    <div id="div_id_organization"  class="form-group">
+                    <div id="div_id_organization" class="form-group">
                         {{ form.organization.label_tag }}
-                        {% render_field form.organization class="select form-control"  %}
+                        {% render_field form.organization class="select form-control" %}
                     </div>
                     <div class="form-group">
                         {{ form.date_start.label_tag }}
@@ -40,7 +41,8 @@
                         {% render_field form.date_end class="select form-control" %}
                     </div>
 
-                    <br><button class="btn btn-info" type="submit" name="btn_show">SHOW</button>
+                    <br>
+                    <button class="btn btn-info" type="submit" name="btn_show">SHOW</button>
                 </div>
             </form>
         </div>
@@ -72,6 +74,4 @@
         </div>
     </div>
 </div>
-
-
 {% endblock %}

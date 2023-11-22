@@ -3,6 +3,7 @@
 <table class='table table-fixed table-condensed table-scroll table-striped' id="id_table">
     <thead>
         <tr>
+            <th align="center">organization</th>
             <th align="center">date</th>
             <th align="center">from</th>
             <th align="center">to</th>
@@ -14,6 +15,7 @@
     <tbody class="cart">
         {% for i in object_list %}
         <tr>
+            <td data-type="number" width="100">{{i.organization}}</td>
             <td data-type="number" width="100">{{i.date|date:"d.m.Y"}}</td>
             <td data-type="string" width="200">{{i.pay_account_from}}</td>
             <td data-type="string" width="200">{{i.pay_account_to}}</td>

@@ -12,7 +12,7 @@ class PaymentDocumentsAdmin(admin.ModelAdmin):
 
 
 class ChangePayAccountAdmin(admin.ModelAdmin):
-    list_display = ['id', 'pay_account_from', 'pay_account_to', 'date', 'amount', 'currency']
+    list_display = ['id', 'organization', 'pay_account_from', 'pay_account_to', 'date', 'amount', 'currency']
     list_display_links = ['id', 'pay_account_from', 'pay_account_to', 'date', 'amount', 'currency']
     search_fields = ['pay_account_from', 'pay_account_to', 'date', 'amount', 'currency']
 

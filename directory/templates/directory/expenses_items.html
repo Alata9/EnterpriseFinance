@@ -26,7 +26,7 @@
                 </tr>
                 {% for i in expense_items %}
                 <tr>
-                    <td width="300">{% if not i.code is None %}{{ i.name | add:"*" }}{% else %}{{ i.name }}{% endif %}</td>
+                    <td width="300">{% if not i.code is None %}{{ i.name | add:" *" }}{% else %}{{ i.name }}{% endif %}</td>
                     <td width="300">{{i.group}}</td>
                     <td width="10" align="center">
                         <a href="{% url 'expenses_item_id' i.id %}" class='btn btn-info btn-xs' data-bs-toggle="tooltip"

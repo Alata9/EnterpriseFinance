@@ -10,7 +10,7 @@
     {% for i in object_list %}
     <tr>
         <td width="200">{% if not i.code is None %}{{i.code}}{% endif %}</td>
-        <td width="200">{% if not i.code is None %}{{ i.name | add:"*" }}{% else %}{{ i.name }}{% endif %}</td>
+        <td width="200">{% if not i.code is None %}{{ i.name | add:" *" }}{% else %}{{ i.name }}{% endif %}</td>
         <td width="150">{{ i.group }}</td>
         <td width="150">{{ i.flow }}</td>
         <td width="150">{% if not i.activity is None %}{{i.activity}}{% endif %}</td>

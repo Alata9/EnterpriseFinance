@@ -1,19 +1,38 @@
 {% extends 'registers/base.html' %}
 {% block title %}Change payment account{% endblock %}
 {% load crispy_forms_tags %}
+{% load widget_tweaks %}
 {% block content %}
 
 <div class="container">
-
     <div class="row">
         <div class="col-md-4 border p-2 shadow">
-            <form  method='POST'>
+            <form method='POST'>
+                {% csrf_token %}
                 <div class="row p-2 g-3">
                     <div class="col-md-10">
                         <h2>Add new change of payment account</h2>
-                        {% csrf_token %}
-                        {{ form|crispy }}
-                        <div class="col-md-12">
+                        <div id="div_id_organization"
+                             class="form-group"
+                             hx-get="/change_payaccounts/accounts1"
+                             hx-vals="js:{organization:document.getElementById('id_organization').value}"
+                             hx-trigger="change"
+                             hx-target="#id_account1">
+                            {{ form.organization.label_tag }}
+                            {% render_field form.organization class="select form-control"hx-get="/change_payaccounts/accounts2" hx-trigger="change" hx-target="#id_account1" %}
+                        </div>
+                        <div class="form-group" id="div_id_account1">
+                            {{ form.pay_account_from.label_tag }}
+                            {% render_field form.pay_account_from class="select form-control" %}
+                        </div>
+                        <div class="form-group" id="div_id_account2">
+                            {{ form.pay_account_to.label_tag }}
+                            {% render_field form.pay_account_to class="select form-control" %}
+                        </div>
+                        <div class="form-group">
+                            {{ form.date|as_crispy_field }}
+                            {{ form.amount|as_crispy_field }}
+                            <br>
                             <button class="btn btn-info" type="submit" name="btn_add">SAVE</button>
                             <a href="/change_payaccounts" class='btn btn-info'>CANCEL</a>
                         </div>

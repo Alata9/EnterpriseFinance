@@ -3,7 +3,7 @@ import datetime
 from decimal import Decimal
 from io import TextIOWrapper, StringIO, BytesIO
 
-from django.db.models import ProtectedError
+from django.db.models import ProtectedError, Sum
 from django.http import FileResponse, HttpResponse
 from django.shortcuts import render, redirect
 from django.views.generic import DeleteView, FormView, ListView, UpdateView
@@ -346,12 +346,13 @@ class CalculationView(ListView):
     template_name = 'planning/calculations.html'
     success_url = '/calculations'
 
+
     def get_context_data(self, *, object_list=None, **kwargs):
         ctx = super().get_context_data(object_list=None, **kwargs)
         ctx['form'] = CalculationsFilter()
         return ctx
 
-    def regular_queryset(request):
+    def plandoc_queryset(request):
         payments_pl = Calculations.objects.all()
         form = CalculationsFilter(request.GET)
         if form.is_valid():
@@ -376,9 +377,10 @@ class CalculationView(ListView):
 
     @staticmethod
     def htmx_list(request):
-        context = {'object_list': CalculationView.regular_queryset(request)}
+        context = {'object_list': CalculationView.plandoc_queryset(request)}
 
         return render(request, 'payments/calculations_list.html', context=context)
+
 
 
 class CalculationIdView(UpdateView):
@@ -422,12 +424,32 @@ class CalculationIdView(UpdateView):
     def calculation_queryset(calc_id):
         payments_pl = PaymentDocumentPlan.objects.all()
         payments_pl = payments_pl.filter(calculation_id=calc_id)
-
-        return payments_pl
+        total = CalculationIdView.get_total(payments_pl)
+        return {
+            'payments_pl': payments_pl,
+            'total': total,
+        }
 
     def htmx_list(self, request):
         context = {'object_list': CalculationIdView.calculation_queryset(request)}
         return render(request, 'planning/calc_to_plan_list.html', context=context)
+
+    @staticmethod
+    def get_total(payments_pl):
+        total = []
+        currency = Currencies.objects.get(pk=payments_pl.values_list('currency', flat=float)[0])
+
+        inflow_sum = payments_pl.aggregate(Sum("inflow_amount")).get('inflow_amount__sum', 0.00)
+        if inflow_sum is None:
+            inflow_sum = 0
+
+        outflow_sum = payments_pl.aggregate(Sum("outflow_amount")).get('outflow_amount__sum', 0.00)
+        if outflow_sum is None:
+            outflow_sum = 0
+
+        total.append({'inflow_total': inflow_sum, 'outflow_total': outflow_sum, 'currrency': currency})
+
+        return total
 
 
 class CalculationPlanDeleteView(DeleteView):

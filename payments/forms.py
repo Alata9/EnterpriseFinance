@@ -192,20 +192,30 @@ class PaymentsFilter(ModelForm):
         self.fields['account'].queryset = self.fields['account'].queryset.order_by('account')
 
 
-class ChangePayAccountAdd(ModelForm):
+class ChangePayAccountAdd(DynamicFormMixin, ModelForm):
     class Meta:
         model = ChangePayAccount
-        fields = ('pay_account_from', 'pay_account_to', 'date', 'amount', 'currency')
+        fields = ('organization', 'pay_account_from', 'pay_account_to', 'date', 'amount', 'currency')
         widgets = {'date': DateInput(attrs={'type': 'Date'}),
                    'currency': HiddenInput()}
 
+    account1 = DynamicField(
+        ModelChoiceField,
+        queryset=lambda form: PaymentAccount.objects.filter(organization=form['organization'].value()),
+    )
+
+    account2 = DynamicField(
+        ModelChoiceField,
+        queryset=lambda form: PaymentAccount.objects.filter(organization=form['organization'].value()),
+    )
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields['organization'].empty_label = ''
         self.fields['pay_account_from'].empty_label = ''
         self.fields['pay_account_from'].label = 'From'
         self.fields['pay_account_to'].empty_label = ''
         self.fields['pay_account_to'].label = 'To'
-        self.fields['currency'].empty_label = ''
 
     def clean(self):
         cleaned_data = super().clean()
@@ -215,14 +225,13 @@ class ChangePayAccountAdd(ModelForm):
             raise ValidationError("Account with currency required")
 
         cleaned_data['currency'] = acc.currency
-
         return cleaned_data
 
 
-class ChangePayAccountFilter(ModelForm):
+class ChangePayAccountFilter(DynamicFormMixin, ModelForm):
     class Meta:
         model = ChangePayAccount
-        fields = ['pay_account_from', 'pay_account_to', 'amount', 'currency', 'date']
+        fields = ['organization', 'pay_account_from', 'date']
         widgets = {
             'date': DateInput(attrs={'type': 'Date'}),
         }
@@ -233,14 +242,15 @@ class ChangePayAccountFilter(ModelForm):
         self.fields['pay_account_from'].label = 'Account from:'
         self.fields['pay_account_from'].empty_label = ''
         self.fields['pay_account_from'].required = False
-        self.fields['pay_account_to'].label = 'Account to:'
-        self.fields['pay_account_to'].empty_label = ''
-        self.fields['pay_account_to'].required = False
+        self.fields['organization'].empty_label = ''
         self.fields['date'].label = 'From'
         self.fields['date'].required = False
         self.fields['date_end'].required = False
-        self.fields['currency'].empty_label = ''
-        self.fields['currency'].required = False
+
+    account1 = DynamicField(
+        ModelChoiceField,
+        queryset=lambda form: PaymentAccount.objects.filter(organization=form['organization'].value()),
+    )
 
 
 class UploadFile(Form):

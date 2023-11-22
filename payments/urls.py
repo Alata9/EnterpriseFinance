@@ -33,6 +33,7 @@ urlpatterns = [
     path('change_payaccount/add/', ChangePayAccountIdView.as_view(), name='change_payaccount_add'),
     path('change_payaccount/copy/<int:from_pk>', ChangePayAccountIdView.as_view(), name='change_payaccount_copy'),
     path('change_payaccounts/', ChangePayAccountView.as_view(), name='change_payaccounts'),
+    path('change_payaccounts/accounts', ChangePayAccountIdView.htmx_account1, name='change_payaccounts_account'),
     path('change_payaccount/list', ChangePayAccountView.htmx_list, name='change_payaccount_list'),
     path('<int:pk>/change_payaccount_delete', ChangePayAccountDeleteView.as_view(), name='change_payaccount_delete'),
 

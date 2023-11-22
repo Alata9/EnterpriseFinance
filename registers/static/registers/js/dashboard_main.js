@@ -21,7 +21,7 @@
 //        request.save();
 //    }
 //
-//    function CashFlowBarDraw(cfBarData) {
+    function CashFlowBarDraw(cfBarData) {
         var data = new google.visualization.DataTable();
             data.addColumn('string', 'Items');
             data.addColumn('number', 'Amount');

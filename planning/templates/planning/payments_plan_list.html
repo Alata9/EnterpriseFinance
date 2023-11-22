@@ -22,9 +22,9 @@
         <td width="100">{{i.item}}</td>
         <td width="100">{{i.counterparty}}</td>
         <td width="100">{{i.date|date:"d.m.Y"}}</td>
-        <td width="100" align="right">{{i.outflow_amount}}</td>
-        <td width="100">{{i.currency}}</td>
-        <td width="100">{% if i.is_cash %}<i class="bi bi-check2-square"></i>{% endif %}</td>
+        <td width="50" align="right">{{i.outflow_amount}}</td>
+        <td width="50">{{i.currency}}</td>
+        <td width="50">{% if i.is_cash %}<i class="bi bi-check2-square"></i>{% endif %}</td>
         <td width="100">
             {% if not i.calculation is None %}
             <a href="{% url 'calculation_id' i.calculation.id %}">{{ i.calculation }}</a>

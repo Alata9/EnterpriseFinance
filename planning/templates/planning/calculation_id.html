@@ -60,7 +60,10 @@
                     {% if object.id %}
                     <a href="{% url 'calculation_delete_plan' object.id %}" class='btn btn-warning'>DELETE ALL</a>
                     {% endif %}
-                    <a href="/calculations" class='btn btn-warning'>CANCEL</a>
+                    <input action="action" onclick="window.history.go(-1); return false;"
+       					class='btn btn-warning' type="submit" value="CANCEL"/>
+
+<!--                    <a href="/calculations" class='btn btn-warning'>CANCEL</a>-->
                 </div>
             </div>
         </div>
