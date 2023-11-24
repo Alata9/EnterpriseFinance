@@ -12,79 +12,93 @@
         </div>
     </div>
     <div class="row p-2 g-3 h-60">
-    <div class="col-md-12">
-        <div class="row p-2 g-3">
-            <div class="col-md-1"></div>
-            <div class="col-md-2"><img src="{% static 'registers/images/3_48x48.png' %}"/></div>
-            <div class="col-md-2"><img src="{% static 'registers/images/5_48x48.png' %}"/></div>
-            <div class="col-md-2"><img src="{% static 'registers/images/2_48x48.png' %}"/></div>
-            <div class="col-md-2"><img src="{% static 'registers/images/1_48x48.png' %}"/></div>
-            <div class="col-md-2"><img src="{% static 'registers/images/6_48x48.png' %}"/></div>
-        </div>
-        <div class="row p-2 g-3">
-            <div class="col-md-1"></div>
-            <div class="col-md-2 text-left">
-                <h3>Directories</h3>
-                <a class="text-decoration-none text-dark" href="{% url 'organizations' %}"><h5>Organizations</h5></a>
-                <a class="text-decoration-none text-dark" href="{% url 'payment_accounts' %}"><h5>Payment accounts</h5></a>
-                <a class="text-decoration-none text-dark" href="{% url 'projects' %}"><h5>Projects</h5></a>
-                <hr>
-                <a class="text-decoration-none text-dark" href="{% url 'counterparties' %}"><h5>Counterparties</h5></a>
-                <a class="text-decoration-none text-dark" href="{% url 'initial_debts' %}"><h5>Initial debts</h5></a>
-                <hr>
-                <a class="text-decoration-none text-dark" href="{% url 'currencies' %}"><h5>Currencies</h5></a>
-                <a class="text-decoration-none text-dark" href="{% url 'rates' %}"><h5>Currency rates</h5></a>
-                <hr>
-                <a class="text-decoration-none text-dark" href="{% url 'settings' %}"><h5>Accounting settings</h5></a>
+        <div class="col-md-12">
+            <div class="row p-2 g-3">
+                <div class="col-md-1"></div>
+                <div class="col-md-2"><img src="{% static 'registers/images/3_48x48.png' %}"/></div>
+                <div class="col-md-2"><img src="{% static 'registers/images/5_48x48.png' %}"/></div>
+                <div class="col-md-2"><img src="{% static 'registers/images/2_48x48.png' %}"/></div>
+                <div class="col-md-2"><img src="{% static 'registers/images/1_48x48.png' %}"/></div>
+                <div class="col-md-2"><img src="{% static 'registers/images/6_48x48.png' %}"/></div>
             </div>
-            <div class="col-md-2 text-left">
-                <h3>Finance fact</h3>
-                <a class="text-decoration-none text-dark" href="{% url 'receipts' %}"><h5>Receipts</h5></a>
-                <a class="text-decoration-none text-dark" href="{% url 'payments' %}"><h5>Payments</h5></a>
-                <a class="text-decoration-none text-dark" href="{% url 'change_payaccounts' %}"><h5>Change payment account</h5></a>
-                <hr>
-                <a class="text-decoration-none text-dark" href="{% url 'income_items' %}"><h5>Income items</h5></a>
-                <a class="text-decoration-none text-dark" href="{% url 'expenses_items' %}"><h5>Expenses items</h5></a>
-                <a class="text-decoration-none text-dark" href="{% url 'items' %}"><h5>Items (general directory)</h5></a>
+            <div class="row p-2 g-3">
+                <div class="col-md-1"></div>
+                <div class="col-md-2 text-left">
+                    <h3>Directories</h3>
+                    <a class="text-decoration-none text-dark" href="{% url 'organizations' %}"><h5>Organizations</h5>
+                    </a>
+                    <a class="text-decoration-none text-dark" href="{% url 'payment_accounts' %}"><h5>Payment
+                        accounts</h5></a>
+                    <a class="text-decoration-none text-dark" href="{% url 'projects' %}"><h5>Projects</h5></a>
+                    <hr>
+                    <a class="text-decoration-none text-dark" href="{% url 'counterparties' %}"><h5>Counterparties</h5>
+                    </a>
+                    <a class="text-decoration-none text-dark" href="{% url 'initial_debts' %}"><h5>Initial debts</h5>
+                    </a>
+                    <hr>
+                    <a class="text-decoration-none text-dark" href="{% url 'currencies' %}"><h5>Currencies</h5></a>
+                    <a class="text-decoration-none text-dark" href="{% url 'rates' %}"><h5>Currency rates</h5></a>
+                    <hr>
+                    <a class="text-decoration-none text-dark" href="{% url 'settings' %}"><h5>Accounting settings</h5>
+                    </a>
+                </div>
+                <div class="col-md-2 text-left">
+                    <h3>Finance fact</h3>
+                    <a class="text-decoration-none text-dark" href="{% url 'receipts' %}"><h5>Receipts</h5></a>
+                    <a class="text-decoration-none text-dark" href="{% url 'payments' %}"><h5>Payments</h5></a>
+                    <a class="text-decoration-none text-dark" href="{% url 'change_payaccounts' %}"><h5>Change payment
+                        account</h5></a>
+                    <hr>
+                    <a class="text-decoration-none text-dark" href="{% url 'income_items' %}"><h5>Income items</h5></a>
+                    <a class="text-decoration-none text-dark" href="{% url 'expenses_items' %}"><h5>Expenses items</h5>
+                    </a>
+                    <a class="text-decoration-none text-dark" href="{% url 'items' %}"><h5>Items (general
+                        directory)</h5></a>
 
+                </div>
+                <div class="col-md-2 text-left">
+                    <h3>Finance plan</h3>
+                    <a class="text-decoration-none text-dark" href="{% url 'receipts_plan' %}"><h5>Planned receipts</h5>
+                    </a>
+                    <a class="text-decoration-none text-dark" href="{% url 'payments_plan' %}"><h5>Payment requests</h5>
+                    </a>
+                    <a class="text-decoration-none text-dark" href="{% url 'calculations' %}"><h5>Calculations</h5></a>
+                    <hr>
+                    <a class="text-decoration-none text-dark" href="{% url 'receipts_plan_add' %}"><h5>Add planned
+                        receipt</h5></a>
+                    <a class="text-decoration-none text-dark" href="{% url 'payments_plan_add' %}"><h5>Add payment
+                        request</h5></a>
+                    <a class="text-decoration-none text-dark" href="{% url 'calculation_add' %}"><h5>Add
+                        calculation</h5></a>
+                    <hr>
+                    <a class="text-decoration-none text-dark" href="#"><h5>Control of planned receipts</h5></a>
+                    <a class="text-decoration-none text-dark" href="#"><h5>Control of payment requests</h5></a>
+
+                </div>
+                <div class="col-md-2 text-left">
+                    <h3>Reports</h3>
+                    <a class="text-decoration-none text-dark" href="{% url 'account_balances' %}"><h5>Account
+                        balances</h5></a>
+                    <a class="text-decoration-none text-dark" href="{% url 'account_flows' %}"><h5>Flow of money in
+                        accounts</h5></a>
+                    <a class="text-decoration-none text-dark" href="{% url 'counterparty_flows' %}"><h5>Settlements with
+                        counterparties</h5></a>
+                    <hr>
+                    <a class="text-decoration-none text-dark" href="#"><h5>Cash flow statement</h5></a>
+                    <a class="text-decoration-none text-dark" href="{% url 'cf_budget' %}"><h5>Cash flow budget</h5></a>
+                    <a class="text-decoration-none text-dark" href="{% url 'plan_fact_analysis' %}"><h5>Plan-fact
+                        analysis</h5></a>
+                </div>
+                <div class="col-md-3 text-left">
+                    <h3>Dashboards</h3>
+                    <a class="text-decoration-none text-dark" href="{% url 'dashboard' %}"><h5>Main dashboard</h5></a>
+                    <a class="text-decoration-none text-dark" href="{% url 'charts_oper' %}"><h5>Operating activities</h5></a>
+                    <a class="text-decoration-none text-dark" href="{% url 'charts_fin' %}"><h5>Loans dashboard</h5></a>
+                    <a class="text-decoration-none text-dark" href="#"><h5>Investment</h5></a>
+                </div>
             </div>
-            <div class="col-md-2 text-left">
-                <h3>Finance plan</h3>
-                <a class="text-decoration-none text-dark" href="{% url 'receipts_plan' %}"><h5>Planned receipts</h5></a>
-                <a class="text-decoration-none text-dark" href="{% url 'payments_plan' %}"><h5>Payment requests</h5></a>
-                <a class="text-decoration-none text-dark" href="{% url 'calculations' %}"><h5>Calculations</h5></a>
-                <hr>
-                <a class="text-decoration-none text-dark" href="{% url 'receipts_plan_add' %}"><h5>Add planned receipt</h5></a>
-                <a class="text-decoration-none text-dark" href="{% url 'payments_plan_add' %}"><h5>Add payment request</h5></a>
-                <a class="text-decoration-none text-dark" href="{% url 'calculation_add' %}"><h5>Add calculation</h5></a>
-                <hr>
-                <a class="text-decoration-none text-dark" href="#"><h5>Control of planned receipts</h5></a>
-                <a class="text-decoration-none text-dark" href="#"><h5>Control of payment requests</h5></a>
-
-            </div>
-            <div class="col-md-2 text-left">
-                <h3>Reports</h3>
-                <a class="text-decoration-none text-dark" href="{% url 'account_balances' %}"><h5>Account balances</h5></a>
-                <a class="text-decoration-none text-dark" href="{% url 'account_flows' %}"><h5>Flow of money in accounts</h5></a>
-                <a class="text-decoration-none text-dark" href="{% url 'counterparty_flows' %}"><h5>Settlements with counterparties</h5></a>
-                <a class="text-decoration-none text-dark" href="#"><h5>Cash flow statement</h5></a>
-                <a class="text-decoration-none text-dark" href="{% url 'cf_budget' %}"><h5>Cash flow budget</h5></a>
-                <a class="text-decoration-none text-dark" href="{% url 'plan_fact_analysis' %}"><h5>Plan-fact analysis</h5></a>
-            </div>
-            <div class="col-md-3 text-left">
-                <h3>Dashboards</h3>
-                <a class="text-decoration-none text-dark" href="{% url 'dashboard' %}"><h5>Main dashboard</h5></a>
-                <a class="text-decoration-none text-dark" href="#"><h5>Operating activities</h5></a>
-                <a class="text-decoration-none text-dark" href="#"><h5>Loans dashboard</h5></a>
-                <a class="text-decoration-none text-dark" href="#"><h5>Investment</h5></a>
-            </div>
-
-
-
-
         </div>
     </div>
-</div>
 
 
-{% endblock %}
+    {% endblock %}

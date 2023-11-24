@@ -42,42 +42,42 @@ class Calculations(models.Model):
         return self.name
 
     @staticmethod
-    def get_series_constant(date_first, frequency, term, amount):
+    def get_series_constant(date_first, frequency, term, amount, item):
         frequency_days = {'annually': 365, 'monthly': 31, 'weekly': 7, 'daily': 1}
         days = frequency_days.get(frequency)
         date_pay = date_first
         number = date_first.day
-        data_list = [(date_pay, amount)]
+        data_list = [(date_pay, amount, item)]
         for i in range(term):
             if frequency in ['weekly', 'daily']:
                 date_pay = (date_pay + datetime.timedelta(days=days))
             else:
                 date_pay = (date_pay + datetime.timedelta(days=days)).replace(day=number)
-            data_list.append((date_pay, amount))
+            data_list.append((date_pay, amount, item))
         return data_list
 
     @staticmethod
-    def get_series_differ(date_first, term, loan_rate, amount):
+    def get_series_differ(date_first, term, loan_rate, amount, item_debt, item_per):
         date_pay = date_first
         number = date_first.day
         debt_pay = amount / term
         balance_owed = amount
         data_list = [
-            (date_pay, debt_pay),
-            (date_pay, amount * loan_rate / 1200),
+            (date_pay, debt_pay, item_debt),
+            (date_pay, amount * loan_rate / 1200, item_per),
         ]
 
         for i in range(term - 1):
             date_pay = (date_pay + datetime.timedelta(days=31)).replace(day=number)
             balance_owed -= debt_pay
             per_pay = balance_owed * loan_rate / 1200
-            data_list.append((date_pay, debt_pay))
-            data_list.append((date_pay, per_pay))
+            data_list.append((date_pay, debt_pay, item_debt))
+            data_list.append((date_pay, per_pay, item_per))
 
         return data_list
 
     @staticmethod
-    def get_series_annuity(date_first, term, loan_rate, amount):
+    def get_series_annuity(date_first, term, loan_rate, amount, item_debt, item_per):
         date_pay = date_first
         number = date_first.day
         annuity = (amount * loan_rate / 1200) / (1 - (1 + loan_rate / 1200) ** (-term))
@@ -89,28 +89,29 @@ class Calculations(models.Model):
             per_pay = balance_owed * loan_rate / 1200
             debt_pay = annuity - per_pay
             balance_owed -= debt_pay
-            data_list.append((date_pay, debt_pay))
-            data_list.append((date_pay, per_pay))
+            data_list.append((date_pay, debt_pay, item_debt))
+            data_list.append((date_pay, per_pay, item_per))
 
         return data_list
 
 
     def create_plan_payments(self):
         existing_plan = PaymentDocumentPlan.objects.filter(calculation=self).order_by('date').all()
-
+        items = Items.objects.all()
         if self.flow == 'Payments':
-            item_per = Items.objects.filter(code='outflow from loan percents')
-            item_debt = Items.objects.filter(code='outflow by a loan')
+            item_per = Items.objects.get(code=items.get('outflow from loan percents'))
+            item_debt = Items.objects.get(code=items.get('outflow by a loan'))
         else:
-            item_per = Items.objects.filter(code='inflow by borrow percents')
-            item_debt = Items.objects.filter(code='inflow from a borrow')
+            item_per = Items.objects.get(code=items.get('inflow by borrow percents'))
+            item_debt = Items.objects.get(code=items.get('inflow from a borrow'))
+
 
         if self.type_calc == 'constant':
-            data_list = self.get_series_constant(self.date_first, self.frequency, self.term, self.amount)
+            data_list = self.get_series_constant(self.date_first, self.frequency, self.term, self.amount, self.item)
         elif self.type_calc == 'differential':
-            data_list = self.get_series_differ(self.date_first, self.term, self.loan_rate, self.amount)
+            data_list = self.get_series_differ(self.date_first, self.term, self.loan_rate, self.amount, item_debt, item_per)
         else:
-            data_list = self.get_series_annuity(self.date_first, self.term, self.loan_rate, self.amount)
+            data_list = self.get_series_annuity(self.date_first, self.term, self.loan_rate, self.amount, item_debt, item_per)
 
         for i, data in enumerate(data_list):
             plan = PaymentDocumentPlan(
@@ -127,11 +128,11 @@ class Calculations(models.Model):
             if self.flow == 'Payments':
                 plan.outflow_amount = data[1]
                 plan.inflow_amount = 0
-                plan.item = self.item
+                plan.item = data[2]
             else:
                 plan.outflow_amount = 0
                 plan.inflow_amount = data[1]
-                plan.item = self.item
+                plan.item = data[2]
 
             if len(existing_plan) > i:
                 plan.id = existing_plan[i].id

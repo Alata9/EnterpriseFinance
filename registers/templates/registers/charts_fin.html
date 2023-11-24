@@ -6,11 +6,10 @@
 {% load static %}
 
 <script type="text/javascript">
-    let  loan_portfolioData = {{ loan_portfolio|safe }};
-    let  debit_portfolioData = {{ debit_portfolio|safe }};
-    let  lenders_tableData = {{ lenders_table|safe }};
-    let  borrowers_tableData = {{ borrowers_table|safe }};
-    let  cf_fin_dynamicsData = {{ cf_fin_dynamics|safe }};
+<!--    let  credit_portfolioData = {{ credit_portfolio|safe }};-->
+<!--    let  debit_portfolioData = {{ debit_portfolio|safe }};-->
+    let  loans_tableData = {{ loans_table|safe }};
+<!--    let  cf_fin_dynamicsData = {{ cf_fin_dynamics|safe }};-->
 </script>
 
 <script type="text/javascript" src="{% static '/registers/js/charts_fin.js' %}"></script>
@@ -52,27 +51,22 @@
                     <hr>
                     <div id="debit_portfolio"></div>
                 </div>
-                <div class="col-md-6 border p-2 shadow">
-                    <b>Dynamics of financing activities</b>
-                    <div id="cf_fin_dynamics"></div>
-                </div>
-                <div class="col-md-3 border p-2 shadow">
-                    <b>Lenders portfolio</b>
+                <div class="col-md-9 border p-2 shadow">
+                    <b>Balance sheet of borrowers and lenders</b>
                     <hr>
-                    <div id="loan_portfolio"></div>
+                    <div id="loans_table"></div>
                 </div>
             </div>
             <br><br>
             <div class="row p-1 g-1">
-                <div class="col-md-6 border p-2 shadow">
-                    <b>Balance sheet of borrowers</b>
+                <div class="col-md-3 border p-2 shadow">
+                    <b>Lenders portfolio</b>
                     <hr>
-                    <div id="borrowers_table"></div>
+                    <div id="credit_portfolio"></div>
                 </div>
-                <div class="col-md-6 border p-2 shadow">
-                    <b>Balance sheet of lenders</b>
-                    <hr>
-                    <div id="lenders_table"></div>
+                <div class="col-md-9 border p-2 shadow">
+                    <b>Dynamics of financing activities</b>
+                    <div id="cf_fin_dynamics"></div>
                 </div>
             </div>
         </div>

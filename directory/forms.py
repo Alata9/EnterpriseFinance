@@ -26,17 +26,17 @@ class ProjectAdd(ModelForm):
 
 
 class PaymentAccountAdd(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['organization'].empty_label = ''
+        self.fields['currency'].empty_label = ''
+
     class Meta:
         model = PaymentAccount
         fields = ('account', 'organization', 'currency', 'is_cash', 'comments')
         widgets = {
             'open_date': DateInput(attrs={'type': 'Date'})
         }
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['organization'].empty_label = ''
-        self.fields['currency'].empty_label = ''
 
 
 class CounterpartyAdd(ModelForm):

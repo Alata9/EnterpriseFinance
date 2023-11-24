@@ -50,24 +50,24 @@
         <div class="col-md-10 border p-2 shadow">
             <div class="row p-1 g-1">
                 <div class="col-md-3 border p-2 shadow">
-                    <b>Account balances on {{today|date:"d.m.Y"}}</b>
+                    <b>Account balances</b>
                     <hr>
                     <div id="table_balances_account"></div>
                 </div>
                 <div class="col-md-5 border p-2 shadow">
-                    <b>Total Cash flow</b>
+                    <b>Total Cash flow, {{ main_currency }}</b>
                     <hr>
                     <div id="cf_table"></div>
                 </div>
                 <div class="col-md-4 border p-2 shadow">
-                    <b>Cash flow bar</b>
+                    <b>Cash flow bar, {{ main_currency }}</b>
                     <div id="cf_bar"></div>
                 </div>
             </div>
             <br>
             <div class="row p-1 g-1">
                 <div class="col-md-12 border p-2 shadow">
-                    <b>Cash flow dynamics</b>
+                    <b>Cash flow dynamics, {{ main_currency }}</b>
                     <div id="chart_cash_flow_dynamics"></div>
                 </div>
             </div>

@@ -146,7 +146,7 @@ class AccountBalancesView(ListView):
 
         return account_balances, balances_convert
 
-    @staticmethod  # add a condition for the absence of a pair of currencies
+    @staticmethod
     def get_rate(cur, main_currency):
         if cur == main_currency:
             return decimal.Decimal(1)

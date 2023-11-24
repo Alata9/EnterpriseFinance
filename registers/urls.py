@@ -3,7 +3,7 @@ from django.urls import path
 # from registers.views_charts import (htmx_projects,
 #     # DashboardView, ChartsOperView, ChartsInvestView, ChartsFinView,
 # )
-from registers.views_charts import DashboardView, ChartsOperView, htmx_projects
+from registers.views_charts import DashboardView, ChartsOperView, htmx_projects, ChartsFinView
 from registers.views_reports import (HomeView, AccountSettingsView, AccountBalancesView, AccountFlowsView, CfBudgetView,
                                      PlanFactAnalysisView, CfStatementView, CounterpartyFlowsView
     # , CfStatementView, CfBudgetView, PlanFactAnalysisView,
@@ -28,7 +28,7 @@ urlpatterns = [
     path('operating', ChartsOperView.as_view(), name='charts_oper'),
     path('operating/project', htmx_projects, name='operating_project'),
     # path('investment', ChartsInvestView, name='charts_invest'),
-    # path('financing', ChartsFinView.as_view(), name='charts_fin'),
+    path('financing', ChartsFinView.as_view(), name='charts_fin'),
     #
     path('cf_statement/', CfStatementView, name='cf_statement'),
     # path('cf_statement/', CfStatementView.as_view(), name='cf_statement'),

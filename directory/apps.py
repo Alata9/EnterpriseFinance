@@ -10,3 +10,4 @@ class DirectoryappConfig(AppConfig):
     # def ready(self):
     #     if os.environ.get('RUN_MAIN', None) != 'true':
     #         return
+

@@ -8,4 +8,5 @@ urlpatterns = [
     path('', include('planning.urls')),
     path('', include('registers.urls')),
     path('', include('users.urls')),
+    path("__debug__/", include("debug_toolbar.urls")),
 ]

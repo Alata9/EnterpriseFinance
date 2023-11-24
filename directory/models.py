@@ -69,8 +69,8 @@ class InitialDebts(models.Model):
 
     counterparty = models.ForeignKey(Counterparties, on_delete=models.PROTECT, blank=False)
     organization = models.ForeignKey(Organization, on_delete=models.PROTECT, blank=False)
-    debit = models.DecimalField(max_digits=15, decimal_places=2, blank=True, null=True)
-    credit = models.DecimalField(max_digits=15, decimal_places=2, blank=True, null=True)
+    debit = models.DecimalField(max_digits=15, decimal_places=2, default=0.0, blank=True, null=True)
+    credit = models.DecimalField(max_digits=15, decimal_places=2, default=0.0, blank=True, null=True)
     comments = models.CharField(max_length=250, blank=True, null=True)
     currency = models.ForeignKey('Currencies', on_delete=models.PROTECT, blank=False)
     type_debt = models.CharField(max_length=10, choices=TypeDebts, blank=False)

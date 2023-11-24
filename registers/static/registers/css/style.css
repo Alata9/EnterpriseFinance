@@ -1,10 +1,4 @@
-
-/* Just common table stuff. Really. */
-table  { border-collapse: collapse; width: 100%; }
-th, td { padding: 8px 16px; }
-th     { background:#eee; }
-
-
+/* head sticky */
 th {
   background: #F5F5F5;
   position: sticky;
@@ -17,11 +11,13 @@ td {
   font-size: 13px;
 }
 
-/* footer sticky ??? */
-tfoot{
+/* footer sticky */
+tfoot {
   width: 100%;
-  position: absolute;
+  background: #F5F5F5;
+  padding: 20px;
+  position: sticky;
   bottom: 0;
-  height: 100px;
+  height: 0px;
 }
 
