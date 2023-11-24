@@ -145,12 +145,16 @@ class DashboardView(View):
         cf_invest = receipts_invest - payments_invest
         cf_fin = receipts_fin - payments_fin
 
-        cf_table['payments'] = [int(receipts_oper), int(receipts_invest), int(receipts_fin), int(receipts_sum)]
+        cf_table['receipts'] = [int(receipts_oper), int(receipts_invest), int(receipts_fin), int(receipts_sum)]
         cf_table['payments'] = [int(payments_oper), int(payments_invest), int(payments_fin), int(payments_sum)]
         cf_table['cash flow'] = [int(cf_oper), int(cf_invest), int(cf_fin), int(cf)]
 
         cf_table = [[k, *v] for k, v in cf_table.items()]
-        cf_bar = [['Operating', cf_table[2][1]], ['Investment', cf_table[2][2]], ['Financing', cf_table[2][3]]]
+
+        cf_total = cf_table[2][1] + cf_table[2][2] + cf_table[2][3]
+
+        cf_bar = [['Operating', cf_table[2][1]], ['Investment', cf_table[2][2]],
+                  ['Financing', cf_table[2][3]], ['Total', cf_total]]
 
         return cf_table, cf_bar
 
@@ -161,7 +165,7 @@ class DashboardView(View):
         for i in flow:
             month = str(i.date.month).rjust(2, '0')
             period = f'{str(i.date.year)}/{month}'
-            amount = float(i.amount)
+            amount = float(i.inflow_amount) if i.inflow_amount != 0 else float(i.outflow_amount)
             if period not in dynamics:
                 dynamics[period] = amount
             else:
@@ -313,9 +317,10 @@ class ChartsOperView(View):
         for customer in customers:
             doc_counter = doc.filter(counterparty=customer)
             # for doc in doc_counter:
-            # rate = 1
             # rate = AccountBalancesView.get_rate(doc.currency, main_currency)
             amount_sum = doc_counter.aggregate(Sum("inflow_amount")).get('inflow_amount__sum', 0.00)
+            # if rate >= 0 and rate != 1:
+            #     amount_sum /= amount_sum
             if amount_sum is None:
                 amount_sum = 0
             if amount_sum != 0:
@@ -331,16 +336,14 @@ class ChartsOperView(View):
     def get_bar_top10suppliers(doc):
         main_currency = AccountSettings.load().currency()
         suppliers = Counterparties.objects.filter(suppliers=True)
-        doc_suppliers = doc.filter(counterparty=suppliers)
         data = {}
-        for doc in doc_suppliers:
-            rate = float(AccountBalancesView.get_rate(doc.currency, main_currency))
-            supplier = str(doc.counterparty)
-            amount = float(doc.inflow_amount) / rate if doc.inflow_amount != 0 else float(doc.outflow_amount) / rate
-            if supplier not in data:
-                data[supplier] = amount
-            else:
-                data[supplier] += amount
+        for supp in suppliers:
+            doc_counter = doc.filter(counterparty=supp)
+            amount_sum = doc_counter.aggregate(Sum("outflow_amount")).get('outflow_amount__sum', 0.00)
+            if amount_sum is None:
+                amount_sum = 0
+            if amount_sum != 0:
+                data[str(supp)] = float(amount_sum)
 
         data_sort = sorted(data.items(), key=lambda x: x[1], reverse=True)
         top10 = dict(data_sort)
@@ -510,126 +513,4 @@ class ChartsFinView(View):
 
 
 def ChartsInvestView(request):
-    form = DashboardFilter(request.GET)
-    receipts = Receipts.objects.all()
-    payments = Payments.objects.all()
-
-    if form.is_valid():
-
-        if form.cleaned_data['organization']:
-            receipts = receipts.filter(organization=form.cleaned_data['organization'])
-            payments = payments.filter(organization=form.cleaned_data['organization'])
-        if form.cleaned_data['date_start']:
-            receipts = receipts.filter(date__gte=form.cleaned_data['date_start'])
-            payments = payments.filter(date__gte=form.cleaned_data['date_start'])
-        if form.cleaned_data['date_end']:
-            receipts = receipts.filter(date__lte=form.cleaned_data['date_end'])
-            payments = payments.filter(date__lte=form.cleaned_data['date_end'])
-
-        # if form.cleaned_data['conversion_currency']:
-        #     payments = payments
-        #     payments = payments
-        # for i in payments:
-        #     i.amount = i.amount * get_currency_rate(i.currency, form.cleaned_data['conversion_currency'], i.date)
-        #     print(i)
-        # for i in payments:
-        #     i.amount = i.amount * get_currency_rate(i.currency, form.cleaned_data['conversion_currency'], i.date)
-        #     print(i)
-
-    def get_structure(flow):
-        structure = {}
-        for i in flow:
-            item = str(i.item)
-            amount = float(i.amount)
-            if item not in structure:
-                structure[item] = amount
-            else:
-                structure[item] += amount
-        return list(map(list, list(zip(list(structure), list(structure.values())))))
-
-    # print('rec_struc:', get_structure(payments))
-    # print('pay_struc:', get_structure(payments))
-
-    def get_dynamics(flow):
-        dynamics = {}
-        for i in flow:
-            month = str(i.date.month).rjust(2, '0')
-            period = f'{str(i.date.year)}/{month}'
-            amount = float(i.amount)
-            if period not in dynamics:
-                dynamics[period] = amount
-            else:
-                dynamics[period] += amount
-
-        return dynamics
-
-    # print('rec_dyn:', get_dynamics(payments))
-    # print('pay_dyn:', get_dynamics(payments))
-
-    # data payments and payments
-    def get_total_cf():
-        payments_dynamics = get_dynamics(payments)
-        receipts_dynamics = get_dynamics(receipts)
-
-        total_cf = {k: [receipts_dynamics.get(k, 0), payments_dynamics.get(k, 0)]
-                    for k in set(receipts_dynamics) | set(payments_dynamics)}
-        total_cf = sorted(total_cf.items(), key=lambda x: x[0])
-        total_cf = dict(total_cf)
-
-        return total_cf
-
-    # print('total_cf:', get_total_cf())
-
-    # diagr 2 total cash flow
-    def get_cf_dynamics():
-        total_cf = get_total_cf()
-        cf_dynamics = []
-        for k, v in total_cf.items():
-            cf_dynamics.append([k, *v, v[0] - v[1]])
-
-        return cf_dynamics
-
-    # print('cf_dynamics:', get_cf_dynamics())
-
-    # diagr 3 cf table
-    def get_cf_table():
-        cf_table = {}
-        receipts_sum = receipts.aggregate(Sum("amount")).get('amount__sum', 0.00)
-        payments_sum = payments.aggregate(Sum("amount")).get('amount__sum', 0.00)
-        if receipts_sum == None:
-            receipts_sum = 0
-        if payments_sum == None:
-            payments_sum = 0
-        cf = receipts_sum - payments_sum
-
-        cf_table['total payments'] = int(receipts_sum)
-        cf_table['total payments'] = int(payments_sum)
-        cf_table['total cf'] = int(cf)
-
-        return list(map(list, list(zip(list(cf_table), list(cf_table.values())))))
-
-    # print('cf_table:', get_cf_table())
-
-    # diagr 6 payments and payments dynamics
-    def get_rp_dynamics():
-        total_cf = get_total_cf()
-        rp_dynamics = []
-        for k, v in total_cf.items():
-            rp_dynamics.append([k, *v])
-
-        return rp_dynamics
-
-    # print('rp_dynamics:', get_rp_dynamics())
-
-    context = {
-        'form': form,
-        'today': datetime.today(),
-        # 'balances': balances,
-        'cf_dynamics': get_cf_dynamics(),
-        'cf_table': get_cf_table(),
-        'receipts_structure': get_structure(receipts),
-        'payments_structure': get_structure(payments),
-        'rp_dynamics': get_rp_dynamics(),
-    }
-
-    return render(request, 'registers/charts_fin.html', context=context)
+    pass

@@ -6,32 +6,17 @@
     google.charts.setOnLoadCallback(TableBalancesAccount);
     google.charts.setOnLoadCallback(TableCashFlow);
 
+
     function CashFlowBar() {
-//        let request = new XMLHttpRequest();
-//        const url = `/dashboard_main/cf_bar`;
-//
-//        request.onreadystatechange = function() {
-//            if (this.readyState === 4 && this.status === 200) {
-//                const response = JSON.parse(this.responseText);
-//                CashFlowBarDraw(response);
-//            }
-//        }
-//
-//        request.open("GET", url, true);
-//        request.save();
-//    }
-//
-    function CashFlowBarDraw(cfBarData) {
         var data = new google.visualization.DataTable();
             data.addColumn('string', 'Items');
             data.addColumn('number', 'Amount');
-            // data.addRows({{ cf_bar|safe }});
             data.addRows(cfBarData);
 
         var options = {
            'width':400,
-           'height':250,
-           colors: ['#FF4500'],
+           'height':210,
+           colors: ['#FFA500'],
            legend: { position: 'none' }
            };
 
