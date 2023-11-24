@@ -1,3 +1,4 @@
+import decimal
 from datetime import datetime
 
 from django.db.models import Sum
@@ -9,6 +10,7 @@ from payments.models import PaymentDocuments
 
 from registers.forms import AccountSettingsSet, AccountBalancesFilter, DashboardFilter
 from registers.models import AccountSettings
+from registers.views_reports import AccountBalancesView
 
 
 def htmx_projects(request):
@@ -190,6 +192,8 @@ class DashboardView(View):
 
 
 class ChartsOperView(View):
+    main_currency = AccountSettings.load().currency()
+
     def get(self, request):
         form = DashboardFilter(request.GET)
         receipts = PaymentDocuments.objects.filter(flow='Receipts', item__activity='operating')
@@ -226,10 +230,13 @@ class ChartsOperView(View):
 
     # charts 1, 2, 4
     def get_structure(self, doc):
+        main_currency = AccountSettings.load().currency()
         data = {}
         for i in doc:
+            rate = float(AccountBalancesView.get_rate(i.currency, main_currency))
             item = str(i.item)
-            amount = float(i.inflow_amount) if i.inflow_amount != 0 else float(i.outflow_amount)
+            amount = float(i.inflow_amount) / rate if i.inflow_amount != 0 else float(i.outflow_amount) / rate
+
             if item not in data:
                 data[item] = amount
             else:
@@ -244,11 +251,13 @@ class ChartsOperView(View):
     # function for data payments and payments
     @staticmethod
     def get_dynamics(doc):
+        main_currency = AccountSettings.load().currency()
         dynamics = {}
         for i in doc:
+            rate = float(AccountBalancesView.get_rate(i.currency, main_currency))
             month = str(i.date.month).rjust(2, '0')
             period = f'{str(i.date.year)}/{month}'
-            amount = float(i.inflow_amount) if i.inflow_amount != 0 else float(i.outflow_amount)
+            amount = float(i.inflow_amount) / rate if i.inflow_amount != 0 else float(i.outflow_amount) / rate
             if period not in dynamics:
                 dynamics[period] = amount
             else:
@@ -280,10 +289,12 @@ class ChartsOperView(View):
     # chart 5 Payments bar by group
     @staticmethod
     def get_bar_payments(doc):
+        main_currency = AccountSettings.load().currency()
         data = {}
         for i in doc:
+            rate = float(AccountBalancesView.get_rate(i.currency, main_currency))
             items_group = str(i.item.group)
-            amount = float(i.inflow_amount) if i.inflow_amount != 0 else float(i.outflow_amount)
+            amount = float(i.inflow_amount) / rate if i.inflow_amount != 0 else float(i.outflow_amount) / rate
             if items_group not in data:
                 data[items_group] = amount
             else:
@@ -296,15 +307,19 @@ class ChartsOperView(View):
     # chart 6 TOP-10 customers
     @staticmethod
     def get_bar_top10customers(doc):
+        main_currency = AccountSettings.load().currency()
         customers = Counterparties.objects.filter(customer=True)
         data = {}
-        for cust in customers:
-            doc_counter = doc.filter(counterparty=cust)
+        for customer in customers:
+            doc_counter = doc.filter(counterparty=customer)
+            # for doc in doc_counter:
+            # rate = 1
+            # rate = AccountBalancesView.get_rate(doc.currency, main_currency)
             amount_sum = doc_counter.aggregate(Sum("inflow_amount")).get('inflow_amount__sum', 0.00)
             if amount_sum is None:
                 amount_sum = 0
             if amount_sum != 0:
-                data[str(cust)] = float(amount_sum)
+                data[str(customer)] = float(amount_sum)
 
         data_sort = sorted(data.items(), key=lambda x: x[1], reverse=True)
         top10 = dict(data_sort)
@@ -314,20 +329,36 @@ class ChartsOperView(View):
     # chart 7 TOP-10 suppliers
     @staticmethod
     def get_bar_top10suppliers(doc):
+        main_currency = AccountSettings.load().currency()
         suppliers = Counterparties.objects.filter(suppliers=True)
+        doc_suppliers = doc.filter(counterparty=suppliers)
         data = {}
-        for supp in suppliers:
-            doc_counter = doc.filter(counterparty=supp)
-            amount_sum = doc_counter.aggregate(Sum("outflow_amount")).get('outflow_amount__sum', 0.00)
-            if amount_sum is None:
-                amount_sum = 0
-            if amount_sum != 0:
-                data[str(supp)] = float(amount_sum)
+        for doc in doc_suppliers:
+            rate = float(AccountBalancesView.get_rate(doc.currency, main_currency))
+            supplier = str(doc.counterparty)
+            amount = float(doc.inflow_amount) / rate if doc.inflow_amount != 0 else float(doc.outflow_amount) / rate
+            if supplier not in data:
+                data[supplier] = amount
+            else:
+                data[supplier] += amount
 
         data_sort = sorted(data.items(), key=lambda x: x[1], reverse=True)
         top10 = dict(data_sort)
 
         return [[k, v] for k, v in top10.items()][:10]
+
+
+    @staticmethod
+    def get_rate(cur, main_currency):
+        if cur == main_currency:
+            return decimal.Decimal(1)
+        try:
+            rate = CurrenciesRates.objects.filter(accounting_currency=main_currency, currency=cur,
+                                                  date__lte=datetime.datetime.now()).order_by('-date')[:1].first().rate
+        except:
+            rate = decimal.Decimal(1)
+
+        return rate
 
 
 class ChartsFinView(View):

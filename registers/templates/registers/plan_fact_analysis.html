@@ -4,5 +4,93 @@
 {% load widget_tweaks %}
 {% block content %}
 <h1>Plan-fact analysis</h1>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+$(document).ready(function() {
+  // Hide all child rows initially
+  $('tr.child').hide();
 
+  // Add click events to parent rows
+  $('tr.parent').click(function() {
+    $(this).toggleClass('open');
+    $(this).nextUntil('tr.parent').toggle();
+  });
+});
+
+
+</script>
+
+
+<style>
+.tree-table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.tree-table td,
+.tree-table th {
+  border: 1px solid #ccc;
+  padding: 8px;
+  text-align: left;
+}
+
+.tree-table th {
+  background-color: #f2f2f2;
+}
+
+.tree-table tr.child {
+  display: none;
+}
+
+.tree-table tr.parent:hover .child {
+  display: table-row;
+}
+
+</style>
+
+<div class="container-fluid px-10">
+    <table class="tree-table">
+        <thead>
+        <tr>
+            <th>Column 1</th>
+            <th>Column 2</th>
+            <th>Column 3</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>Parent 1</td>
+            <td>Value 1</td>
+            <td>Value 2</td>
+        </tr>
+        <tr class="child-of-parent-1">
+            <td>Child 1</td>
+            <td>Value 1</td>
+            <td>Value 2</td>
+        </tr>
+        <tr class="child-of-parent-1">
+            <td>Child 2</td>
+            <td>Value 1</td>
+            <td>Value 2</td>
+        </tr>
+        <tr>
+            <td>Parent 2</td>
+            <td>Value 1</td>
+            <td>Value 2</td>
+        </tr>
+        <tr class="child-of-parent-2">
+            <td>Child 1</td>
+            <td>Value 1</td>
+            <td>Value 2</td>
+        </tr>
+        <tr class="child-of-parent-2">
+            <td>Child 2</td>
+            <td>Value 1</td>
+            <td>Value 2</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 {% endblock %}

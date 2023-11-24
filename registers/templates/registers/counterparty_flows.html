@@ -1,5 +1,5 @@
 {% extends 'registers/base.html' %}
-{% block title %}CF budget{% endblock %}
+{% block title %}Settlements with counterparties{% endblock %}
 {% load crispy_forms_tags %}
 {% load widget_tweaks %}
 {% block content %}
@@ -7,7 +7,7 @@
 <div class="container-fluid px-10">
     <div class="row">
         <form action="" method="GET"
-            hx-get="/cf_budget/list"
+            hx-get="/counterparty_flows/list"
             hx-trigger="change"
             hx-target="#id_table">
         <div class="col-md-2 border p-2 shadow">
@@ -16,20 +16,20 @@
             {% csrf_token %}
             {{ form|crispy }}
             <br>
-            <div hx-get="/cf_budget/list" hx-trigger="click" hx-target="#id_table">
+            <div hx-get="/counterparty_flows/list" hx-trigger="click" hx-target="#id_table">
                 <button class="btn btn-info" type="reset" name="btn_reset" >RESET FILTERS</button>
             </div>
         </div>
         <div class="col-md-10 border p-2 shadow">
             <div class="row d-grid gap-2 d-md-flex justify-content-md-end">
-                <div class="col-md-9 fw-bold"><H2>Cash flow budget for "{{ object_list.organization }}"</H2></div>
-                <div class="col-md-6 fw-bold">
-                    <p>Period of planning: {{ object_list.date_start|date:"m.Y" }} - {{ object_list.date_end|date:"m.Y" }},
-                    in {{ object_list.measuring }} (from {{ object_list.today|date:"d.m.Y" }})</p></div>
+                <div class="col-md-9 fw-bold"><H2>Settlements with counterparties</H2></div>
+                <div class="col-md-3">
+                    <button  class="btn btn-info" name="btn_to_file">SAVE TO FILE</button>
+                </div>
             </div>
             <br>
             <div class="table-responsive" style="height: 450px">
-                {% include "registers/cf_budget_list.html" %}
+                {% include "registers/counterparty_flow_list.html" %}
             </div>
         </div>
         </form>

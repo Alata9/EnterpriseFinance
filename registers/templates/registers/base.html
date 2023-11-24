@@ -42,7 +42,7 @@
 <nav class="navbar navbar-default" role="navigation">
     <div class="container-fluid">
         <div class="navbar-header">
-            <a class="navbar-brand" href="{% url 'home' %}">Enterprise finance </a>
+            <a class="navbar-brand" href="{% url 'home' %}">Treasury Department</a>
         </div>
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
             <ul class="nav navbar-nav">
@@ -92,12 +92,13 @@
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">Reports <b class="caret"></b></a>
                     <ul class="dropdown-menu">
                         <li><a href="{% url 'account_balances' %}">Account balances</a></li>
-                        <li><a href="{% url 'account_flows' %}">Account flows</a></li>
+                        <li><a href="{% url 'account_flows' %}">Flow of money in accounts</a></li>
+                        <li><a href="{% url 'counterparty_flows' %}">Settlements with counterparties</a></li>
                         <li class="divider"></li>
-                        <li><a href="#">Cash flow statement</a></li>
-                        <li><a href="#">Cash flow budget</a></li>
+                        <li><a href="{% url 'cf_statement' %}">Cash flow statement</a></li>
+                        <li><a href="{% url 'cf_budget' %}">Cash flow budget</a></li>
                         <li class="divider"></li>
-                        <li><a href="#">Plan-fact analysis</a></li>
+                        <li><a href="{% url 'plan_fact_analysis' %}">Plan-fact analysis</a></li>
                     </ul>
                 </li>
                 <!--          # dashboards-->

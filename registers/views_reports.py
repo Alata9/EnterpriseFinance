@@ -15,7 +15,9 @@ from directory.models import PaymentAccount, Currencies, CurrenciesRates
 # from payments.models import Payments
 # from payments.models import Receipts, ChangePayAccount
 from payments.models import PaymentDocuments
-from registers.forms import (AccountSettingsSet, AccountBalancesFilter, AccountFlowsFilter
+from planning.models import PaymentDocumentPlan
+from registers.forms import (AccountSettingsSet, AccountBalancesFilter, AccountFlowsFilter, CFStatementFilter,
+                             CounterpartyFlowsFilter
     # ,  DashboardFilter, CFStatementFilter
                              )
 from registers.models import AccountSettings
@@ -52,7 +54,6 @@ class AccountBalancesView(ListView):
         receipts_before = PaymentDocuments.objects.all()
         payments = PaymentDocuments.objects.all()
         payments_before = PaymentDocuments.objects.all()
-
 
         form = AccountBalancesFilter(request.GET)
         if form.is_valid():
@@ -101,11 +102,13 @@ class AccountBalancesView(ListView):
         for account in accounts:
             rate = AccountBalancesView.get_rate(account.currency, main_currency)
 
-            receipts_sum = receipts.filter(account=account).aggregate(Sum("inflow_amount")).get('inflow_amount__sum', 0.00)
+            receipts_sum = receipts.filter(account=account).aggregate(Sum("inflow_amount")).get('inflow_amount__sum',
+                                                                                                0.00)
             if receipts_sum is None:
                 receipts_sum = 0
 
-            payments_sum = payments.filter(account=account).aggregate(Sum("outflow_amount")).get('outflow_amount__sum', 0.00)
+            payments_sum = payments.filter(account=account).aggregate(Sum("outflow_amount")).get('outflow_amount__sum',
+                                                                                                 0.00)
             if payments_sum is None:
                 payments_sum = 0
 
@@ -143,7 +146,7 @@ class AccountBalancesView(ListView):
 
         return account_balances, balances_convert
 
-    @staticmethod                                       # add a condition for the absence of a pair of currencies
+    @staticmethod  # add a condition for the absence of a pair of currencies
     def get_rate(cur, main_currency):
         if cur == main_currency:
             return decimal.Decimal(1)
@@ -154,6 +157,86 @@ class AccountBalancesView(ListView):
             rate = decimal.Decimal(1)
 
         return rate
+
+
+class CounterpartyFlowsView(ListView):
+    model = PaymentDocuments
+    template_name = 'registers/counterparty_flows.html'
+
+    def get_queryset(self):
+        return PaymentDocuments.objects.all().order_by('date')
+
+    def get(self, request, *args, **kwargs):
+        if 'btn_to_file' in request.GET:
+            return self.to_file(request)
+        return super().get(request, *args, **kwargs)
+
+    def to_file(self, request):
+        my_data = [['header'],
+                   ["Date", "Counterparty", "Inflow", "Outflow", "Currency", "Item", "Project", "Comments"]]
+
+        flows = self.flows_queryset(request)
+        for i in flows:
+            my_data.append([i.date, i.counterparty, i.inflow_amount, i.inflow_amount, i.currency,
+                            i.item, i.project, i.comments])
+
+        t = str(datetime.datetime.today().strftime('%d-%m-%Y-%H%M%S'))
+        file_name = 'account_flows_' + t + '.csv'
+        file_buffer = StringIO()
+
+        writer = csv.writer(file_buffer, delimiter=';')
+        writer.writerows(my_data)
+        file_bytes = BytesIO(file_buffer.getvalue().encode('cp1251'))
+        file_bytes.seek(0)
+
+        response = FileResponse(file_bytes, filename=file_name, as_attachment=True)
+
+        return response
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        ctx = {
+            'object_list': self.flows_queryset(self.request),
+            'form': CounterpartyFlowsFilter()}
+        return ctx
+
+    @staticmethod
+    def flows_queryset(request):
+        flows = PaymentDocuments.objects.all().order_by('date')
+        form = CounterpartyFlowsFilter(request.GET)
+        if form.is_valid():
+            if form.cleaned_data['date']:
+                flows = flows.filter(date__gte=form.cleaned_data['date'])
+            if form.cleaned_data['date_end']:
+                flows = flows.filter(date__lte=form.cleaned_data['date_end'])
+            if form.cleaned_data['counterparty']:
+                flows = flows.filter(counterparty=form.cleaned_data['counterparty'])
+
+        total = AccountFlowsView.get_total(flows)
+        return {
+            'flows': flows,
+            'total': total,
+        }
+
+    @staticmethod
+    def htmx_list(request):
+        context = {'object_list': CounterpartyFlowsView.flows_queryset(request)}
+
+        return render(request, 'registers/counterparty_flow_list.html', context=context)
+
+    @staticmethod
+    def get_total(flows):
+        total = []
+        inflow_sum = flows.aggregate(Sum("inflow_amount")).get('inflow_amount__sum', 0.00)
+        if inflow_sum is None:
+            inflow_sum = 0
+
+        outflow_sum = flows.aggregate(Sum("outflow_amount")).get('outflow_amount__sum', 0.00)
+        if outflow_sum is None:
+            outflow_sum = 0
+
+        total.append({'inflow_total': inflow_sum, 'outflow_total': outflow_sum})
+
+        return total
 
 
 class AccountFlowsView(ListView):
@@ -236,74 +319,108 @@ class AccountFlowsView(ListView):
         return total
 
 
-# class CfStatementView(ListView):
-#     model = Payments
-#     template_name = 'registers/cf_statement.html'
-#
-#     def get_context_data(self, *, object_list=None, **kwargs):
-#         ctx = {'object_list': CfStatementView.cf_statement_queryset(self.request),
-#                'form': CFStatementFilter()}
-#         return ctx
-#
-#     @staticmethod
-#     def cf_statement_queryset(request):
-#         receipts = Receipts.objects.all()
-#         payments = Payments.objects.all()
-#         form = CFStatementFilter(request.GET)
-#         if form.is_valid():
-#             if form.cleaned_data['activities']:
-#                 receipts = receipts.filter(item__income_group__type_cf__type=form.cleaned_data['activities'])
-#                 payments = payments.filter(item__expense_group__type_cf__type=form.cleaned_data['activities'])
-#             if form.cleaned_data['organization']:
-#                 receipts = receipts.filter(organization=form.cleaned_data['organization'])
-#                 payments = payments.filter(organization=form.cleaned_data['organization'])
-#             if form.cleaned_data['project']:
-#                 receipts = receipts.filter(project=form.cleaned_data['project'])
-#                 payments = payments.filter(project=form.cleaned_data['project'])
-#             if form.cleaned_data['date_start']:
-#                 receipts = receipts.filter(date__gte=form.cleaned_data['date_start'])
-#                 payments = payments.filter(date__gte=form.cleaned_data['date_start'])
-#             if form.cleaned_data['date_end']:
-#                 receipts = receipts.filter(date__lte=form.cleaned_data['date_end'])
-#                 payments = payments.filter(date__lte=form.cleaned_data['date_end'])
-#         # print(payments)
-#
-#         payments = payments.values('date', 'item__expense_group__expense_group', 'item__expense_item', 'amount')
-#         data_payments = pd.DataFrame(payments)
-#         data_payments = data_payments.rename(
-#             columns={'month': 'Month', 'item__expense_item': 'Items', 'item__expense_group__expense_group': 'Groups'})
-#         if not data_payments.empty:
-#             data_payments['amount'] = data_payments['amount'].apply(lambda x: x * -1)
-#
-#         receipts = receipts.values('date', 'item__income_group__income_group', 'item__income_item', 'amount')
-#         data_receipts = pd.DataFrame(receipts)
-#         data_receipts = data_receipts.rename(
-#             columns={'month': 'Month', 'item__income_item': 'Items', 'item__income_group__income_group': 'Groups'})
-#
-#         data = pd.concat([data_receipts, data_payments], ignore_index=True)
-#
-#         data['Month'] = pd.DatetimeIndex(data['date']).month
-#         data['amount'] = data['amount'].astype(int)
-#
-#         data = pd.pivot_table(data, index=['Items'], columns='Month', values='amount',
-#                               aggfunc='sum', margins=True, margins_name='Total', fill_value=0)
-#         items = data.index.tolist()
-#         data = data.values.tolist()
-#
-#         # data = list(zip(items, *data))
-#         # data = list(map(list, data))
-#
-#         return data
-#
-#     @staticmethod
-#     def htmx_list(request):
-#         context = {'object_list': CfStatementView.cf_statement_queryset(request)}
-#
-#         return render(request, 'registers/cf_statement_list.html', context=context)
+def CfStatementView(request):
+    return render(request, 'registers/cf_statement_list.html')
 
 
-def CfBudgetView(request):
-    return render(request, 'registers/cf_budget.html')
+class CfBudgetView(ListView):
+    model = PaymentDocumentPlan
+    template_name = 'registers/cf_budget.html'
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        ctx = {'object_list': CfBudgetView.cf_budget_queryset(self.request),
+               'form': CFStatementFilter()}
+        return ctx
+
+    @staticmethod
+    def cf_budget_queryset(request):
+        frequency = 'by_month'
+        organization = AccountSettings.load().organization()
+        date_start = datetime.datetime.today()
+        date_end = datetime.datetime.today()
+        project = ''
+
+        receipts = PaymentDocumentPlan.objects.filter(flow="Receipts")
+        fin_receipts_loans = receipts.filter(item__group='Loans')
+        invest_receipts_assets = receipts.filter(item__group='Fixed_assets')
+        invest_receipts_project = receipts.filter(item__group='New_projects')
+        oper_receipts_sales = receipts.filter(item__group='Sales_income')
+        oper_receipts_other = receipts.filter(item__group='Other')
+
+        payments = PaymentDocumentPlan.objects.filter(flow="Payments")
+        fin_payments_loans = payments.filter(item__group='Loans')
+        invest_payments_assets = payments.filter(item__group='Fixed_assets')
+        invest_payments_project = payments.filter(item__group='New_projects')
+        oper_payments_other = payments.filter(item__group='Other')
+        oper_payments_adm = payments.filter(item__group='Administrative_expenses')
+        oper_payments_direct = payments.filter(item__group='Direct_expenses')
+        oper_payment_commer = payments.filter(item__group='Commercial_expenses')
+        oper_payment_product = payments.filter(item__group='Production_costs')
+
+        form = CFStatementFilter(request.GET)
+        if form.is_valid():
+            # if form.cleaned_data['frequency']:
+            #     frequency = form.cleaned_data['frequency']
+            if form.cleaned_data['organization']:
+                organization = form.cleaned_data['organization']
+                fin_receipts_loans = fin_receipts_loans.filter(organization=form.cleaned_data['organization'])
+                fin_payments_loans = fin_payments_loans.filter(organization=form.cleaned_data['organization'])
+            if form.cleaned_data['project']:
+                fin_receipts_loans = fin_receipts_loans.filter(project=form.cleaned_data['project'])
+                fin_payments_loans = fin_payments_loans.filter(project=form.cleaned_data['project'])
+            if form.cleaned_data['date_start']:
+                date_start = form.cleaned_data['date_start']
+                fin_receipts_loans = fin_receipts_loans.filter(date__gte=form.cleaned_data['date_start'])
+                fin_payments_loans = fin_payments_loans.filter(date__gte=form.cleaned_data['date_start'])
+            if form.cleaned_data['date_end']:
+                date_end = form.cleaned_data['date_end']
+                fin_receipts_loans = fin_receipts_loans.filter(date__lte=form.cleaned_data['date_end'])
+                fin_payments_loans = fin_payments_loans.filter(date__lte=form.cleaned_data['date_end'])
+
+            data_fin_payments_loans = CfBudgetView.get_data_pivot(fin_payments_loans, frequency)
+
+            return {
+                    'today': datetime.datetime.today(),
+                    'organization': organization,
+                    'project': project,
+                    'date_start': date_start,
+                    'date_end': date_end,
+                    'measuring': 'kUSD',
+                    'fin_payments_loans': fin_payments_loans,
+                    'data_fin_payments_loans': data_fin_payments_loans,
+                    }
+
+    @staticmethod
+    def htmx_list(request):
+        context = {'object_list': CfStatementView.cf_budget_queryset(request)}
+
+        return render(request, 'registers/cf_budget.html', context=context)
+
+    @staticmethod
+    def get_data_pivot(doc, frequency):
+        if doc.first().flow == "Payments":
+            doc = doc.values('date', 'item__name', 'outflow_amount')
+            data = pd.DataFrame(doc)
+            data = data.rename(columns={'outflow_amount': 'amount', 'item__name': 'item'})
+        else:
+            doc = doc.values('date', 'item', 'inflow_amount')
+            data = pd.DataFrame(doc)
+            data = data.rename(columns={'inflow_amount': 'amount'})
+
+        data['amount'] = data['amount'].astype(int)
+
+        if frequency == 'by_month':
+            data['month'] = data['date'].apply(lambda x: f'{x.month}/{x.year}')
+
+
+        data_pivot = pd.pivot_table(data, index=['item'], columns='month', values='amount',
+                                    aggfunc='sum', margins=True, margins_name='Total', fill_value=0)
+        print(data_pivot)
+        items = data_pivot.index.tolist()
+        values = data_pivot.values.tolist()
+        data = list(zip(items, values))
+        print(data)
+        return data
 
 
 def PlanFactAnalysisView(request):
