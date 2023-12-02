@@ -5,7 +5,7 @@ from django.db.models import Sum, F, Value, ExpressionWrapper, Q, Subquery, Oute
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.views.generic import UpdateView, ListView, View
-from directory.models import PaymentAccount, CurrenciesRates, Counterparties, InitialDebts
+from directory.models import PaymentAccount, CurrenciesRates, Counterparties, InitialDebts, Currencies
 from payments.models import PaymentDocuments
 
 from registers.forms import AccountSettingsSet, AccountBalancesFilter, DashboardFilter
@@ -24,18 +24,22 @@ class DashboardView(View):
         form = DashboardFilter(request.GET)
         accounts = PaymentAccount.objects.all()
 
-        paydocs = PaymentDocuments.objects.all().annotate(
-            amount=F('inflow_amount') + F('outflow_amount'),
-            amount_convert=((F('inflow_amount') + F('outflow_amount')) /
-                            CurrenciesRates.objects.filter(
-                                accounting_currency=main_currency,
-                                currency=F('currency__id'), date__lte=datetime.now())
-                            .order_by('-date')[:1].first().rate
-                            )
-        )
+        paydocs = PaymentDocuments.objects.all().annotate(amount_convert=F('inflow_amount')+F('outflow_amount'))
+        #paydocs = []
+        rates = {main_currency.id: decimal.Decimal(1)}
+        for doc in paydocs:
+            if doc.currency_id not in rates:
+                rates[doc.currency_id] = (
+                    CurrenciesRates.objects.filter(
+                        accounting_currency=main_currency,
+                        currency=F('currency__id'),
+                        date__lte=datetime.now(),
+                    ).order_by('-date')[:1].first().rate
+                )
+            # doc.amount_convert=(doc.inflow_amount + doc.outflow_amount) / rates[doc.currency_id]
+            doc.amount_convert /= rates[doc.currency_id]
 
-        # for i in paydocs:
-        #     print(i.date, i.amount, i.currency, i.amount_convert)
+            print(doc.date, doc.inflow_amount, doc.outflow_amount, doc.currency, doc.amount_convert)
 
         paydocs_before = paydocs
 
@@ -326,6 +330,7 @@ class ChartsFinView(View):
 
     def get(self, request):
         form = DashboardFilter(request.GET)
+        currencies = Currencies.objects.all()
         agents = Counterparties.objects.all()
         initial_debts = InitialDebts.objects.all()
         paydocs = PaymentDocuments.objects.filter(item__activity='financing') \
@@ -354,7 +359,7 @@ class ChartsFinView(View):
 
         # credit_portfolio = self.get_loan_portfolio(agents, paydocs, initial_debts)
         # debit_portfolio = self.get_loan_portfolio(agents, paydocs, initial_debts)
-        loans_table = self.get_loan_tables(agents, paydocs, paydocs_before, initial_debts)
+        loans_table = self.get_loan_tables(agents, currencies, paydocs, paydocs_before, initial_debts)
 
         context = {
             'form': form,
@@ -368,54 +373,57 @@ class ChartsFinView(View):
         return render(request, 'registers/charts_fin.html', context=context)
 
     # chart loans_table
-    def get_loan_tables(self, agents, paydocs, paydocs_before, initial_debts):
+    def get_loan_tables(self, agents, currencies, paydocs, paydocs_before, initial_debts, ):
         loans_table = []
         print(initial_debts)
         for agent in agents:
-            initial_debt = initial_debts.filter(counterparty=agent)
-            print(initial_debt)
-            debit = initial_debt.aggregate(Sum("debit")).get('debit__sum', 0.00)
-            if debit is None:
-                debit = 0.0
-            credit = initial_debt.aggregate(Sum("credit")).get('credit__sum', 0.00)
-            if credit is None:
-                credit = 0.0
-            initial_debt = debit - credit
+            agent_name = str(agent)
+            initial_debts = initial_debts.filter(counterparty=agent)
+            paydocs = paydocs.filter(counterparty=agent)
+            paydocs_before = paydocs_before.filter(counterparty=agent)
+            for currency in currencies:
+                currency_name = str(currency)
+                initial_debt = initial_debts.filter(currency=currency)
+                debit = initial_debt.aggregate(Sum("debit")).get('debit__sum', 0.00)
+                if debit is None:
+                    debit = 0.0
+                credit = initial_debt.aggregate(Sum("credit")).get('credit__sum', 0.00)
+                if credit is None:
+                    credit = 0.0
+                initial_debt = debit - credit
 
-            # print(f'initial - {agent.counterparty}: {initial_debt}')
+                # print(f'initial - {agent.counterparty}: {initial_debt}')
 
-            receipts = paydocs.filter(counterparty=agent, flow='Receipts')
-            receipts_sum = receipts.aggregate(Sum("inflow_amount")).get('inflow_amount__sum', 0.00)
-            if receipts_sum is None:
-                receipts_sum = 0
+                receipts = paydocs.filter(flow='Receipts', currency=currency)
+                receipts_sum = receipts.aggregate(Sum("inflow_amount")).get('inflow_amount__sum', 0.00)
+                if receipts_sum is None:
+                    receipts_sum = 0
 
-            receipts_before = paydocs_before.filter(counterparty=agent, flow='Receipts')
-            receipts_before_sum = receipts_before.aggregate(Sum("inflow_amount")).get('inflow_amount__sum', 0.00)
-            if receipts_before_sum is None:
-                receipts_before_sum = 0
+                receipts_before = paydocs_before.filter(flow='Receipts', currency=currency)
+                receipts_before_sum = receipts_before.aggregate(Sum("inflow_amount")).get('inflow_amount__sum', 0.00)
+                if receipts_before_sum is None:
+                    receipts_before_sum = 0
 
-            payments = paydocs.filter(counterparty=agent, flow='Payments')
-            payments_sum = payments.aggregate(Sum("outflow_amount")).get('outflow_amount__sum', 0.00)
-            if payments_sum is None:
-                payments_sum = 0
+                payments = paydocs.filter(flow='Payments', currency=currency)
+                payments_sum = payments.aggregate(Sum("outflow_amount")).get('outflow_amount__sum', 0.00)
+                if payments_sum is None:
+                    payments_sum = 0
 
-            payments_before = paydocs_before.filter(counterparty=agent, flow='Payments')
-            payments_before_sum = payments_before.aggregate(Sum("outflow_amount")).get('outflow_amount__sum', 0.00)
-            if payments_before_sum is None:
-                payments_before_sum = 0
+                payments_before = paydocs_before.filter(flow='Payments', currency=currency)
+                payments_before_sum = payments_before.aggregate(Sum("outflow_amount")).get('outflow_amount__sum', 0.00)
+                if payments_before_sum is None:
+                    payments_before_sum = 0
 
-            start_balance = int(initial_debt) + int(receipts_before_sum) - int(payments_before_sum)
-            start_debit = abs(start_balance) if start_balance > 0 else 0
-            start_credit = abs(start_balance) if start_balance < 0 else 0
+                start_balance = int(initial_debt) + int(receipts_before_sum) - int(payments_before_sum)
+                start_debit = abs(start_balance) if start_balance > 0 else 0
+                start_credit = abs(start_balance) if start_balance < 0 else 0
 
-            final_balance = int(initial_debt) - int(payments_sum) + int(receipts_sum)
-            final_debit = abs(final_balance) if final_balance > 0 else 0
-            final_credit = abs(final_balance) if final_balance < 0 else 0
-            agent = str(agent.counterparty)
-            currency = 'RUB'
+                final_balance = int(initial_debt) - int(payments_sum) + int(receipts_sum)
+                final_debit = abs(final_balance) if final_balance > 0 else 0
+                final_credit = abs(final_balance) if final_balance < 0 else 0
 
-            loans_table.append([agent, int(start_debit), int(start_credit), int(receipts_sum),
-                                int(payments_sum), int(final_debit), int(final_credit), currency])
+                loans_table.append([agent_name, int(start_debit), int(start_credit), int(receipts_sum),
+                                    int(payments_sum), int(final_debit), int(final_credit), currency_name])
 
         print(f'table - {loans_table}')
         return loans_table
@@ -617,8 +625,8 @@ class ChartsFinView1(View):
 
     # get data payments and payments
     def get_total_cf(self, payments, receipts):
-        payments_dynamics = self.get_dynamics(payments)
         receipts_dynamics = self.get_dynamics(receipts)
+        payments_dynamics = self.get_dynamics(payments)
 
         total_cf = {k: [receipts_dynamics.get(k, 0), payments_dynamics.get(k, 0)]
                     for k in set(receipts_dynamics) | set(payments_dynamics)}
@@ -635,3 +643,6 @@ class ChartsFinView1(View):
             cf_dynamics.append([k, *v, v[0] - v[1]])
 
         return cf_dynamics
+
+
+
