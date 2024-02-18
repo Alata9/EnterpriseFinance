@@ -23,11 +23,30 @@ class DashboardView(View):
         main_currency = AccountSettings.load().currency()
         form = DashboardFilter(request.GET)
         accounts = PaymentAccount.objects.all()
+        paydocs = PaymentDocuments.objects.all()
 
-        paydocs = PaymentDocuments.objects.all().annotate(amount_convert=F('inflow_amount')+F('outflow_amount'))
-        #paydocs = []
+        if form.is_valid():
+            if form.cleaned_data['organization']:
+                accounts = accounts.filter(organization=form.cleaned_data['organization'])
+                paydocs = paydocs.filter(organization=form.cleaned_data['organization'])
+            if form.cleaned_data['date_start']:
+                paydocs = paydocs.filter(date__gte=form.cleaned_data['date_start'])
+            if form.cleaned_data['date_end']:
+                paydocs = paydocs.filter(date__lte=form.cleaned_data['date_end'])
+
+        paydocs_all = paydocs.annotate(amount_convert=(F('inflow_amount') + F('outflow_amount')))
+
         rates = {main_currency.id: decimal.Decimal(1)}
-        for doc in paydocs:
+
+        cf_table = {}
+        receipts_oper = 0.0
+        payments_oper = 0.0
+        receipts_invest = 0.0
+        payments_invest = 0.0
+        receipts_fin = 0.0
+        payments_fin = 0.0
+
+        for doc in paydocs_all:
             if doc.currency_id not in rates:
                 rates[doc.currency_id] = (
                     CurrenciesRates.objects.filter(
@@ -36,53 +55,78 @@ class DashboardView(View):
                         date__lte=datetime.now(),
                     ).order_by('-date')[:1].first().rate
                 )
-            # doc.amount_convert=(doc.inflow_amount + doc.outflow_amount) / rates[doc.currency_id]
             doc.amount_convert /= rates[doc.currency_id]
+            print(doc.outflow_amount, doc.currency)
+            print(rates[doc.currency_id])
+            print(doc.amount_convert)
+            if doc.flow == 'Receipts' and doc.item.activity == 'investing':
+                receipts_invest += float(doc.amount_convert)
+            if doc.flow == 'Payments' and doc.item.activity == 'investing':
+                payments_invest += float(doc.amount_convert)
+            if doc.flow == 'Receipts' and doc.item.activity == 'financing':
+                receipts_fin += float(doc.amount_convert)
+            if doc.flow == 'Payments' and doc.item.activity == 'financing':
+                payments_fin += float(doc.amount_convert)
+            if doc.flow == 'Receipts' and doc.item.activity == 'operating':
+                receipts_oper += float(doc.amount_convert)
+            if doc.flow == 'Payments' and doc.item.activity == 'operating':
+                payments_oper += float(doc.amount_convert)
+                # print(doc.amount_convert)
+                # print(payments_oper)
+        # print(receipts_fin, payments_fin)
+        # print(receipts_invest, payments_invest)
+            # amount = doc.inflow_amount + doc.outflow_amount
+            # print(f'before: {doc.organization}, {doc.date}, {amount}, {doc.currency}, {doc.amount_convert}')
+        receipts_total = receipts_oper + receipts_fin + receipts_invest
+        payments_total = payments_oper + payments_fin + payments_invest
 
-            print(doc.date, doc.inflow_amount, doc.outflow_amount, doc.currency, doc.amount_convert)
+        cf = receipts_total - payments_total
+        cf_oper = receipts_oper - payments_oper
+        cf_invest = receipts_invest - payments_invest
+        cf_fin = receipts_fin - payments_fin
 
-        paydocs_before = paydocs
+        cf_table['receipts'] = [int(receipts_oper), int(receipts_invest), int(receipts_fin),
+                                int(receipts_total)]
+        cf_table['payments'] = [int(payments_oper), int(payments_invest), int(payments_fin),
+                                int(payments_total)]
+        cf_table['cash flow'] = [int(cf_oper), int(cf_invest), int(cf_fin), int(cf)]
 
-        if form.is_valid():
-            if form.cleaned_data['organization']:
-                accounts = accounts.filter(organization=form.cleaned_data['organization'])
-                paydocs = paydocs.filter(organization=form.cleaned_data['organization'])
-                paydocs_before = paydocs_before.filter(organization=form.cleaned_data['organization'])
-            if form.cleaned_data['date_start']:
-                paydocs = paydocs.filter(date__gte=form.cleaned_data['date_start'])
-            if form.cleaned_data['date_end']:
-                paydocs = paydocs.filter(date__lte=form.cleaned_data['date_end'])
-                paydocs_before = paydocs_before.filter(date__lte=form.cleaned_data['date_start'])
+        cf_table = [[k, *v] for k, v in cf_table.items()]
 
-        cf_table, cf_bar = self.get_cf_table(paydocs)
+        cf_total = cf_table[2][1] + cf_table[2][2] + cf_table[2][3]
+
+        cf_bar = [['Operating', cf_table[2][1]], ['Investment', cf_table[2][2]],
+                  ['Financing', cf_table[2][3]], ['Total', cf_total]]
+
+        # cf_table, cf_bar = self.get_cf_table(paydocs_all)
 
         context = {
             'form': form,
             'today': datetime.today(),
             'main_currency': main_currency,
-            'account_balances': self.get_balances(accounts, paydocs_before),
+            'account_balances': self.get_balances(accounts, paydocs),
             'cf_table': cf_table,
             'cf_bar': cf_bar,
-            'cf_dynamics': self.get_cf_dynamics(paydocs),
+            'cf_dynamics': self.get_cf_dynamics(paydocs_all),
         }
 
         return render(request, 'registers/dashboard.html', context=context)
 
     # chart 1: account balances
     @staticmethod
-    def get_balances(accounts, paydocs_before):
+    def get_balances(accounts, paydocs_for_balance):
         account_balances = {}
         accounts = accounts.values_list('account', flat=True).distinct()
 
         for acc in accounts:
             currency = PaymentAccount.objects.filter(account=acc).values_list('currency__code', flat=True)[0]
 
-            receipts = paydocs_before.filter(account__account=acc)
+            receipts = paydocs_for_balance.filter(account__account=acc)
             receipts_sum = receipts.aggregate(Sum("inflow_amount")).get('inflow_amount__sum', 0.00)
             if receipts_sum is None:
                 receipts_sum = 0
 
-            payments = paydocs_before.filter(account__account=acc)
+            payments = paydocs_for_balance.filter(account__account=acc)
             payments_sum = payments.aggregate(Sum("outflow_amount")).get('outflow_amount__sum', 0.00)
             if payments_sum is None:
                 payments_sum = 0
@@ -95,24 +139,29 @@ class DashboardView(View):
         return account_balances
 
     @staticmethod
-    def get_amount_sum(paydocs):
-        amount_sum = paydocs.aggregate(Sum("amount_convert")).get('amount_convert__sum', 0.00)
+    def get_amount_sum(docs):
+        amount_sum = docs.aggregate(Sum("amount_convert")).get('amount_convert__sum', 0.00)
         if amount_sum is None:
             amount_sum = 0
         return amount_sum
 
     # chart 2, 3 cf table and cf bar
-    def get_cf_table(self, paydocs):
+    def get_cf_table(self, paydocs_all):
         cf_table = {}
+        # print(paydocs_all)
+        for doc in paydocs_all:
+            amount = doc.inflow_amount + doc.outflow_amount
+            # print(f'in cf_table: {doc.organization}, {doc.date}, {amount}, {doc.currency}, {doc.amount_convert}')
 
-        receipts_total = paydocs.filter(flow='Receipts')
-        payments_total = paydocs.filter(flow='Payments')
-        receipts_oper = paydocs.filter(item__activity='operating', flow='Receipts')
-        payments_oper = paydocs.filter(item__activity='operating', flow='Payments')
-        receipts_invest = paydocs.filter(item__activity='investing', flow='Receipts')
-        payments_invest = paydocs.filter(item__activity='investing', flow='Payments')
-        receipts_fin = paydocs.filter(item__activity='financing', flow='Receipts')
-        payments_fin = paydocs.filter(item__activity='financing', flow='Payments')
+
+        receipts_total = paydocs_all.filter(flow='Receipts')
+        payments_total = paydocs_all.filter(flow='Payments')
+        receipts_oper = paydocs_all.filter(item__activity='operating', flow='Receipts')
+        payments_oper = paydocs_all.filter(item__activity='operating', flow='Payments')
+        receipts_invest = paydocs_all.filter(item__activity='investing', flow='Receipts')
+        payments_invest = paydocs_all.filter(item__activity='investing', flow='Payments')
+        receipts_fin = paydocs_all.filter(item__activity='financing', flow='Receipts')
+        payments_fin = paydocs_all.filter(item__activity='financing', flow='Payments')
 
         receipts_sum = self.get_amount_sum(receipts_total)
         payments_sum = self.get_amount_sum(payments_total)
@@ -145,9 +194,9 @@ class DashboardView(View):
 
     # function for getting full data
     @staticmethod
-    def get_dynamics(paydocs):
+    def get_dynamics(paydocs_all):
         dynamics = {}
-        for paydoc in paydocs:
+        for paydoc in paydocs_all:
             month = str(paydoc.date.month).rjust(2, '0')
             period = f'{str(paydoc.date.year)}/{month}'
             amount = float(paydoc.amount_convert)
@@ -159,9 +208,9 @@ class DashboardView(View):
         return dynamics
 
     # get dynamics of receipts and payments
-    def get_cf_dynamics(self, paydocs):
-        payments = paydocs.filter(flow='Payments')
-        receipts = paydocs.filter(flow='Receipts')
+    def get_cf_dynamics(self, paydocs_all):
+        payments = paydocs_all.filter(flow='Payments')
+        receipts = paydocs_all.filter(flow='Receipts')
         receipts_dynamics = self.get_dynamics(receipts)
         for k, v in receipts_dynamics.items():
             receipts_dynamics[k] = int(v)
@@ -278,10 +327,10 @@ class ChartsOperView(View):
 
     # chart 5 Payments bar by group
     @staticmethod
-    def get_bar_payments(paydocs):
+    def get_bar_payments(paydocs_all):
         main_currency = AccountSettings.load().currency()
         data = {}
-        for i in paydocs:
+        for i in paydocs_all:
             rate = float(AccountBalancesView.get_rate(i.currency, main_currency))
             items_group = str(i.item.group)
             amount = float(i.inflow_amount) / rate if i.inflow_amount != 0 else float(i.outflow_amount) / rate
@@ -296,7 +345,7 @@ class ChartsOperView(View):
 
     # chart 6, 7 TOP-10 counterparty
     @staticmethod
-    def get_bar_top10(paydocs, flow):
+    def get_bar_top10(paydocs_all, flow):
         main_currency = AccountSettings.load().currency()
         if flow == 'Receipts':
             counterparties = Counterparties.objects.filter(customer=True).values_list('id', flat=True)
@@ -304,7 +353,7 @@ class ChartsOperView(View):
             counterparties = Counterparties.objects.filter(suppliers=True).values_list('id', flat=True)
         data = {}
         paydocs_sum = (
-            paydocs
+            paydocs_all
             .filter(counterparty__in=counterparties)
             .annotate(amount_sum=Sum("inflow_amount") + Sum("outflow_amount"))
             .order_by('counterparty', 'currency', 'amount_sum')
@@ -333,19 +382,19 @@ class ChartsFinView(View):
         currencies = Currencies.objects.all()
         agents = Counterparties.objects.all()
         initial_debts = InitialDebts.objects.all()
-        paydocs = PaymentDocuments.objects.filter(item__activity='financing') \
+        paydocs_all = PaymentDocuments.objects.filter(item__activity='financing') \
             .annotate(amount=F('inflow_amount') + F('outflow_amount'),
                       rate=Value(AccountBalancesView.get_rate(F('currecy__id'), self.main_currency)),
                       amount_convert=(F('amount') / F('rate')))
 
-        # for i in paydocs:
+        # for i in paydocs_all:
         #     print(i.date, i.currency, i.rate, i.amount_convert)
 
-        paydocs_before = paydocs
+        paydocs_before = paydocs_all
 
         if form.is_valid():
             if form.cleaned_data['organization']:
-                paydocs = paydocs.filter(organization=form.cleaned_data['organization'])
+                paydocs_all = paydocs.filter(organization=form.cleaned_data['organization'])
                 paydocs_before = paydocs_before.filter(organization=form.cleaned_data['organization'])
                 initial_debts = initial_debts.filter(organization=form.cleaned_data['organization'])
             if form.cleaned_data['date_start']:

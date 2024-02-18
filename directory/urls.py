@@ -15,22 +15,22 @@ from directory.views import (
 
 
 urlpatterns = [
-    path('organizations/', OrganizationsView, name='organizations'),
+    path('organizations/', OrganizationsView.as_view(), name='organizations'),
     path('organization/<int:pk>', OrganizationIdView, name='organization_id'),
     path('organization/add/', OrganizationAddView, name='organization_add'),
     path('<int:pk>/organization/delete/', OrganizationDeleteView.as_view(), name='organization_del'),
 
-    path('projects/', ProjectsView, name='projects'),
+    path('projects/', ProjectsView.as_view(), name='projects'),
     path('project/<int:pk>/', ProjectsIdView.as_view(), name='project_id'),
     path('project/add/', ProjectsIdView.as_view(), name='project_add'),
     path('<int:pk>/project/delete/', ProjectDeleteView.as_view(), name='project_del'),
 
-    path('payment_accounts/', PaymentAccountsView, name='payment_accounts'),
+    path('payment_accounts/', PaymentAccountsView.as_view(), name='payment_accounts'),
     path('payment_account/<int:pk>/', PaymentAccountIdView.as_view(), name='payment_account_id'),
     path('payment_account/add/', PaymentAccountIdView.as_view(), name='payment_account_add'),
     path('<int:pk>/payment_account/delete/', PaymentAccountDeleteView.as_view(), name='payment_account_del'),
 
-    path('counterparties/', CounterpartiesView, name='counterparties'),
+    path('counterparties/', CounterpartiesView.as_view(), name='counterparties'),
     path('counterparty/<int:pk>/', CounterpartyIdView.as_view(), name='counterparty_id'),
     path('counterparty/add/', CounterpartyIdView.as_view(), name='counterparty_add'),
     path('<int:pk>/counterparty/delete/', CounterpartyDeleteView.as_view(), name='counterparty_del'),
@@ -41,7 +41,7 @@ urlpatterns = [
     path('initial_debts/list', InitialDebtsView.htmx_list, name='initial_debts_list'),
     path('<int:pk>/initial_debt/delete/', InitialDebtDeleteView.as_view(), name='initial_debt_del'),
 
-    path('currencies/', CurrenciesView, name='currencies'),
+    path('currencies/', CurrenciesView.as_view(), name='currencies'),
     path('currency/<int:pk>/', CurrenciesIdView.as_view(), name='currency_id'),
     path('currency/add/', CurrenciesIdView.as_view(), name='currency_add'),
     path('<int:pk>/currency/delete/', CurrencyDeleteView.as_view(), name='currency_del'),
@@ -60,11 +60,11 @@ urlpatterns = [
     path('items/list', ItemsView.htmx_list, name='items_list'),
     path('<int:pk>/item/delete', ItemDeleteView.as_view(), name='item_del'),
 
-    path('expenses_items/', ExpensesItemView, name='expenses_items'),
+    path('expenses_items/', ExpensesItemView.as_view(), name='expenses_items'),
     path('expenses_item/<int:pk>/', ExpensesItemIdView.as_view(), name='expenses_item_id'),
     path('expenses_item/add/', ExpensesItemIdView.as_view(), name='expenses_item_add'),
 
-    path('income_items/', IncomeItemView, name='income_items'),
+    path('income_items/', IncomeItemView.as_view(), name='income_items'),
     path('income_item/<int:pk>', IncomeItemIdView.as_view(), name='income_item_id'),
     path('income_item/add', IncomeItemIdView.as_view(), name='income_item_add'),
 ]

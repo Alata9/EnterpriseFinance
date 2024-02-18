@@ -12,22 +12,21 @@ from registers.models import AccountSettings
 from directory.forms import (
     OrganizationAdd, ProjectAdd, PaymentAccountAdd,
     CurrencyAdd, CurrenciesRatesAdd, RatesFilter, RatesParser,
-    CounterpartyAdd, InitialDebtsAdd, InitialDebtsFilter, ItemAdd, ItemFilter, AnyItemAdd,
+    CounterpartyAdd, InitialDebtsAdd, InitialDebtsFilter,
+    ItemAdd, ItemFilter, AnyItemAdd,
 )
 from directory.models import (
-    Organization, Project, PaymentAccount,
-    Currencies, CurrenciesRates,
+    Organization, Project, PaymentAccount, Currencies, CurrenciesRates,
     Counterparties, InitialDebts, Items,
 )
 
 
 # Organizations-------------------------
 
-def OrganizationsView(request):
-    organizations = Organization.objects.all()
-    context = {'organizations': organizations}
-
-    return render(request, 'directory/organizations.html', context=context)
+class OrganizationsView(ListView):
+    template_name = 'directory/organizations.html'
+    model = Organization
+    context_object_name = 'organizations'
 
 
 def OrganizationAddView(request):
@@ -84,11 +83,10 @@ class OrganizationDeleteView(DeleteView):
 
 # Projects-------------------------------------------
 
-def ProjectsView(request):
-    projects = Project.objects.all()
-    context = {'projects': projects}
-
-    return render(request, 'directory/projects.html', context=context)
+class ProjectsView(ListView):
+    template_name = 'directory/projects.html'
+    model = Project
+    context_object_name = 'projects'
 
 
 class ProjectsIdView(UpdateView):
@@ -128,11 +126,10 @@ class ProjectDeleteView(DeleteView):
 
 # Payment_accounts----------------------------------
 
-def PaymentAccountsView(request):
-    accounts = PaymentAccount.objects.all()
-    context = {'accounts': accounts}
-
-    return render(request, 'directory/payment_accounts.html', context=context)
+class PaymentAccountsView(ListView):
+    template_name = 'directory/payment_accounts.html'
+    model = PaymentAccount
+    context_object_name = 'accounts'
 
 
 class PaymentAccountIdView(UpdateView):
@@ -172,10 +169,10 @@ class PaymentAccountDeleteView(DeleteView):
 
 # Counterparties-------------------
 
-def CounterpartiesView(request):
-    counterparties = Counterparties.objects.all()
-    context = {'counterparties': counterparties}
-    return render(request, 'directory/counterparties.html', context=context)
+class CounterpartiesView(ListView):
+    template_name = 'directory/counterparties.html'
+    model = Counterparties
+    context_object_name = 'counterparties'
 
 
 class CounterpartyIdView(UpdateView):
@@ -279,11 +276,10 @@ class InitialDebtDeleteView(DeleteView):
 
 # Currencies-----------------------
 
-def CurrenciesView(request):
-    currencies = Currencies.objects.all()
-    context = {'currencies': currencies}
-
-    return render(request, 'directory/currencies.html', context=context)
+class CurrenciesView(ListView):
+    template_name = 'directory/currencies.html'
+    model = Currencies
+    context_object_name = 'currencies'
 
 
 class CurrenciesIdView(UpdateView):
@@ -401,6 +397,84 @@ class RatesDeleteView(DeleteView):
 
 
 class RatesParsingView(UpdateView):
+    model = CurrenciesRates
+    template_name = 'directory/rates_parsing.html'
+    success_url = '/rates'
+    form_class = RatesParser
+
+    def get_object(self, queryset=None):
+        if 'pk' in self.kwargs:
+            return super().get_object(queryset)
+        cur = AccountSettings.load().currency()
+
+        return self.model(accounting_currency=cur, date=datetime.datetime.today())
+
+    def form_valid(self, form):
+        if not form.cleaned_data['accounting_currency'] \
+                or (not form.cleaned_data['currency'] or not form.cleaned_data['all_cur']):
+            return HttpResponse(status=400, reason="Add one other currency or import for all currencies")
+        
+        if not form.cleaned_data['all_cur']:
+            cur_1 = Currencies.objects.get(code=form.cleaned_data['accounting_currency'])
+            cur_2 = Currencies.objects.get(code=form.cleaned_data['currency'])
+
+            url = f'https://www.currency.me.uk/convert/{cur_1.code.lower()}/{cur_2.code.lower()}'
+
+            r = requests.get(url)
+            soup = bs(r.text, 'lxml')
+            rate = soup.find('span', {'class': 'mini ccyrate'}).text
+            parts = [x.strip() for x in rate.split('=')]
+            parts1 = [x.strip() for x in parts[1].split()]
+            cur_rate = float(parts1[0])
+
+            cur = self.model.objects.filter(accounting_currency=cur_1, currency=cur_2, date=datetime.datetime.today())[
+                  :1]
+            if not cur:
+                cur = [
+                    self.model(
+                        accounting_currency=cur_1,
+                        currency=cur_2,
+                        date=datetime.datetime.today(),
+                    )
+                ]
+
+            cur[0].rate = cur_rate
+            cur[0].save()
+
+            return HttpResponseRedirect(self.get_success_url())
+
+        else:
+            cur_1 = Currencies.objects.get(code=form.cleaned_data['accounting_currency'])
+            currencies = Currencies.objects.all().exclude(code=form.cleaned_data['accounting_currency'])
+
+            for cur_2 in currencies:
+                url = f'https://www.currency.me.uk/convert/{cur_1.code.lower()}/{cur_2.code.lower()}'
+
+                r = requests.get(url)
+                soup = bs(r.text, 'lxml')
+                rate = soup.find('span', {'class': 'mini ccyrate'}).text
+                parts = [x.strip() for x in rate.split('=')]
+                parts1 = [x.strip() for x in parts[1].split()]
+                cur_rate = float(parts1[0])
+
+                curr = self.model.objects.filter(accounting_currency=cur_1, currency=cur_2,
+                                                date=datetime.datetime.today())[:1]
+                if not curr:
+                    curr = [
+                        self.model(
+                            accounting_currency=cur_1,
+                            currency=cur_2,
+                            date=datetime.datetime.today(),
+                        )
+                    ]
+
+                curr[0].rate = cur_rate
+                curr[0].save()
+
+            return HttpResponseRedirect(self.get_success_url())
+
+
+class RatesParsingView1(UpdateView):
     model = CurrenciesRates
     template_name = 'directory/rates_parsing.html'
     success_url = '/rates'
@@ -529,12 +603,10 @@ class ItemDeleteView(DeleteView):
             return self.render_to_response(context)
 
 
-def ExpensesItemView(request):
-    expense_items = Items.objects.filter(flow='Payments')
-    context = {'expense_items': expense_items}
-
-
-    return render(request, 'directory/expenses_items.html', context=context)
+class ExpensesItemView(ListView):
+    template_name = 'directory/expenses_items.html'
+    queryset = Items.objects.filter(flow='Payments')
+    context_object_name = 'expense_items'
 
 
 class ExpensesItemIdView(UpdateView):
@@ -570,11 +642,10 @@ class ExpensesItemIdView(UpdateView):
             form.add_error(None, 'Data save error')
 
 
-def IncomeItemView(request):
-    income_items = Items.objects.filter(flow='Receipts')
-    context = {'income_items': income_items}
-
-    return render(request, 'directory/income_items.html', context=context)
+class IncomeItemView(ListView):
+    template_name = 'directory/income_items.html'
+    queryset = Items.objects.filter(flow='Receipts')
+    context_object_name = 'income_items'
 
 
 class IncomeItemIdView(UpdateView):

@@ -122,16 +122,21 @@ class RatesFilter(ModelForm):
 
 
 class RatesParser(ModelForm):
+    all_cur = forms.BooleanField()
     class Meta:
         model = CurrenciesRates
         fields = ['accounting_currency', 'currency']
+
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['accounting_currency'].empty_label = ''
         self.fields['accounting_currency'].required = True
         self.fields['currency'].empty_label = ''
-        self.fields['currency'].required = True
+        self.fields['currency'].required = False
+        self.fields['all_cur'].required = False
+        self.fields['all_cur'].label = 'Import for all currencies from account'
+
 
 
 class ItemAdd(ModelForm):                                           #edit - form for divided flow
